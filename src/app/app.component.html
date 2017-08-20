@@ -1,0 +1,14 @@
+<h1>{{title}}</h1>
+
+<ul class="hosts">
+  <li *ngFor="let host of hosts"
+	(click)="onSelect(host)"
+	[class.selected]="host === selectedHost"
+	[class.alive]="host.alive">
+  <span class="badge">{{host.client}}</span> {{host.name}}
+</li>
+</ul>
+
+<hr>
+
+<host-detail [host]="selectedHost"></host-detail>
