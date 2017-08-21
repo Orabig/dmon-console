@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   hosts: Host[];
   onSelect(host: Host): void {
 	  this.selectedHost = host;
+	  console.log("AppComponent::onSelect host.service=",host.services);
 	}
   ngOnInit(): void {
 	  this.getHosts();

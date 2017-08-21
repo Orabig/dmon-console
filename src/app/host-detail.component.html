@@ -5,4 +5,11 @@
 	  <label>Command line: </label>
 	  <input [(ngModel)]="host.cmdline" placeholder="Command line">
 	</div>
+	
+	<ul *ngIf="host.services">
+	<li *ngFor="let serviceName of objectKeys(host.services)">
+		<span>{{serviceName}}</span>
+    </li>
+	</ul>
+
 </div>

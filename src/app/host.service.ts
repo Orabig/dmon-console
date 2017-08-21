@@ -9,6 +9,7 @@ import 'rxjs/add/operator/combineLatest';
 import { CentrifugeService } from './centrifuge.service';
 
 import { Host } from './host';
+import { Service } from './service';
 
 // Le service qui fournit l'état de tous les hosts.
 // Il fournit un Observer capable de mettre à jour la liste des hosts
@@ -34,12 +35,12 @@ export class HostService {
 	
 	// Transforms the lists of hosts with the message received from Centrifugo.
 	private transformHosts(hosts, message): Host[] {
-		console.log("Transform message :: ", message);
+		// console.log("Transform message :: ", message);
 		var onHost = message.data['host-id'];
 		var found = false;
 		hosts.forEach(host => {
 			 if (host.name === onHost) {
-				console.log("applyMessage :: ", host, message);
+				// console.log("applyMessage :: ", host, message);
 				HostService.applyMessage( host, message );
 				found = true;
 				}
@@ -55,13 +56,22 @@ export class HostService {
 		return hosts;
 	}
 	
-	private static applyMessage(host, message): void {
-		host.count |=0;
-		host.count ++;
+	private static applyMessage(host: Host, message): void {	
 		if (message.data['client-id']){
 			host.client = message.data['client-id'];
 		} else {
-			host.client = false;
+			host.client = undefined;
+		}
+		// console.log(message);
+		if (message.data['t']=='SERVICE'){
+			var serviceName = message.data['cmdId'];
+			var service = new Service();
+			service.name=serviceName;
+			if (!host.services) {
+				host.services = [];
+			}
+			host.services[serviceName] = service;
+			host.services = Object.assign( host.services );
 		}
 	}
   

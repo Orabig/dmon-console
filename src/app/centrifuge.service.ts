@@ -35,7 +35,7 @@ export class CentrifugeService {
 		var subscription = this.handler.subscribe("$Group_1234abcd");
 			
 		subscription.on("message", function(msg) {
-				console.log( msg );
+				// console.log( msg );
 			});
 		subscription.on("subscribe", function(data) {
 				console.log("Subscribed to :");
