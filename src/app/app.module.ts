@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { HostDetailComponent } from './host-detail.component';
+import { CentrifugeService } from './centrifuge.service';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,7 @@ import { HostDetailComponent } from './host-detail.component';
     FormsModule,
     HttpModule
   ],
-  providers: [],
+  providers: [CentrifugeService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

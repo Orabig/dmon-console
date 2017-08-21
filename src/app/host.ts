@@ -4,4 +4,5 @@ export class Host {
   client: string;
   alive: boolean;
   cmdline: string;
+  count: number;
 }

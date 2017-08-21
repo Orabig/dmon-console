@@ -1,24 +1,72 @@
 import { Injectable } from '@angular/core';
 import { Headers, Http } from '@angular/http';
 
-import 'rxjs/add/operator/toPromise';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/combineLatest';
+
+import { CentrifugeService } from './centrifuge.service';
 
 import { Host } from './host';
+
+// Le service qui fournit l'état de tous les hosts.
+// Il fournit un Observer capable de mettre à jour la liste des hosts
+// La valeur initiale est fournie par un appel à l'API (get-group-members),
+// puis les valeurs suivantes s'appuient sur le service Centrifuge qui
+// mets à jours les hosts
 
 @Injectable()
 export class HostService {
   private apiURL = 'http://centrifugo.crocoware.com:9191/api/get-group-members.php';
-  constructor(private http: Http) {}
+  constructor(private http: Http,
+			  private centrifugeService: CentrifugeService) {}
   
-	getHosts(): Promise<Host[]> {
+	getHosts(): Observable<Host[]> {
 		return this.http.get(this.apiURL)
-		  .toPromise()
-		  .then(response => response.json() as Host[])
+		  .map(response => response.json() as Host[])
+		  
+		  // A l'observable qui émet la valeur initiale, on combine 
+		  // celui qui modifie ces valeurs
+		  .combineLatest( this.centrifugeService.getMessages() , this.transformHosts )
 		  .catch(this.handleError);
 	}
+	
+	// Transforms the lists of hosts with the message received from Centrifugo.
+	private transformHosts(hosts, message): Host[] {
+		console.log("Transform message :: ", message);
+		var onHost = message.data['host-id'];
+		var found = false;
+		hosts.forEach(host => {
+			 if (host.name === onHost) {
+				console.log("applyMessage :: ", host, message);
+				HostService.applyMessage( host, message );
+				found = true;
+				}
+			}
+		);
+		if (! found) {
+			var host=new Host();
+			host.name = onHost;
+			HostService.applyMessage( host, message );
+			host.client="toto";
+			hosts += host;
+		}
+		return hosts;
+	}
+	
+	private static applyMessage(host, message): void {
+		host.count |=0;
+		host.count ++;
+		if (message.data['client-id']){
+			host.client = message.data['client-id'];
+		} else {
+			host.client = false;
+		}
+	}
   
-	private handleError(error: any): Promise<any> {
+	private handleError(error: any): Observable<any> {
 		console.error('An error occurred', error); // for demo purposes only
-		return Promise.reject(error.message || error);
+		return Observable.throw(error.message || error);
 	}
 }
