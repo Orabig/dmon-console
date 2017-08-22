@@ -11,6 +11,7 @@ import { HostService } from './host.service';
 
 export class AppComponent implements OnInit {
   constructor(private hostService: HostService) { }
+    objectKeys = Object.keys; // Used in template
   title = 'DMon console';
   selectedHost: Host;
   hosts: Host[];
