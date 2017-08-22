@@ -5,12 +5,15 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { HostDetailComponent } from './host-detail.component';
+import { ServiceStateComponent } from './service-state.component';
+
 import { CentrifugeService } from './centrifuge.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-	HostDetailComponent
+	HostDetailComponent,
+	ServiceStateComponent
   ],
   imports: [
     BrowserModule,

@@ -7,9 +7,9 @@
 	</div>
 	
 	<ul *ngIf="host.services">
-	<li *ngFor="let serviceName of objectKeys(host.services)">
-		<span>{{serviceName}}</span>
-    </li>
+	<service-state *ngFor="let serviceName of objectKeys(host.services)"
+		[service]="host.services[serviceName]">
+    </service-state>
 	</ul>
 
 </div>

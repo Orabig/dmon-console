@@ -62,11 +62,19 @@ export class HostService {
 		} else {
 			host.client = undefined;
 		}
-		// console.log(message);
 		if (message.data['t']=='SERVICE'){
+			// console.log(message);
 			var serviceName = message.data['cmdId'];
 			var service = new Service();
 			service.name=serviceName;
+			service.cmdLine=message.data['cmdline'];
+			service.last_output=message.data['stdout'][0];
+			if (service.last_output) {
+				var split = service.last_output.split("|");
+				service.last_output = split[0];
+				service.last_perfdata = split[1];
+				service.last_time = new Date();
+			}
 			if (!host.services) {
 				host.services = [];
 			}

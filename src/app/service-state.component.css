@@ -1,0 +1,19 @@
+.name {
+    background-color: #46d046;
+    padding: 0 16px 1px 16px;
+    border-radius: 8px;
+    margin-left: -12px;
+}
+
+.header {
+	background-color: #ddd;
+    margin-left: 12px;
+}
+
+.output pre {
+	margin-top: 0px;
+    background-color: #384038;
+    color: #dedccc;
+    padding: 0 1em;
+    border-radius: 3px;
+}
