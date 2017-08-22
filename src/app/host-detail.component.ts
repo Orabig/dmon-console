@@ -16,4 +16,16 @@ export class HostDetailComponent {
 	sendCommand():void {
 		this.sendCommandService.sendCommandLine(this.host);
 	}
+	
+	selectCmdline(cmdline: string):void {
+		this.host.cmdline = cmdline;
+		this.sendCommand();
+	}
+	
+	registerCmdline():void {
+		// ASIS : le nom du service est calculé à partir du plugins
+		// TOBE : ...
+		var serviceName='toto';
+		this.sendCommandService.registerService(this.host,serviceName,this.host.cmdline);
+	}
 }

@@ -51,4 +51,17 @@ export class SendCommandService {
 		).subscribe(response=>console.log(response));
   }
 	
+  registerService(host: Host, name: string, cmdline: string): void {
+		this.postJson(this.baseApiURL + "send-order.php",
+			{
+				t: 'CMD',
+				// 'id': cmdId,
+				'client-id': host.client, 
+				'host-id': host.name,
+				cmd: 'REGISTER',
+				args:  {cmdline: cmdline}
+			}
+		).subscribe(response=>console.log(response));
+  }
+	
 }

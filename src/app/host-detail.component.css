@@ -17,3 +17,23 @@ pre.stderr {
 	padding:0;
 	margin:0;
 }
+
+.cmdline {
+	margin-bottom: 4px;
+}
+
+label {
+	float:left;
+	display:block;
+}
+button {
+	float:right;
+}
+span.fill {
+	display:block;
+    overflow: hidden;
+    padding-right:10px;
+}
+input {
+	width:100%;
+}

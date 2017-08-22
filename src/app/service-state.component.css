@@ -22,3 +22,7 @@ button.unregister {
 	float:right;
 	padding: 0 6px;
 }
+button.select-cmdline {
+	float:right;
+	padding: 0 6px;
+}

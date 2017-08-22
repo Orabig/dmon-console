@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { SendCommandService } from './send-command.service';
 
@@ -15,6 +15,12 @@ export class ServiceStateComponent {
 	@Input() host: Host;
 	@Input() service: Service;
 	
+	// Event sent when the users selects the command line of this service
+	@Output() cmdlineSelect = new EventEmitter<string>();
+	
+	selectCmdline():void {
+		this.cmdlineSelect.emit(this.service.cmdLine);
+	}
 	unRegister():void {
 		this.sendCommandService.sendUnregister(this.host, this.service);
 	}
