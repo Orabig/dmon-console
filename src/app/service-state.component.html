@@ -1,7 +1,7 @@
 <div *ngIf="service">
 <div class="header">
 	<span class="name">{{service.name}}</span>
-	: <span class="cmdline">&#x201c;{{service.cmdLine}}&#x201d;</span>
+	: <span class="cmdline">&#x201c;{{service.cmdLine}}&#x201d;</span><button class="unregister" (click)="unRegister()">X</button>
 </div>
 <div class="output"><pre>[{{service.last_time | date:'HH:mm:ss'}}] {{service.last_output}}</pre></div>
 </div>
