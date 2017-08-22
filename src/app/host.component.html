@@ -1,0 +1,3 @@
+<li [class.alive]="host.alive">
+    <span class="badge">{{host.client}}</span> {{host.name}} <span class="services">({{host.services ? objectKeys(host.services).length : '-'}})</span>
+</li>

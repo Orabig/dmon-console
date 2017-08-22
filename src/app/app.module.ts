@@ -4,6 +4,7 @@ import { FormsModule }   from '@angular/forms'; // <-- NgModel
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
+import { HostComponent } from './host.component';
 import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
@@ -13,6 +14,7 @@ import { SendCommandService } from './send-command.service';
 @NgModule({
   declarations: [
     AppComponent,
+	HostComponent,
 	HostDetailComponent,
 	ServiceStateComponent
   ],

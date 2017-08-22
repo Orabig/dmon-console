@@ -1,0 +1,53 @@
+ li {
+    cursor: pointer;
+    position: relative;
+    background-color: #EEE;
+    margin: .5em;
+    padding: .3em 0;
+    height: 1.6em;
+    border-radius: 14px;
+  }
+  
+li.selected:hover {
+    background-color: #BBD8DC !important;
+	color: #000 !important;
+  }
+  
+li:hover {
+    color: #607D8B;
+    background-color: #DDD;
+    left: .3em;
+  }
+  
+.selected {
+    background-color: #CFD8DC !important;
+    left: .3em;
+	font-weight: bold;
+  }
+  
+.alive .badge {
+    background-color: #47cc5a;
+    color: #000;
+  }
+  
+.badge {
+    display: inline-block;
+	width: 17em;
+	font-weight: normal !important;
+    font-size: small;
+    color: white;
+    padding: 0.8em 0.7em 0 0.7em;
+    background-color: #607D8B;
+    line-height: 1em;
+    position: relative;
+    left: -1px;
+    top: -4px;
+    height: 1.8em;
+    margin-right: .8em;
+    border-radius: 8px 0 0 8px;
+  }
+  
+.services {
+	  float: right;
+	  margin:10px;
+  }

@@ -1,20 +1,21 @@
 <div *ngIf="host">
-	<h2>{{host.name}} details!</h2>
-	<div><label>client: </label>{{host.client}}</div>
+	<h2>{{host.name}}</h2>
+	
 	<div class="cmdline">
 	  <button (click)="registerCmdline()">Register</button>
 	  <span class="fill"><input [(ngModel)]="host.cmdline" (keyup.enter)="sendCommand()" placeholder="Command line"></span>
 	</div>
+	
 	<div>
 	  <pre class="stdout">{{host.last_stdout}}</pre>
 	  <pre class="stderr">{{host.last_stderr}}</pre>
 	</div>
 	
 	<ul *ngIf="host.services">
-	<service-state class="service-state" *ngFor="let serviceName of objectKeys(host.services)"
-		[host]="host" [service]="host.services[serviceName]"
-		(cmdlineSelect)="selectCmdline($event)" >
-    </service-state>
+		<service-state class="service-state" *ngFor="let serviceName of objectKeys(host.services)"
+			[host]="host" [service]="host.services[serviceName]"
+			(cmdlineSelect)="selectCmdline($event)" >
+		</service-state>
 	</ul>
 
 </div>
