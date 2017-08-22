@@ -4,6 +4,9 @@ export class Host {
   name: string;
   client: string;
   alive: boolean;
-  cmdline: string;
   services: Service[];
+  cmdline: string;
+  last_stdout: string;
+  last_stderr: string;
+  last_time: Date;
 }

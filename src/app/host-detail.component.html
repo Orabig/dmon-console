@@ -3,11 +3,13 @@
 	<div><label>client: </label>{{host.client}}</div>
 	<div>
 	  <label>Command line: </label>
-	  <input [(ngModel)]="host.cmdline" placeholder="Command line">
+	  <input [(ngModel)]="host.cmdline" (keyup.enter)="sendCommand()" placeholder="Command line">
+	  <pre class="stdout">{{host.last_stdout}}</pre>
+	  <pre class="stderr">{{host.last_stderr}}</pre>
 	</div>
 	
 	<ul *ngIf="host.services">
-	<service-state *ngFor="let serviceName of objectKeys(host.services)"
+	<service-state class="service-state" *ngFor="let serviceName of objectKeys(host.services)"
 		[service]="host.services[serviceName]">
     </service-state>
 	</ul>

@@ -1,0 +1,19 @@
+pre.stdout {
+	margin-top: 0px;
+    background-color: #384038;
+    color: #dedccc;
+    padding: 0 1em;
+    border-radius: 3px;
+}
+pre.stderr {
+	margin-top: 0px;
+    background-color: #384038;
+    color: #ee6666;
+    padding: 0 1em;
+    border-radius: 3px;
+}
+
+.service-state {
+	padding:0;
+	margin:0;
+}

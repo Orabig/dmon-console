@@ -22,6 +22,6 @@ export class AppComponent implements OnInit {
 	  this.getHosts();
 	}
   getHosts(): void {
-	  this.hostService.getHosts().subscribe(hosts => this.hosts = hosts);
+	  this.hostService.getHosts("$Group_1234abcd").subscribe(hosts => this.hosts = hosts);
 	}
 }

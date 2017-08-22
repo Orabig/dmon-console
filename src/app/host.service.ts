@@ -23,13 +23,13 @@ export class HostService {
   constructor(private http: Http,
 			  private centrifugeService: CentrifugeService) {}
   
-	getHosts(): Observable<Host[]> {
+	getHosts(channel: string): Observable<Host[]> {
 		return this.http.get(this.apiURL)
 		  .map(response => response.json() as Host[])
 		  
 		  // A l'observable qui émet la valeur initiale, on combine 
 		  // celui qui modifie ces valeurs
-		  .combineLatest( this.centrifugeService.getMessages() , this.transformHosts )
+		  .combineLatest( this.centrifugeService.getMessages(channel) , this.transformHosts )
 		  .catch(this.handleError);
 	}
 	
@@ -80,6 +80,24 @@ export class HostService {
 			}
 			host.services[serviceName] = service;
 			host.services = Object.assign( host.services );
+		} else if (message.data['t']=='ACK'){
+			// ASIS : ACK ignored for now
+			// TODO : check ACK
+		} else if (message.data['t']=='RESULT'){
+			console.log(message);
+			host.last_stdout = message.data['stdout'].join('\n');
+			host.last_stderr = message.data['stderr'].join('\n');
+			if (! message.data['terminated']) {
+				host.last_stdout += "...";
+			}
+			if (host.last_stderr === "" && host.last_stdout === "") {
+				host.last_stderr="(no output)";
+			}
+		} else if (message.data['t']=='ALIVE'){
+			// ASIS : ALIVE ignored for now
+			// TODO : check ALIVE
+		} else {
+			console.log("Unknown message type : " + message.data['t']);
 		}
 	}
   

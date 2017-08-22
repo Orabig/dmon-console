@@ -8,6 +8,7 @@ import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
 import { CentrifugeService } from './centrifuge.service';
+import { SendCommandService } from './send-command.service';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,7 @@ import { CentrifugeService } from './centrifuge.service';
     FormsModule,
     HttpModule
   ],
-  providers: [CentrifugeService],
+  providers: [CentrifugeService,SendCommandService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

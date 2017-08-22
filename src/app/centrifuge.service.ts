@@ -9,8 +9,8 @@ export class CentrifugeService {
   private handler: any;
   private wsURL = 'http://centrifugo.crocoware.com:8000/connection';
   private observable: Observable<any>;
-  getMessages(): Observable<any> {
-  if (!this.observable) {
+  getMessages(channel: string): Observable<any> {
+	if (!this.observable) {
 		this.handler = new Centrifuge({
 			url: this.wsURL,
 			user: 'First_User_12345',
@@ -32,18 +32,13 @@ export class CentrifugeService {
 				console.log( error );
 			});
 
-		var subscription = this.handler.subscribe("$Group_1234abcd");
+		var subscription = this.handler.subscribe(channel);
 			
-		subscription.on("message", function(msg) {
-				// console.log( msg );
-			});
 		subscription.on("subscribe", function(data) {
-				console.log("Subscribed to :");
-				console.log( data );
+				console.log("Subscribed to '"+channel+"' :", data);
 			});
 		subscription.on("error", function(error) {
-				console.log("Sub error Centrifugo :");
-				console.log( error );
+				console.log("Centrifugo Subscribe error :", error);
 			});
 			
 		this.handler.connect();
