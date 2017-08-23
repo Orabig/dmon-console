@@ -1,5 +1,5 @@
-<div *ngIf="host">
 	<h2>{{host.name}}</h2>
+	Last update = {{ host.last_message_time | date:'HH:mm:ss' }}
 	
 	<div class="cmdline">
 	  <button (click)="registerCmdline()">Register</button>
@@ -17,5 +17,3 @@
 			(cmdlineSelect)="selectCmdline($event)" >
 		</service-state>
 	</ul>
-
-</div>

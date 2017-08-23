@@ -5,6 +5,9 @@ export class Host {
   client: string;
   alive: boolean;
   services: Service[];
+  
+  // Transcient properties
+  last_message_time: Date;
   cmdline: string;
   last_stdout: string;
   last_stderr: string;

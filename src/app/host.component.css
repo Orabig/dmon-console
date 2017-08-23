@@ -8,7 +8,7 @@
     border-radius: 14px;
   }
   
-li.selected:hover {
+:host(.selected) li:hover {
     background-color: #BBD8DC !important;
 	color: #000 !important;
   }
@@ -19,9 +19,9 @@ li:hover {
     left: .3em;
   }
   
-.selected {
+:host(.selected) li {
     background-color: #CFD8DC !important;
-    left: .3em;
+    left: .8em;
 	font-weight: bold;
   }
   

@@ -1,5 +1,3 @@
-<h1>{{title}}</h1>
-
 <div [class]="connectionState">{{connectionState}}</div>
 
 <ul class="hosts">
@@ -9,7 +7,10 @@
 	[class.selected]="host === selectedHost">
   </host>
 </ul>
+<div class="messages">
+<ul><li>A</li><li>B</li></ul>
+</div>
 
-<hr>
-
-<host-detail [host]="selectedHost"></host-detail>
+<div class="detail" *ngIf="selectedHost">
+	<host-detail [host]="selectedHost"></host-detail>
+</div>

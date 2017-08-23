@@ -14,9 +14,7 @@ export class AppComponent implements OnInit {
 	
   constructor(private hostService: HostService,
 				private centrifugeService: CentrifugeService) { }
-  
-  title = 'DMon console';
-  
+    
   selectedHost: Host;
   hosts: Host[];
   

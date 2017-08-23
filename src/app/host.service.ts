@@ -57,7 +57,8 @@ export class HostService {
 		return hosts;
 	}
 	
-	private static applyMessage(host: Host, message): void {	
+	private static applyMessage(host: Host, message): void {
+		host.last_message_time = new Date();
 		if (message.data['client-id']){
 			host.client = message.data['client-id'];
 			host.alive = true;
