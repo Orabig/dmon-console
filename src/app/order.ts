@@ -17,13 +17,13 @@ export class Order {
 	public static readonly STATE_KILLED     = 'killed';
 		
 	state: string;
-	id: string;
+	cmdId: string;
 	t: string;
 	
 	public static buildOrderLoad(type: string, destination: Host, load: any) {
 		return Object.assign( {
 			t: type,
-			id: guid(),
+			cmdId: guid(),
 			'client-id': destination.client, 
 			'host-id': destination.name
 		}, load);

@@ -25,7 +25,13 @@ export class HostDetailComponent {
 	registerCmdline():void {
 		// ASIS : le nom du service est calculé à partir du plugins
 		// TOBE : ...
-		var serviceName='toto';
-		this.sendCommandService.registerService(this.host,serviceName,this.host.cmdline);
+		var serviceId=s4();
+		this.sendCommandService.registerService(this.host,serviceId,this.host.cmdline);
 	}
 }
+
+ function s4() {
+	return Math.floor((1 + Math.random()) * 0x10000)
+	  .toString(16)
+	  .substring(1);
+  }

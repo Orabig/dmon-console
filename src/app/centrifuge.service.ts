@@ -34,6 +34,7 @@ export class CentrifugeService {
 		}).on('error', function(error) {
 			console.log("Error Centrifugo :",error );
 			self.stateEmitter.emit({state:'error',info:error});
+			// TODO : je suis arrivé ici après avoir coupé le PC. Pas d'affichage. Fix req
 		});
 		
 	this.handler.connect();
@@ -51,6 +52,7 @@ export class CentrifugeService {
 		});
 	subscription.on("error", function(error) {
 			console.log("Centrifugo Subscribe error :", error);
+			// TODO : je suis arrivé ici après avoir coupé le PC. Pas d'affichage. Fix req
 		});
 	return Observable.fromEvent(subscription, 'message');
   }

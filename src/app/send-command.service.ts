@@ -47,16 +47,16 @@ export class SendCommandService {
   sendUnregister(host: Host, service: Service): void {
 		var orderLoad = Order.buildOrderLoad('CMD', host, {		
 			cmd: 'UNREGISTER',
-			args: {serviceId: service.name}
+			args: {serviceId: service.id}
 		});
 		this.orderEmitter.emit( orderLoad );
 		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe(response=>console.log(response));
   }
 	
-  registerService(host: Host, name: string, cmdline: string): void {
+  registerService(host: Host, serviceId: string, cmdline: string): void {
 		var orderLoad = Order.buildOrderLoad('CMD', host, {		
 			cmd: 'REGISTER',
-			args: {cmdline: cmdline}
+			args: {id:serviceId, cmdline: cmdline}
 		});
 		this.orderEmitter.emit( orderLoad );
 		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe(response=>console.log(response));

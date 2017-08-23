@@ -22,20 +22,17 @@ export class OrdersComponent implements OnInit {
 	ngOnInit(): void {
 	  this.sendCommandService.getOrders().subscribe( load => this.processOrder(load) );
 	  this.hostService.getMessages().subscribe( load => {  
-		if(load.data.cmdId){
-			load.id=load.data.cmdId; // Bon ici, c'est un peu la merde, il faut que je modifie le client
-		} else {
-			load.id=load.data.id;
-		}
 		this.processOrder(load)
 		} );
 	}
 	
 	processOrder(load: any):void {
-		var id = load.id;
+		// Orders sent have load.cmdId defined.
+		// Messages received from the client have cmdId in their data part 
+		var cmdId = load.cmdId || load.data.cmdId;
 		if (load.data && (load.data.t==='ALIVE' || load.data.t==='SERVICE'))return;
-		if (id) {
-			var exist = this.orders.filter(o => o.id===id);
+		if (cmdId) {
+			var exist = this.orders.filter(o => o.cmdId===cmdId);
 			if (exist.length>0) {
 				OrdersComponent.processExistingOrderLoad(exist[0], load);
 			} else {
@@ -48,7 +45,7 @@ export class OrdersComponent implements OnInit {
 	}
 	
 	static processExistingOrderLoad(order: Order,load: any):void {
-		if (load.data.t==='RESULT'){
+		if (load.data.t==='RESULT' && order['cmd']==='RUN'){
 			if (load.data.terminated) {
 				if (load.data.killed) {
 					order.state = Order.STATE_KILLED;
@@ -58,10 +55,14 @@ export class OrdersComponent implements OnInit {
 			} else {
 				order.state = Order.STATE_PROCESSING;
 			}
+		} else if (load.data.t==='UNREGISTERED' && order['cmd']==='UNREGISTER'){
+			order.state = Order.STATE_DONE;
+		} else if (load.data.t==='REGISTERED' && order['cmd']==='REGISTER'){
+			order.state = Order.STATE_DONE;
 		} else if (load.data.t==='ACK'){
 			order.state = Order.STATE_ACK;
 		} else {
-			console.log("orders.component.ts :: unknown state");
+			console.log("orders.component.ts :: unknown state ORDER=",order,"       load=",load);
 			order.state = "unknown";
 		}
 	}

@@ -78,10 +78,9 @@ export class HostService {
 			host.alive = false;
 		}
 		if (message.data['t']=='SERVICE'){
-			// console.log(message);
-			var serviceName = message.data['cmdId'];
+			var serviceId = message.data['id'];
 			var service = new Service();
-			service.name=serviceName;
+			service.id=serviceId;
 			service.cmdLine=message.data['cmdline'];
 			service.last_output=message.data['stdout'][0];
 			if (service.last_output) {
@@ -93,7 +92,7 @@ export class HostService {
 			if (!host.services) {
 				host.services = [];
 			}
-			host.services[serviceName] = service;
+			host.services[serviceId] = service;
 			host.services = Object.assign( host.services );
 		} else if (message.data['t']=='ACK'){
 			// ASIS : ACK ignored for now
@@ -114,14 +113,21 @@ export class HostService {
 		} else if (message.data['t']=='ALIVE'){
 			// ASIS : ALIVE ignored for now
 			// TODO : check ALIVE
-		} else if (message.data['t']=='UNREGISTERED'){ // TODO TODO TODO TODO TODO TODO Erreur coté client. le NOM est dans ID, et le CMDID est oublié.
+		} else if (message.data['t']=='UNREGISTERED'){
 			HostService.messageEmitter.emit(message);
 			console.log(message);
 			// Tell the host that the service has been removed
 			var id = message.data['id'];
 			Host.removeServiceFrom(host,id);
+		} else if (message.data['t']=='REGISTERED'){ 
+			HostService.messageEmitter.emit(message);
+			// Tell the host that the service should be added
+			var id = message.data['id'];
+			var cmdline = message.data['cmdline'];
+			console.log(message);
+			Host.addServiceTo(host,id,cmdline);
 		} else {
-			console.log("Unknown message type : " + message.data['t']);
+			console.log("Unknown message type : " + message.data['t'],message);
 		}
 	}
   

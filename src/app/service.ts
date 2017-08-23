@@ -1,6 +1,6 @@
 
 export class Service {
-  name: string;
+  id: string;
   cmdLine: string;
   last_output: string;
   last_perfdata: string;
