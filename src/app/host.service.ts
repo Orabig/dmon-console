@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { Headers, Http } from '@angular/http';
 
 import {Observable} from 'rxjs/Observable';
@@ -19,10 +19,20 @@ import { Service } from './service';
 
 @Injectable()
 export class HostService {
+  // TODO : reutiliser le service send-command pour envoyer cette requete
   private apiURL = 'http://centrifugo.crocoware.com:9191/api/get-group-members.php';
   constructor(private http: Http,
-			  private centrifugeService: CentrifugeService) {}
+			  private centrifugeService: CentrifugeService) { }
   
+    // Will emit any received message
+	// TODO : Refaire TOUT le modele : ce champ ne devrait pas être static, mais il devient undefined sans explication quand il passe en instance.
+	// Pour le moment, ca marche comme ça
+    static messageEmitter = new EventEmitter<any>();
+
+	getMessages(): Observable<any> {
+	  return HostService.messageEmitter;
+	}
+
 	getHosts(channel: string): Observable<Host[]> {
 		return this.http.get(this.apiURL)
 		  .map(response => response.json() as Host[])
@@ -35,6 +45,7 @@ export class HostService {
 	
 	// Transforms the lists of hosts with the message received from Centrifugo.
 	private transformHosts(hosts, message): Host[] {
+		
 		// console.log("Transform message :: ", message);
 		var onHost = message.data['host-id'];
 		var found = false;
@@ -87,7 +98,9 @@ export class HostService {
 		} else if (message.data['t']=='ACK'){
 			// ASIS : ACK ignored for now
 			// TODO : check ACK
+			HostService.messageEmitter.emit(message);
 		} else if (message.data['t']=='RESULT'){
+			HostService.messageEmitter.emit(message);
 			// TODO : check ACK ID (ne prendre en compte QUE les RESULT de NOS commandes) <<<<<<<< IMPORTANT
 			console.log(message);
 			host.last_stdout = message.data['stdout'].join('\n');
@@ -101,7 +114,9 @@ export class HostService {
 		} else if (message.data['t']=='ALIVE'){
 			// ASIS : ALIVE ignored for now
 			// TODO : check ALIVE
-		} else if (message.data['t']=='UNREGISTERED'){
+		} else if (message.data['t']=='UNREGISTERED'){ // TODO TODO TODO TODO TODO TODO Erreur coté client. le NOM est dans ID, et le CMDID est oublié.
+			HostService.messageEmitter.emit(message);
+			console.log(message);
 			// Tell the host that the service has been removed
 			var id = message.data['id'];
 			Host.removeServiceFrom(host,id);

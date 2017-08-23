@@ -11,11 +11,9 @@ export class CentrifugeService {
   private handler: any;
   private wsURL = 'http://centrifugo.crocoware.com:8000/connection';
   
-  private stateEmitter: EventEmitter<any>;
+  stateEmitter = new EventEmitter<any>();
   
   constructor() {
-	this.stateEmitter = new EventEmitter<any>();
-	this.stateEmitter.emit("Centriugo Service Init");
 	this.handler = new Centrifuge({
 		url: this.wsURL,
 		user: 'First_User_12345',

@@ -29,13 +29,12 @@ h1 {
     margin: 0 0 2em 0;
     list-style-type: none;
     padding: 0;
-    width: 31em;
+    width: 32em;
 	float:left;
 }
 
 .messages {
 	float:right;
-	width:50%;
 	border: 1px solid #666;
     border-radius: 14px;
 	margin:8px;

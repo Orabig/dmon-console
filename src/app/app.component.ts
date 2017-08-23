@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Host } from './host';
+
 import { HostService } from './host.service';
 import { CentrifugeService } from './centrifuge.service';
 
@@ -7,7 +8,7 @@ import { CentrifugeService } from './centrifuge.service';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [HostService, CentrifugeService]
+  providers: [CentrifugeService]
 })
 
 export class AppComponent implements OnInit {

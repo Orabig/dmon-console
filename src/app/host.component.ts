@@ -1,16 +1,14 @@
 import { Component, Input } from '@angular/core';
 import { Host } from './host';
-import { HostService } from './host.service';
 
 @Component({
   selector: 'host',
   templateUrl: './host.component.html',
-  styleUrls: ['./host.component.css'],
-  providers: [HostService]
+  styleUrls: ['./host.component.css']
 })
 
 export class HostComponent {
-  constructor(private hostService: HostService) { }
+  constructor() { }
     objectKeys = Object.keys; // Used in template
 	@Input() host: Host;
 }

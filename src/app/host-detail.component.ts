@@ -6,8 +6,7 @@ import { Host} from './host';
 @Component({
   selector: 'host-detail',
   templateUrl: './host-detail.component.html',
-  styleUrls: ['./host-detail.component.css'],
-  providers: [SendCommandService]
+  styleUrls: ['./host-detail.component.css']
 })
 export class HostDetailComponent {
   constructor(private sendCommandService: SendCommandService) { }

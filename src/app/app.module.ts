@@ -5,15 +5,19 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { HostComponent } from './host.component';
+import { OrdersComponent } from './orders.component';
 import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
 import { CentrifugeService } from './centrifuge.service';
+import { SendCommandService } from './send-command.service';
+import { HostService } from './host.service';
 
 @NgModule({
   declarations: [
     AppComponent,
 	HostComponent,
+	OrdersComponent,
 	HostDetailComponent,
 	ServiceStateComponent
   ],
@@ -22,7 +26,7 @@ import { CentrifugeService } from './centrifuge.service';
     FormsModule,
     HttpModule
   ],
-  providers: [CentrifugeService],
+  providers: [CentrifugeService,SendCommandService,HostService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
