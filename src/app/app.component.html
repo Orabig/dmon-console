@@ -1,5 +1,7 @@
 <h1>{{title}}</h1>
 
+<div [class]="connectionState">{{connectionState}}</div>
+
 <ul class="hosts">
   <host *ngFor="let host of hosts"
 	[host]="host"

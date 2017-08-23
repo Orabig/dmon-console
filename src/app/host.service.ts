@@ -50,8 +50,9 @@ export class HostService {
 			var host=new Host();
 			host.name = onHost;
 			HostService.applyMessage( host, message );
-			host.client="toto";
-			hosts += host;
+			host.client = undefined;
+			hosts.push(host);
+			hosts = Object.assign( hosts );
 		}
 		return hosts;
 	}
@@ -59,8 +60,10 @@ export class HostService {
 	private static applyMessage(host: Host, message): void {	
 		if (message.data['client-id']){
 			host.client = message.data['client-id'];
+			host.alive = true;
 		} else {
 			host.client = undefined;
+			host.alive = false;
 		}
 		if (message.data['t']=='SERVICE'){
 			// console.log(message);
@@ -84,6 +87,7 @@ export class HostService {
 			// ASIS : ACK ignored for now
 			// TODO : check ACK
 		} else if (message.data['t']=='RESULT'){
+			// TODO : check ACK ID (ne prendre en compte QUE les RESULT de NOS commandes) <<<<<<<< IMPORTANT
 			console.log(message);
 			host.last_stdout = message.data['stdout'].join('\n');
 			host.last_stderr = message.data['stderr'].join('\n');
@@ -96,6 +100,10 @@ export class HostService {
 		} else if (message.data['t']=='ALIVE'){
 			// ASIS : ALIVE ignored for now
 			// TODO : check ALIVE
+		} else if (message.data['t']=='UNREGISTERED'){
+			// Tell the host that the service has been removed
+			var id = message.data['id'];
+			Host.removeServiceFrom(host,id);
 		} else {
 			console.log("Unknown message type : " + message.data['t']);
 		}

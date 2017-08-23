@@ -9,4 +9,9 @@ export class Host {
   last_stdout: string;
   last_stderr: string;
   last_time: Date;
+  
+  static removeServiceFrom(host:Host, id:string):void {
+	  delete host.services[id];
+	  host.services = Object.assign( host.services );
+  }
 }

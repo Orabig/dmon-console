@@ -8,7 +8,8 @@ import { Service } from './service';
 @Component({
   selector: 'service-state',
   templateUrl: './service-state.component.html',
-  styleUrls: ['./service-state.component.css']
+  styleUrls: ['./service-state.component.css'],
+  providers: [SendCommandService]
 })
 export class ServiceStateComponent {
 	constructor(private sendCommandService: SendCommandService) { }
