@@ -4,6 +4,7 @@ import { SendCommandService } from './send-command.service';
 import { HostService } from './host.service';
 
 import { Order } from './order';
+import { Host } from './host';
 
 @Component({
   selector: 'orders',
@@ -42,6 +43,13 @@ export class OrdersComponent implements OnInit {
 		} else {
 			console.log("message without id",load.data.t, load);
 		}
+	}
+	
+	killOrder(order: Order) {
+		var host =new Host();
+		host.name = order['host-id'];
+		host.client = order['client-id'];
+		this.sendCommandService.sendKillOrder(host, order.cmdId);
 	}
 	
 	static processExistingOrderLoad(order: Order,load: any):void {

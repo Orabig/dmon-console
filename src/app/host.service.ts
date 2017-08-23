@@ -51,7 +51,6 @@ export class HostService {
 		var found = false;
 		hosts.forEach(host => {
 			 if (host.name === onHost) {
-				// console.log("applyMessage :: ", host, message);
 				HostService.applyMessage( host, message );
 				found = true;
 				}

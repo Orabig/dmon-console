@@ -41,7 +41,16 @@ export class SendCommandService {
 			args:  {cmdline: host.cmdline}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe(response=>console.log(response));
+		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
+  }
+  
+  sendKillOrder(host: Host, cmdId: string): void {
+	    var orderLoad = Order.buildOrderLoad('CMD', host, {		
+			cmd: 'KILL',
+			args:  {cmdId: cmdId}
+		});
+		this.orderEmitter.emit( orderLoad );
+		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
   }
 	
   sendUnregister(host: Host, service: Service): void {
@@ -50,7 +59,7 @@ export class SendCommandService {
 			args: {serviceId: service.id}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe(response=>console.log(response));
+		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
   }
 	
   registerService(host: Host, serviceId: string, cmdline: string): void {
@@ -59,7 +68,7 @@ export class SendCommandService {
 			args: {id:serviceId, cmdline: cmdline}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe(response=>console.log(response));
+		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
   }
 	
 }

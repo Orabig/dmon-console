@@ -5,6 +5,9 @@
 	<tbody>
 		<tr *ngFor="let order of orders">
 			<td>{{order.cmdId}}</td><td>{{order.state}}</td>
+			<td *ngIf="order.state==='processing'">
+				<button (click)="killOrder(order)">Kill</button>
+			</td>
 		</tr>
 	</tbody>
 </table>
