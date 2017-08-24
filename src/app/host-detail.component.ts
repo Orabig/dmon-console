@@ -13,10 +13,12 @@ export class HostDetailComponent {
     objectKeys = Object.keys; // Used in template
 	@Input() host: Host;
 	
+	// Send a request to client to execute the command line (stored in the host object)
 	sendCommand():void {
 		this.sendCommandService.sendCommandLine(this.host);
 	}
 	
+	// Fills the field 'cmdline' with the given string, then send a command request
 	selectCmdline(cmdline: string):void {
 		this.host.cmdline = cmdline;
 		this.sendCommand();
@@ -26,7 +28,7 @@ export class HostDetailComponent {
 		// ASIS : le nom du service est calculé à partir du plugins
 		// TOBE : ...
 		var serviceId=s4();
-		this.sendCommandService.registerService(this.host,serviceId,this.host.cmdline);
+		this.sendCommandService.sendRegister(this.host,serviceId,this.host.cmdline);
 	}
 }
 

@@ -8,7 +8,7 @@ import { CentrifugeService } from './services/centrifuge.service';
   selector: 'app-root',
   templateUrl: './templates/app.component.html',
   styleUrls: ['./templates/app.component.css'],
-  providers: [CentrifugeService]
+  providers: []
 })
 
 export class AppComponent implements OnInit {

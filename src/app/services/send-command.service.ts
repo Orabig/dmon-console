@@ -62,7 +62,7 @@ export class SendCommandService {
 		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
   }
 	
-  registerService(host: Host, serviceId: string, cmdline: string): void {
+  sendRegister(host: Host, serviceId: string, cmdline: string): void {
 		var orderLoad = Order.buildOrderLoad('CMD', host, {		
 			cmd: 'REGISTER',
 			args: {id:serviceId, cmdline: cmdline}

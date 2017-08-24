@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import 'rxjs/add/operator/filter';
 
 import { SendCommandService } from './services/send-command.service';
 import { HostService } from './services/host.service';
@@ -22,9 +23,9 @@ export class OrdersComponent implements OnInit {
 	
 	ngOnInit(): void {
 	  this.sendCommandService.getOrders().subscribe( load => this.processOrder(load) );
-	  this.hostService.getMessages().subscribe( load => {  
-		this.processOrder(load)
-		} );
+	  this.hostService.getMessages()
+	    .filter(load => load.data['t']!=='SERVICE' && load.data['t']!=='ALIVE' )
+		.subscribe( load => this.processOrder(load) );
 	}
 	
 	processOrder(load: any):void {

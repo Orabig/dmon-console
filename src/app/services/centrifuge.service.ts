@@ -20,7 +20,7 @@ export class CentrifugeService {
 		timestamp: "1503256116",
 		info: '{"class":"console"}',
 		token: "aae0cd7e7f8d0b8f178c1d577cbd7141eb2f404330479c0fb836ac990bd3003b",
-		debug: "true",
+		debug: "false",
 		authEndpoint: "http://centrifugo.crocoware.com:9191/api/auth.php"
 	});
 	var self = this;
