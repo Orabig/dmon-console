@@ -15,10 +15,10 @@ export class ServiceStateComponent {
 	@Input() host: Host;
 	@Input() service: Service;
 	
-	// Event sent when the users selects the command line of this service
+	// This component sends a "cmdlineSelect" Event when the users click on the "select" button
 	@Output() cmdlineSelect = new EventEmitter<string>();
 	
-	selectCmdline():void {
+	onSelectCmdline():void {
 		this.cmdlineSelect.emit(this.service.cmdLine);
 	}
 	unRegister():void {
