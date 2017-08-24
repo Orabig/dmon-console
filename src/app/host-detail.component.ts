@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
 
-import { SendCommandService } from './send-command.service';
+import { SendCommandService } from './services/send-command.service';
 
-import { Host} from './host';
+import { Host} from './model/host';
 @Component({
   selector: 'host-detail',
-  templateUrl: './host-detail.component.html',
-  styleUrls: ['./host-detail.component.css']
+  templateUrl: './templates/host-detail.component.html',
+  styleUrls: ['./templates/host-detail.component.css']
 })
 export class HostDetailComponent {
   constructor(private sendCommandService: SendCommandService) { }

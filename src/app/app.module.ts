@@ -9,9 +9,9 @@ import { OrdersComponent } from './orders.component';
 import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
-import { CentrifugeService } from './centrifuge.service';
-import { SendCommandService } from './send-command.service';
-import { HostService } from './host.service';
+import { CentrifugeService } from './services/centrifuge.service';
+import { SendCommandService } from './services/send-command.service';
+import { HostService } from './services/host.service';
 
 @NgModule({
   declarations: [

@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { SendCommandService } from './send-command.service';
-import { HostService } from './host.service';
+import { SendCommandService } from './services/send-command.service';
+import { HostService } from './services/host.service';
 
-import { Order } from './order';
-import { Host } from './host';
+import { Order } from './model/order';
+import { Host } from './model/host';
 
 @Component({
   selector: 'orders',
-  templateUrl: './orders.component.html',
-  styleUrls: ['./orders.component.css'],
+  templateUrl: './templates/orders.component.html',
+  styleUrls: ['./templates/orders.component.css'],
   providers: []
 })
 

@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Host } from './host';
+import { Host } from './model/host';
 
-import { HostService } from './host.service';
-import { CentrifugeService } from './centrifuge.service';
+import { HostService } from './services/host.service';
+import { CentrifugeService } from './services/centrifuge.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  templateUrl: './templates/app.component.html',
+  styleUrls: ['./templates/app.component.css'],
   providers: [CentrifugeService]
 })
 

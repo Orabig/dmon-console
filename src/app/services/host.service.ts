@@ -8,8 +8,8 @@ import 'rxjs/add/operator/combineLatest';
 
 import { CentrifugeService } from './centrifuge.service';
 
-import { Host } from './host';
-import { Service } from './service';
+import { Host } from '../model/host';
+import { Service } from '../model/service';
 
 // Le service qui fournit l'état de tous les hosts.
 // Il fournit un Observer capable de mettre à jour la liste des hosts

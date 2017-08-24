@@ -3,7 +3,7 @@ import { EventEmitter } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 
-import { Host } from './host';
+import { Host } from '../model/host';
 
 declare var Centrifuge: any;
 

@@ -2,9 +2,9 @@ import {Observable} from 'rxjs/Observable';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Headers, Http, Response } from '@angular/http';
 
-import { Host } from './host';
-import { Service } from './service';
-import { Order } from './order';
+import { Host } from '../model/host';
+import { Service } from '../model/service';
+import { Order } from '../model/order';
 
 // Le service qui envoie des commandes au serveur
 
