@@ -1,8 +1,11 @@
 <div *ngIf="service">
-	<div class="header">
-		<span class="name">{{service.id}}</span> : <span class="cmdline">&#x201c;{{service.cmdLine}}&#x201d;</span>
+	<div class="header" [class.warning]="service.last_value==1" [class.critical]="service.last_value==2">
+		<span class="name">{{service.id}}</span>
+		<span class="cmdline">{{service.cmdLine}}</span>
 		<button class="unregister" (click)="unRegister()">X</button>
 		<button class="select-cmdline" (click)="onSelectCmdline()">&#10532;</button>
 	</div>
-	<div class="output"><pre>[{{service.last_time | date:'HH:mm:ss'}}] {{service.last_output}}</pre></div>
+	<div class="output">
+		<pre>[{{service.last_time | date:'HH:mm:ss'}}] {{service.last_output}}</pre>
+	</div>
 </div>

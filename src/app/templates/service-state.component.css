@@ -5,6 +5,14 @@
     margin-left: -12px;
 }
 
+.critical .name {
+	background-color: #fd2424;
+}
+
+.warning .name {
+	background-color: #ef8f1f;
+}
+
 .header {
 	background-color: #ddd;
     margin-left: 12px;

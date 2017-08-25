@@ -4,7 +4,7 @@ import { HostService } from '../services/host.service';
 import { Host } from './host';
 import { Service } from './service';
 
-// Cette classe fournit une methode permettant de traiter les messages reçu des clients
+// Cette classe fournit une methode permettant de traiter les messages reçu des clients (via Centrifugo)
 export class Message {
 	
 	public static applyMessage(host: Host, message): void {
@@ -21,6 +21,7 @@ export class Message {
 			var service = new Service();
 			service.id=serviceId;
 			service.cmdLine=message.data['cmdline'];
+			service.last_value=message.data['exit_value'];
 			service.last_output=message.data['stdout'][0];
 			if (service.last_output) {
 				var split = service.last_output.split("|");

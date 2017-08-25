@@ -3,56 +3,58 @@ import { EventEmitter } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 
-import { Host } from '../model/host';
-
 declare var Centrifuge: any;
 
 export class CentrifugeService {
-  private handler: any;
-  private wsURL = 'http://centrifugo.crocoware.com:8000/connection';
+	private handler: any;
+	private debug: boolean;
+	private connected = false;
   
   stateEmitter = new EventEmitter<any>();
-  
-  constructor() {
-	this.handler = new Centrifuge({
-		url: this.wsURL,
-		user: 'First_User_12345',
-		timestamp: "1503256116",
-		info: '{"class":"console"}',
-		token: "aae0cd7e7f8d0b8f178c1d577cbd7141eb2f404330479c0fb836ac990bd3003b",
-		debug: "false",
-		authEndpoint: "http://centrifugo.crocoware.com:9191/api/auth.php"
-	});
-	var self = this;
-	this.handler
-		.on('connect', function(data) {
-			console.log("Connected to Centrifugo",data);
-			self.stateEmitter.emit({state:'connected',info:data});
-		}).on('disconnect', function(data) {
-			console.log("Disconnected from Centrifugo",data);
-			self.stateEmitter.emit({state:'disconnected',info:data});
-		}).on('error', function(error) {
-			console.log("Error Centrifugo :",error );
-			self.stateEmitter.emit({state:'error',info:error});
-			// TODO : je suis arrivé ici après avoir coupé le PC. Pas d'affichage. Fix req
-		});
-		
-	this.handler.connect();
-  }
   
   getStates(): Observable<any> {
 	  return this.stateEmitter;
   }
   
+  connect(parameters: any): void {
+	if (this.connected) {
+		throw new Error('Centrifuge is already connected.');
+	}
+	this.handler = new Centrifuge( parameters );
+	this.debug = parameters.debug && parameters.debug!='false';
+	var self = this;
+	this.handler
+		.on('connect', function(data) {
+			this.connected = true;
+			if (self.debug) { console.log("Connected to Centrifugo",data); }
+			self.stateEmitter.emit({type:'state',state:'connected',info:data});
+		}).on('disconnect', function(data) {
+			this.connected = false;
+			if (self.debug) { console.log("Disconnected from Centrifugo",data); }
+			self.stateEmitter.emit({type:'state',state:'disconnected',info:data});
+			delete this.handler;
+		}).on('error', function(error) {
+			if (self.debug) { console.error("Error Centrifugo :",error ); }
+			self.stateEmitter.emit({type:'error',info:error});
+		});
+		
+	this.handler.connect();
+  }
+  
+  disconnect(): void {
+	this.handler.disconnect();
+  }
+  
   getMessages(channel: string): Observable<any> {
 	var subscription = this.handler.subscribe(channel);
-		
+	var self = this;
+
 	subscription.on("subscribe", function(data) {
-			console.log("Subscribed to '"+channel+"' :", data);
+			if (self.debug) { console.log("Subscribed to '"+channel+"' :", data); }
 		});
 	subscription.on("error", function(error) {
-			console.log("Centrifugo Subscribe error :", error);
-			// TODO : je suis arrivé ici après avoir coupé le PC. Pas d'affichage. Fix req
+			if (self.debug) { console.log("Centrifugo Subscribe error :", error); }
+			self.stateEmitter.emit({type:'error',info:error});
 		});
 	return Observable.fromEvent(subscription, 'message');
   }
