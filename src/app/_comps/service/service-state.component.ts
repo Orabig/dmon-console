@@ -1,14 +1,13 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { SendCommandService } from './_services/send-command.service';
+import { SendCommandService } from '../../_services/send-command.service';
 
-import { Host } from './_models/objects/host';
-import { Service } from './_models/objects/service';
+import { Host, Service } from '../../_models/objects';
 
 @Component({
   selector: 'service-state',
-  templateUrl: './templates/service-state.component.html',
-  styleUrls: ['./templates/service-state.component.css']
+  templateUrl: './service-state.component.html',
+  styleUrls: ['./service-state.component.css']
 })
 export class ServiceStateComponent {
 	constructor(private sendCommandService: SendCommandService) { }
