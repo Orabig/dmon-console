@@ -24,8 +24,8 @@ import { LoginComponent } from './login/index';
 import { RegisterComponent } from './register/index';
 
 import { HostComponent, HostDetailComponent } from './_comps/host';
-import { OrdersComponent } from './orders.component';
 import { ServiceStateComponent } from './_comps/service';
+import { OrdersComponent } from './_comps';
 
 
 @NgModule({

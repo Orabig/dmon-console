@@ -1,16 +1,16 @@
 import { Component, Input, OnInit } from '@angular/core';
 import 'rxjs/add/operator/filter';
 
-import { SendCommandService } from './_services/send-command.service';
-import { HostService } from './_services/host.service';
+import { SendCommandService } from '../_services/send-command.service';
+import { HostService } from '../_services/host.service';
 
-import { Order } from './_models/comm/order';
-import { Host } from './_models/objects/host';
+import { Order } from '../_models/comm/order';
+import { Host } from '../_models/objects/host';
 
 @Component({
   selector: 'orders',
-  templateUrl: './templates/orders.component.html',
-  styleUrls: ['./templates/orders.component.css'],
+  templateUrl: './orders.component.html',
+  styleUrls: ['./orders.component.css'],
   providers: []
 })
 
