@@ -4,8 +4,8 @@ import 'rxjs/add/operator/filter';
 import { SendCommandService } from './_services/send-command.service';
 import { HostService } from './_services/host.service';
 
-import { Order } from './model/order';
-import { Host } from './model/host';
+import { Order } from './_models/comm/order';
+import { Host } from './_models/objects/host';
 
 @Component({
   selector: 'orders',

@@ -1,8 +1,7 @@
 
-import { HostService } from '../_services/host.service';
+import { HostService } from '../../_services/host.service';
 
-import { Host } from './host';
-import { Service } from './service';
+import { Host, Service } from '../objects';
 
 // Cette classe fournit une methode permettant de traiter les messages reçu des clients (via Centrifugo)
 export class Message {

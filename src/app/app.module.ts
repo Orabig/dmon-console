@@ -13,7 +13,7 @@ import { routing }        from './app.routing';
 
 import { AlertComponent } from './_directives/index';
 import { AuthGuard } from './_guards/index';
-import { AlertService, AuthenticationService, UserService } from './_services/index';
+import { AlertService, AuthenticationService, UserService, CentrifugeService, SendCommandService, HostService } from './_services';
 
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './group/index';
@@ -28,9 +28,6 @@ import { OrdersComponent } from './orders.component';
 import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
-import { CentrifugeService } from './_services/centrifuge.service';
-import { SendCommandService } from './_services/send-command.service';
-import { HostService } from './_services/host.service';
 
 @NgModule({
   declarations: [

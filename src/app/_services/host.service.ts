@@ -11,8 +11,8 @@ import { SendCommandService } from './send-command.service';
 
 import { environment } from '../../environments/environment';
 
-import { Host } from '../model/host';
-import { Message } from '../model/message';
+import { Host } from '../_models/objects/host';
+import { Message } from '../_models/comm/message';
 
 // Le service qui fournit l'état de tous les hosts.
 // Il fournit un Observer capable de mettre à jour la liste des hosts

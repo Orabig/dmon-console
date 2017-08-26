@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 
 import { SendCommandService } from './_services/send-command.service';
 
-import { Host} from './model/host';
+import { Host} from './_models/objects/host';
 @Component({
   selector: 'host-detail',
   templateUrl: './templates/host-detail.component.html',

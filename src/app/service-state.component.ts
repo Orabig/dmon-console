@@ -2,8 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 import { SendCommandService } from './_services/send-command.service';
 
-import { Host } from './model/host';
-import { Service } from './model/service';
+import { Host } from './_models/objects/host';
+import { Service } from './_models/objects/service';
 
 @Component({
   selector: 'service-state',

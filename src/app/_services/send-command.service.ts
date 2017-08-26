@@ -2,9 +2,8 @@ import {Observable} from 'rxjs/Observable';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Headers, Http, Response } from '@angular/http';
 
-import { Host } from '../model/host';
-import { Service } from '../model/service';
-import { Order } from '../model/order';
+import { Host, Service } from '../_models/objects';
+import { Order } from '../_models/comm/order';
 
 import { environment } from '../../environments/environment';
 

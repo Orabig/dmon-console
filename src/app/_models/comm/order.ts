@@ -1,4 +1,4 @@
-import { Host } from './host';
+import { Host } from '../objects';
 
 // An Order object represents the state of an order sent to a client and the messages received in return.
 

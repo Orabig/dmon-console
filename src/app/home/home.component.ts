@@ -1,6 +1,6 @@
 ﻿import { Component} from '@angular/core';
 
-import { User } from '../_models/index';
+import { User } from '../_models/users/index';
 
 @Component({
     moduleId: module.id,
