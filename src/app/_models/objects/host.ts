@@ -1,4 +1,4 @@
-import { Service } from '.';
+import { Service } from './service';
 
 export class Host {
   name: string;

@@ -23,9 +23,8 @@ import { UsersComponent } from './users/index';
 import { LoginComponent } from './login/index';
 import { RegisterComponent } from './register/index';
 
-import { HostComponent } from './host.component';
+import { HostComponent, HostDetailComponent } from './_comps/host';
 import { OrdersComponent } from './orders.component';
-import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
 

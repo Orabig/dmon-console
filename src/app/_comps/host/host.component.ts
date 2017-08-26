@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 
-import { Host } from './_models/objects/host';
+import { Host } from '../../_models/objects/host';
 
 @Component({
   selector: 'host',
-  templateUrl: './templates/host.component.html',
-  styleUrls: ['./templates/host.component.css']
+  templateUrl: './host.component.html',
+  styleUrls: ['./host.component.css']
 })
 
 export class HostComponent {
