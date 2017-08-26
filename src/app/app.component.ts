@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
 		url: 'http://centrifugo.crocoware.com:8000/connection',
 		user: 'First_User_12345',
 		timestamp: "1503256116",
-		debug: true,
+		debug: false,
 		info: '{"class":"console"}',
 		token: "aae0cd7e7f8d0b8f178c1d577cbd7141eb2f404330479c0fb836ac990bd3003b",
 		authEndpoint: "http://centrifugo.crocoware.com:9191/api/auth.php"
