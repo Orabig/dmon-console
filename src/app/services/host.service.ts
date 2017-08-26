@@ -7,6 +7,9 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/combineLatest';
 
 import { CentrifugeService } from './centrifuge.service';
+import { SendCommandService } from './send-command.service';
+
+import { environment } from '../../environments/environment';
 
 import { Host } from '../model/host';
 import { Message } from '../model/message';
@@ -19,10 +22,10 @@ import { Message } from '../model/message';
 
 @Injectable()
 export class HostService {
-  // TODO : reutiliser le service send-command pour envoyer cette requete
-  private apiURL = 'http://centrifugo.crocoware.com:9191/api/get-group-members.php';
+
   constructor(private http: Http,
-			  private centrifugeService: CentrifugeService) { }
+			  private centrifugeService: CentrifugeService,
+			  private sendCommandService: SendCommandService) { }
   
     // Will emit any received message
 	// TODO : Refaire TOUT le modele : ce champ ne devrait pas être static, mais il devient undefined sans explication quand il passe en instance.
@@ -34,7 +37,11 @@ export class HostService {
 	}
 
 	getHosts(channel: string): Observable<Host[]> {
-		return this.http.get(this.apiURL)
+		var groupName = channel.substring(1); // Remove prefix '$'
+		return this.sendCommandService.getJson('get-group-members.php', 
+			{
+			group: groupName
+			} )
 		  .map(response => response.json() as Host[])
 		  
 		  // A l'observable qui émet la valeur initiale, on combine 

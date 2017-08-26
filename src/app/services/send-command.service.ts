@@ -6,13 +6,15 @@ import { Host } from '../model/host';
 import { Service } from '../model/service';
 import { Order } from '../model/order';
 
+import { environment } from '../../environments/environment';
+
 // Le service qui envoie des commandes au serveur
 
 // TODO : reutiliser ce service pour envoyer la commande dans host.service
 
 @Injectable()
 export class SendCommandService {
-  private baseApiURL = 'http://centrifugo.crocoware.com:9191/api/';
+  private baseApiURL = environment.dmonApiRoot;
   
   constructor(private http: Http) {}
   
@@ -23,6 +25,22 @@ export class SendCommandService {
     'Content-Type': 'application/json'
   });
 
+  // A simple GET request to an URL of the API
+  // url is relative to /api/
+  // Returns an observable containing the response
+  getJson(url: string, data: any): Observable<Response> {
+    return this.http.get(
+      this.baseApiURL + url,
+      {
+		  headers: this.headers,
+		  search: data
+	  }
+	)
+  }
+
+  // A simple POST request to an URL of the API
+  // url is relative to /api/
+  // Returns an observable containing the response
   postJson(url: string, data: any): Observable<Response> {
     return this.http.post(
       url,
@@ -41,7 +59,7 @@ export class SendCommandService {
 			args:  {cmdline: host.cmdline}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
+		this.postJson("send-order.php", orderLoad	).subscribe();
   }
   
   sendKillOrder(host: Host, cmdId: string): void {
@@ -50,7 +68,7 @@ export class SendCommandService {
 			args:  {cmdId: cmdId}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
+		this.postJson("send-order.php", orderLoad	).subscribe();
   }
 	
   sendUnregister(host: Host, service: Service): void {
@@ -59,7 +77,7 @@ export class SendCommandService {
 			args: {serviceId: service.id}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
+		this.postJson("send-order.php", orderLoad	).subscribe();
   }
 	
   sendRegister(host: Host, serviceId: string, cmdline: string): void {
@@ -68,7 +86,7 @@ export class SendCommandService {
 			args: {id:serviceId, cmdline: cmdline}
 		});
 		this.orderEmitter.emit( orderLoad );
-		this.postJson(this.baseApiURL + "send-order.php", orderLoad	).subscribe();
+		this.postJson("send-order.php", orderLoad	).subscribe();
   }
 	
 }

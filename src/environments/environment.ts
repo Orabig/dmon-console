@@ -4,5 +4,8 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  centrifugoServerUrl: 'http://centrifugo.crocoware.com:8000/connection',
+  centrifugoAuthEndpoint: "http://centrifugo.crocoware.com:9191/api/auth.php",
+  dmonApiRoot: 'http://centrifugo.crocoware.com:9191/api/'
 };
