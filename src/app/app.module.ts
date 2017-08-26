@@ -25,7 +25,7 @@ import { RegisterComponent } from './register/index';
 
 import { HostComponent, HostDetailComponent } from './_comps/host';
 import { ServiceStateComponent } from './_comps/service';
-import { OrdersComponent } from './_comps';
+import { HeaderComponent, OrdersComponent } from './_comps';
 
 
 @NgModule({
@@ -40,7 +40,8 @@ import { OrdersComponent } from './_comps';
 	HostComponent,
 	OrdersComponent,
 	HostDetailComponent,
-	ServiceStateComponent
+	ServiceStateComponent,
+	HeaderComponent
   ],
   imports: [
     BrowserModule,
