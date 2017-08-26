@@ -21,7 +21,7 @@ export class CentrifugeService {
 		throw new Error('Centrifuge is already connected.');
 	}
 	this.handler = new Centrifuge( parameters );
-	this.debug = parameters.debug && parameters.debug!='false';
+	this.debug = parameters.debug;
 	var self = this;
 	this.handler
 		.on('connect', function(data) {
