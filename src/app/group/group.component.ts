@@ -1,8 +1,8 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { Host } from '../model/host';
 
-import { HostService } from '../services/host.service';
-import { CentrifugeService } from '../services/centrifuge.service';
+import { HostService } from '../_services/host.service';
+import { CentrifugeService } from '../_services/centrifuge.service';
 
 import { environment } from '../../environments/environment';
 

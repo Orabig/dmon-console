@@ -28,9 +28,9 @@ import { OrdersComponent } from './orders.component';
 import { HostDetailComponent } from './host-detail.component';
 import { ServiceStateComponent } from './service-state.component';
 
-import { CentrifugeService } from './services/centrifuge.service';
-import { SendCommandService } from './services/send-command.service';
-import { HostService } from './services/host.service';
+import { CentrifugeService } from './_services/centrifuge.service';
+import { SendCommandService } from './_services/send-command.service';
+import { HostService } from './_services/host.service';
 
 @NgModule({
   declarations: [

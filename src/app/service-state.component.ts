@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
-import { SendCommandService } from './services/send-command.service';
+import { SendCommandService } from './_services/send-command.service';
 
 import { Host } from './model/host';
 import { Service } from './model/service';

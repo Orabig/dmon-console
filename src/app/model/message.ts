@@ -1,5 +1,5 @@
 
-import { HostService } from '../services/host.service';
+import { HostService } from '../_services/host.service';
 
 import { Host } from './host';
 import { Service } from './service';
