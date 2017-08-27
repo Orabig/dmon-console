@@ -4,25 +4,23 @@ h1 {
   font-size: 250%;
 }
 
-.disconnected,  .error {
+.disconnected,  .connected, .error {
     position: absolute;
     display: inline-block;
-    top: 30px;
-    right: -40px;
-    padding: 3px 50px;
+    right: 6px;
+    padding: 3px 35px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.2), inset 0px 5px 30px rgba(255,255,255,0.2);
     text-align: center;
     text-transform: uppercase;
+    width: 130px;
+}
+
+.disconnected, .error {
     background: #d93131;
-    width: 100px;
-    -webkit-transform: rotate(45deg);
-    -moz-transform: rotate(45deg);
-    -o-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);	
 }
 
 .connected {
-	display: none;
+    background: #60f360;
 }
 
 .hosts {
