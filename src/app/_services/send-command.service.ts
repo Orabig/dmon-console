@@ -13,7 +13,6 @@ import { environment } from '../../environments/environment';
 
 @Injectable()
 export class SendCommandService {
-  private baseApiURL = environment.dmonApiRoot;
   
   constructor(private http: Http) {}
   
@@ -29,7 +28,7 @@ export class SendCommandService {
   // Returns an observable containing the response
   getJson(url: string, data: any): Observable<Response> {
     return this.http.get(
-      this.baseApiURL + url,
+      environment.dmonApiRoot + url,
       {
 		  headers: this.headers,
 		  search: data
@@ -42,50 +41,54 @@ export class SendCommandService {
   // Returns an observable containing the response
   postJson(url: string, data: any): Observable<Response> {
     return this.http.post(
-      url,
+      environment.dmonApiRoot + url,
       JSON.stringify(data),
       {headers: this.headers}
     )
   }
   
+  // An observable that emits all orders sent to the clients.  
   getOrders(): Observable<any> {
 	  return this.orderEmitter;
   }
   
+  // Send an order to a client
+  sendOrder(host: Host, args: any): void {
+	    var orderLoad = Order.buildOrderLoad('CMD', host, args);
+		this.orderEmitter.emit( orderLoad );
+		this.postJson("send-order.php", orderLoad ).subscribe();
+  }
+  
+  // Uses this.sendOrder() to send a RUN command
   sendCommandLine(host: Host): void {
-	    var orderLoad = Order.buildOrderLoad('CMD', host, {		
+	  this.sendOrder(host, {
 			cmd: 'RUN',
 			args:  {cmdline: host.cmdline}
 		});
-		this.orderEmitter.emit( orderLoad );
-		this.postJson("send-order.php", orderLoad	).subscribe();
   }
   
+  // Uses this.sendOrder() to send a KILL command
   sendKillOrder(host: Host, cmdId: string): void {
-	    var orderLoad = Order.buildOrderLoad('CMD', host, {		
+	    this.sendOrder(host, {
 			cmd: 'KILL',
 			args:  {cmdId: cmdId}
 		});
-		this.orderEmitter.emit( orderLoad );
-		this.postJson("send-order.php", orderLoad	).subscribe();
   }
 	
+  // Uses this.sendOrder() to send a UNREGISTER command
   sendUnregister(host: Host, service: Service): void {
-		var orderLoad = Order.buildOrderLoad('CMD', host, {		
+		this.sendOrder(host, {
 			cmd: 'UNREGISTER',
 			args: {serviceId: service.id}
 		});
-		this.orderEmitter.emit( orderLoad );
-		this.postJson("send-order.php", orderLoad	).subscribe();
   }
 	
+  // Uses this.sendOrder() to send a REGISTER command
   sendRegister(host: Host, serviceId: string, cmdline: string): void {
-		var orderLoad = Order.buildOrderLoad('CMD', host, {		
+		this.sendOrder(host, {
 			cmd: 'REGISTER',
 			args: {id:serviceId, cmdline: cmdline}
 		});
-		this.orderEmitter.emit( orderLoad );
-		this.postJson("send-order.php", orderLoad	).subscribe();
   }
 	
 }

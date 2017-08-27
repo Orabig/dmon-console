@@ -27,6 +27,12 @@ export class GroupComponent implements OnInit {
 	  this.selectedHost = host;
 	}
   ngOnInit(): void {
+	  var user = 'First_User_12345';
+	  var timestamp = Date.now() | 0;
+	  console.log("TS=",timestamp,typeof(timestamp));
+	  var info = '{}'; // Que mettre ici ????
+	  this.hostService.getToken(user,timestamp,info);
+
 	  this.centrifugeService.connect({
 		url: environment.centrifugoServerUrl,
 		user: 'First_User_12345',
@@ -41,6 +47,7 @@ export class GroupComponent implements OnInit {
 	  );
 	  this.getHosts();
 	}
+	
   getHosts(): void {
 	  this.hostService.getHosts("$Group_1234abcd").subscribe(hosts => this.hosts = hosts);
 	}

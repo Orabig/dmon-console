@@ -5,6 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/combineLatest';
+import 'rxjs/add/operator/startWith';
 
 import { CentrifugeService } from './centrifuge.service';
 import { SendCommandService } from './send-command.service';
@@ -38,20 +39,39 @@ export class HostService {
 
 	getHosts(channel: string): Observable<Host[]> {
 		var groupName = channel.substring(1); // Remove prefix '$'
+		  // A l'observable qui émet la liste initiale des hosts ...
+		return this.getGroupMembers(groupName)
+		  // ... on combine celui qui modifie ces valeurs
+		  .combineLatest( this.centrifugeService.getMessages(channel)
+				.startWith( 'NOOP' ) // Il faut simuler un premier message qui duplique la liste initiale
+			, this.transformHosts ) // La fonction qui transforme la liste de host avec les messages ultérieurs
+		  .catch(this.handleError);
+	}
+	
+	// Renvoie un observable contenant la liste (persistée sur le serveur) des hosts d'un groupe
+	getGroupMembers(group: string): Observable<Host[]> {
 		return this.sendCommandService.getJson('get-group-members.php', 
 			{
-			group: groupName
+			group: group
 			} )
 		  .map(response => response.json() as Host[])
-		  
-		  // A l'observable qui émet la valeur initiale, on combine 
-		  // celui qui modifie ces valeurs
-		  .combineLatest( this.centrifugeService.getMessages(channel) , this.transformHosts )
+	}
+	
+	// Envoie une requete au serveur de demande de token
+	getToken(user:string, timestamp:number, info:string):Observable<string>  {
+		return this.sendCommandService.getJson('token.php', 
+			{
+			user: user,
+			timestamp: timestamp,
+			info: info
+			} )
+		  .map(response => response.json())
 		  .catch(this.handleError);
 	}
 	
 	// Transforms the lists of hosts with the message received from Centrifugo.
 	private transformHosts(hosts, message): Host[] {
+		if (message=='NOOP') return hosts; // Le premier message émet la liste de hosts initiale
 		var onHost = message.data['host-id'];
 		var found = false;
 		hosts.forEach(host => {
