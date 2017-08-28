@@ -58,14 +58,14 @@ export class HostService {
 	}
 	
 	// Envoie une requete au serveur de demande de token
-	getToken(user:string, timestamp:number, info:string):Observable<string>  {
-		return this.sendCommandService.getJson('token.php', 
+	getToken(user:string, timestamp:string, info:any):Observable<string>  {
+		return this.sendCommandService.postJson('token.php', 
 			{
 			user: user,
 			timestamp: timestamp,
 			info: info
 			} )
-		  .map(response => response.json())
+		  .map(response => response.json().token)
 		  .catch(this.handleError);
 	}
 	

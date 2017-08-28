@@ -26,20 +26,26 @@ export class GroupComponent implements OnInit {
   onSelect(host: Host): void {
 	  this.selectedHost = host;
 	}
+	
   ngOnInit(): void {
 	  var user = 'First_User_12345';
-	  var timestamp = Date.now() | 0;
-	  console.log("TS=",timestamp,typeof(timestamp));
-	  var info = '{}'; // Que mettre ici ????
-	  this.hostService.getToken(user,timestamp,info);
-
+	  var timestamp = (Date.now() | 0).toString();
+	  var info= {"class":"console"};
+	  // Ask for token
+	  this.hostService.getToken(user,timestamp,info).subscribe( 
+		// Then connect to centrifuge
+		token => this.connectToCentrifuge(user,timestamp,info,token)
+	  );
+  }
+  
+  connectToCentrifuge(user:string, timestamp:string, info:any, token:string):void {
 	  this.centrifugeService.connect({
 		url: environment.centrifugoServerUrl,
-		user: 'First_User_12345',
-		timestamp: "1503256116",
+		user: user,
+		timestamp: timestamp,
+		info: JSON.stringify( info ),
+		token: token,
 		debug: ! environment.production,
-		info: '{"class":"console"}',
-		token: "aae0cd7e7f8d0b8f178c1d577cbd7141eb2f404330479c0fb836ac990bd3003b",
 		authEndpoint: environment.centrifugoAuthEndpoint
 	});
 	  this.centrifugeService.getStates().subscribe(
