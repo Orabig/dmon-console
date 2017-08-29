@@ -9,7 +9,7 @@ export function fakeBackendFactory(backend: MockBackend, options: BaseRequestOpt
     backend.connections.subscribe((connection: MockConnection) => {
         // wrap in timeout to simulate server api call
         setTimeout(() => {
-
+/*
             // authenticate
             if (connection.request.url.endsWith('/api/authenticate') && connection.request.method === RequestMethod.Post) {
                 // get parameters from post request
@@ -40,7 +40,7 @@ export function fakeBackendFactory(backend: MockBackend, options: BaseRequestOpt
 
                 return;
             }
-
+*/
             // get users
             if (connection.request.url.endsWith('/api/users') && connection.request.method === RequestMethod.Get) {
                 // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
@@ -74,6 +74,7 @@ export function fakeBackendFactory(backend: MockBackend, options: BaseRequestOpt
                 return;
             }
 
+			/*
             // create user
             if (connection.request.url.endsWith('/api/users') && connection.request.method === RequestMethod.Post) {
                 // get new user object from post body
@@ -95,6 +96,7 @@ export function fakeBackendFactory(backend: MockBackend, options: BaseRequestOpt
 
                 return;
             }
+			*/
 
             // delete user
             if (connection.request.url.match(/\/api\/users\/\d+$/) && connection.request.method === RequestMethod.Delete) {
