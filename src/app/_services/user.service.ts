@@ -22,7 +22,7 @@ export class UserService {
 	getKeys(): Observable<ApiKey[]> {
         return this.http.get(environment.dmonApiRoot+'get-keys.php', this.jwt())
 			.map((response: Response) => response.json())
-			.filter(
+			.filter( // TODO : Mutualise
 			data => {
 				if (data['error']) {
 					console.log("error on getKeys() :",data['error']);

@@ -19,9 +19,6 @@ export class SendCommandService {
   orderEmitter = new EventEmitter<any>();
 
   
-  headers = new Headers({
-    'Content-Type': 'application/json'
-  });
 
   // A simple GET request to an URL of the API
   // url is relative to /api/
@@ -30,12 +27,21 @@ export class SendCommandService {
     return this.http.get(
       environment.dmonApiRoot + url,
       {
-		  headers: this.headers,
+		  headers: this.jwt(),
 		  search: data
 	  }
-	)
+	);
   }
 
+    private jwt() {
+        // create authorization header with jwt token
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && currentUser.token) {
+            let headers = new Headers({ 'Authorization': 'Bearer ' + currentUser.token });
+            return headers;
+        }
+    }
+	
   // A simple POST request to an URL of the API
   // url is relative to /api/
   // Returns an observable containing the response
@@ -43,7 +49,7 @@ export class SendCommandService {
     return this.http.post(
       environment.dmonApiRoot + url,
       JSON.stringify(data),
-      {headers: this.headers}
+      {headers: this.jwt()}
     )
   }
   

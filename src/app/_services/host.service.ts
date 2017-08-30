@@ -9,6 +9,7 @@ import 'rxjs/add/operator/startWith';
 
 import { CentrifugeService } from './centrifuge.service';
 import { SendCommandService } from './send-command.service';
+import { AlertService } from './alert.service';
 
 import { environment } from '../../environments/environment';
 
@@ -26,6 +27,7 @@ export class HostService {
 
   constructor(private http: Http,
 			  private centrifugeService: CentrifugeService,
+			  private alertService: AlertService,
 			  private sendCommandService: SendCommandService) { }
   
     // Will emit any received message
@@ -53,8 +55,21 @@ export class HostService {
 		return this.sendCommandService.getJson('get-group-members.php', 
 			{
 			group: group
-			} )
+			} )			
 		  .map(response => response.json() as Host[])
+		  .filter(
+			data => {console.log("HOOK at host.service : ",data);
+			console.log(data['error']);
+				if (data['error']) {
+					console.log("error on getKeys() :",data['error']);
+					this.alertService.error(data['error'] + ' : ' + data['detail'] )
+					if (data['disconnect']) {
+						// TODO
+					}
+					return false;
+				}
+				return true;
+			})
 	}
 	
 	// Envoie une requete au serveur de demande de token
