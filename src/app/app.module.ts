@@ -18,7 +18,7 @@ import { AlertService, AuthenticationService, UserService, CentrifugeService, Se
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './group/index';
 
-import { UsersComponent } from './users/index';
+import { UsersComponent, ApiKeyComponent } from './users/index';
 
 import { LoginComponent } from './login/index';
 import { RegisterComponent } from './register/index';
@@ -34,6 +34,7 @@ import { HeaderComponent, OrdersComponent } from './_comps';
     AlertComponent,
     HomeComponent,
     UsersComponent,
+	ApiKeyComponent,
     GroupComponent,
     LoginComponent,
     RegisterComponent,

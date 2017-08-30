@@ -2,5 +2,4 @@
 
 export class ApiKey {
     id: string;
-    organization: Organization;
 }
