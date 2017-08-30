@@ -1,22 +1,20 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import { Headers, Http } from '@angular/http';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/combineLatest';
 import 'rxjs/add/operator/startWith';
 
 import { CentrifugeService } from './centrifuge.service';
 import { SendCommandService } from './send-command.service';
 import { AlertService } from './alert.service';
+import { HttpInterceptorService } from './http-interceptor.service';
 
 import { environment } from '../../environments/environment';
 
 import { Host } from '../_models/objects/host';
 import { Message } from '../_models/comm/message';
 
-import { HttpInterceptorService } from './http-interceptor.service';
 
 // Le service qui fournit l'état de tous les hosts.
 // Il fournit un Observer capable de mettre à jour la liste des hosts
@@ -63,7 +61,8 @@ export class HostService {
 			user: user,
 			timestamp: timestamp,
 			info: info
-			} ).map(data=>data['token']);
+			} )
+			.map(data=>data['token']);
 	}
 	
 	// Transforms the lists of hosts with the message received from Centrifugo.

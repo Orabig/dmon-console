@@ -1,11 +1,9 @@
 import {Observable} from 'rxjs/Observable';
 import { Injectable, EventEmitter } from '@angular/core';
-import { Headers, Http, Response } from '@angular/http';
 
 import { Host, Service } from '../_models/objects';
 import { Order } from '../_models/comm/order';
 
-import { environment } from '../../environments/environment';
 import { HttpInterceptorService } from './http-interceptor.service';
 
 // Le service qui envoie des commandes au serveur
@@ -15,8 +13,7 @@ import { HttpInterceptorService } from './http-interceptor.service';
 @Injectable()
 export class SendCommandService {
   
-  constructor(private http: Http,
-				private httpInterceptorService: HttpInterceptorService) {}
+  constructor(private httpInterceptorService: HttpInterceptorService) {}
   
   orderEmitter = new EventEmitter<any>();
 
