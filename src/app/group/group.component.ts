@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Host } from '../_models/objects/host';
 
 import { HostService } from '../_services/host.service';
@@ -13,7 +13,7 @@ import { environment } from '../../environments/environment';
   providers: []
 })
 
-export class GroupComponent implements OnInit {
+export class GroupComponent implements OnInit, OnDestroy {
 	
   constructor(private hostService: HostService,
 				private centrifugeService: CentrifugeService) { }
@@ -36,6 +36,10 @@ export class GroupComponent implements OnInit {
 		// Then connect to centrifuge
 		token => this.connectToCentrifuge(user,timestamp,info,token)
 	  );
+  }
+  
+  ngOnDestroy(): void {
+	  this.centrifugeService.disconnect();
   }
   
   connectToCentrifuge(user:string, timestamp:string, info:any, token:string):void {

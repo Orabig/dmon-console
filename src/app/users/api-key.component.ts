@@ -16,6 +16,6 @@ export class ApiKeyComponent implements OnInit {
     }
 
     ngOnInit() {
-		this.userService.getKeys().subscribe(keys => this.key=keys ? keys[0].id : '(none)');
+		this.userService.getKeys().subscribe(keys => this.key=(keys&&keys[0]) ? keys[0].id : '(none)');
     }
 }

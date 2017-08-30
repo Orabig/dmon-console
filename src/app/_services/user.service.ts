@@ -7,9 +7,12 @@ import { ApiKey } from '../_models/users/api-key';
 
 import { environment } from '../../environments/environment';
 
+import { AlertService } from './alert.service';
+
 @Injectable()
 export class UserService {
-    constructor(private http: Http) { }
+    constructor(private http: Http,
+				private alertService: AlertService) { }
 
     create(user: User) {
         return this.http.post(environment.dmonApiRoot+'register.php', user, this.jwt())
@@ -18,7 +21,20 @@ export class UserService {
 	
 	getKeys(): Observable<ApiKey[]> {
         return this.http.get(environment.dmonApiRoot+'get-keys.php', this.jwt())
-			.map((response: Response) => response.json());
+			.map((response: Response) => response.json())
+			.filter(
+			data => {
+				if (data['error']) {
+					console.log("error on getKeys() :",data['error']);
+					this.alertService.error(data['detail'] || data['error'])
+					if (data['disconnect']) {
+						// TODO
+					}
+					return false;
+				}
+				return true;
+			}
+		);
 	}
 	
 	// --------------- ABOVE : implemented (server-side) methods
