@@ -16,6 +16,8 @@ import { environment } from '../../environments/environment';
 import { Host } from '../_models/objects/host';
 import { Message } from '../_models/comm/message';
 
+import { HttpInterceptorService } from './http-interceptor.service';
+
 // Le service qui fournit l'état de tous les hosts.
 // Il fournit un Observer capable de mettre à jour la liste des hosts
 // La valeur initiale est fournie par un appel à l'API (get-group-members),
@@ -25,7 +27,7 @@ import { Message } from '../_models/comm/message';
 @Injectable()
 export class HostService {
 
-  constructor(private http: Http,
+  constructor(private httpInterceptorService: HttpInterceptorService,
 			  private centrifugeService: CentrifugeService,
 			  private alertService: AlertService,
 			  private sendCommandService: SendCommandService) { }
@@ -46,42 +48,22 @@ export class HostService {
 		  // ... on combine celui qui modifie ces valeurs
 		  .combineLatest( this.centrifugeService.getMessages(channel)
 				.startWith( 'NOOP' ) // Il faut simuler un premier message qui duplique la liste initiale
-			, this.transformHosts ) // La fonction qui transforme la liste de host avec les messages ultérieurs
-		  .catch(this.handleError);
+			, this.transformHosts ); // La fonction qui transforme la liste de host avec les messages ultérieurs
 	}
 	
 	// Renvoie un observable contenant la liste (persistée sur le serveur) des hosts d'un groupe
 	getGroupMembers(group: string): Observable<Host[]> {
-		return this.sendCommandService.getJson('get-group-members.php', 
-			{
-			group: group
-			} )			
-		  .map(response => response.json() as Host[])
-		  .filter(
-			data => {console.log("HOOK at host.service : ",data);
-			console.log(data['error']);
-				if (data['error']) {
-					console.log("error on getKeys() :",data['error']);
-					this.alertService.error(data['error'] + ' : ' + data['detail'] )
-					if (data['disconnect']) {
-						// TODO
-					}
-					return false;
-				}
-				return true;
-			})
+		return this.httpInterceptorService.getJson('get-group-members.php', { group: group} )
 	}
 	
 	// Envoie une requete au serveur de demande de token
 	getToken(user:string, timestamp:string, info:any):Observable<string>  {
-		return this.sendCommandService.postJson('token.php', 
+		return this.httpInterceptorService.postJson('token.php', 
 			{
 			user: user,
 			timestamp: timestamp,
 			info: info
-			} )
-		  .map(response => response.json().token)
-		  .catch(this.handleError);
+			} ).map(data=>data['token']);
 	}
 	
 	// Transforms the lists of hosts with the message received from Centrifugo.
@@ -107,10 +89,5 @@ export class HostService {
 			hosts = Object.assign( hosts );
 		}
 		return hosts;
-	}
-	
-	private handleError(error: any): Observable<any> {
-		console.error('An error occurred', error); // for demo purposes only
-		return Observable.throw(error.message || error);
 	}
 }
