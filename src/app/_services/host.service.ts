@@ -39,12 +39,11 @@ export class HostService {
 	  return HostService.messageEmitter;
 	}
 
-	getHosts(channel: string): Observable<Host[]> {
-		var groupName = channel.substring(1); // Remove prefix '$'
+	getHosts(groupName: string): Observable<Host[]> {
 		  // A l'observable qui émet la liste initiale des hosts ...
 		return this.getGroupMembers(groupName)
 		  // ... on combine celui qui modifie ces valeurs
-		  .combineLatest( this.centrifugeService.getMessages(channel)
+		  .combineLatest( this.centrifugeService.getMessages('$'+groupName)
 				.startWith( 'NOOP' ) // Il faut simuler un premier message qui duplique la liste initiale
 			, this.transformHosts ); // La fonction qui transforme la liste de host avec les messages ultérieurs
 	}

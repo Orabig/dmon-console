@@ -8,7 +8,14 @@ import { routing }        from './app.routing';
 
 import { AlertComponent } from './_directives/index';
 import { AuthGuard } from './_guards/index';
-import { AlertService, AuthenticationService, UserService, CentrifugeService, SendCommandService, HostService, HttpInterceptorService } from './_services';
+import { AlertService,
+		 AuthenticationService, 
+		 UserService, 
+		 CentrifugeService, 
+		 SendCommandService, 
+		 HostService, 
+		 HttpInterceptorService,
+		 GroupService } from './_services';
 
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './group/index';
