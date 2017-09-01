@@ -2,9 +2,14 @@
     <header></header>
 	
     <h3>All registered users:</h3>
-    <ul>
-        <li *ngFor="let user of users">
-            {{user.username}} ({{user.firstName}} {{user.lastName}})
-            - <a (click)="deleteUser(user.id)">Delete</a>
-        </li>
-    </ul>
+	<table>
+	<tr><th>Login</th><th>Full name</th><th>Organization</th><th>Created</th><th></th><th></th></tr>
+	<tr *ngFor="let user of users">
+		<td>{{user.userName}}</td>
+		<td>{{user.firstName}} {{user.lastName}}</td>
+		<td>-</td>
+		<td>{{user.created_at | date:"dd MMM yyyy - HH:mm"}}</td>
+		<td><button *ngIf="user.administrator<1" (click)="deleteUser(user.id)">Delete</button></td>
+		<td><button *ngIf="currentUser.administrator && currentUser.id!=user.id" (click)="loginAs(user.id)">Log as...</button></td>
+	</tr>
+</table>

@@ -50,9 +50,9 @@ export class GroupComponent implements OnInit, OnDestroy {
 		  // firstName: user.firstName   TODO : Attention aux caractères spéciaux !!
 		  };
 	  // Ask for token
-	  this.hostService.getToken(user.username,timestamp,info).subscribe( 
+	  this.hostService.getToken(user.userName,timestamp,info).subscribe( 
 		// Then connect to centrifuge
-		token => this.connectToCentrifuge(user.username,timestamp,info,token)
+		token => this.connectToCentrifuge(user.userName,timestamp,info,token)
 	  );
   }
   

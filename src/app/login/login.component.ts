@@ -29,9 +29,9 @@ export class LoginComponent implements OnInit {
 
     login() {
         this.loading = true;
-        this.authenticationService.login(this.model.username, this.model.password)
+        this.authenticationService.login(this.model.userName, this.model.password)
             .subscribe(
-                data => {console.log("Got data",data);
+                data => {
 					if (data['error']){
 						this.login_error(data['error']);
 					}else {

@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+
+import { User } from '../_models/users/user';
 
 
 @Component({
@@ -8,5 +10,11 @@ import { Component } from '@angular/core';
   providers: []
 })
 
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+	
+  user: User;
+	
+  ngOnInit(): void {
+	  this.user = JSON.parse(localStorage.getItem('currentUser')) as User;
+  }
 }

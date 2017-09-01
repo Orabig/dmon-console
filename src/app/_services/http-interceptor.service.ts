@@ -25,6 +25,12 @@ export class HttpInterceptorService {
 			.filter( data => this.filterError(data) );
 	}  
 	
+	deleteJson(url: string): Observable<any> {
+		return this.http.delete(environment.dmonApiRoot+url, this.jwt())
+			.map((response: Response) => response.json())
+			.filter( data => this.filterError(data) );
+	}  
+	
 	filterError(data: any): any {
 		if (data['error']) {
 			this.alertService.error(data['detail'] || data['error'])

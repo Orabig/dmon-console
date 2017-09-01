@@ -14,19 +14,15 @@ export class UserService {
         return this.httpInterceptorService.postJson('register.php', user);
     }
 	
+    getAll() {
+        return this.httpInterceptorService.getJson('user.php', {});
+    }
+	
 	getKeys(): Observable<ApiKey[]> {
-        return this.httpInterceptorService.getJson('get-keys.php',{});
+        return this.httpInterceptorService.getJson('get-keys.php', {});
 	}
 	
-	// --------------- ABOVE : implemented (server-side) methods
-	// --------------- BELOW : unimplemented methods (php missing)
-/*
-    getAll() {
-        return this.http.get('/api/users', this.jwt()).map((response: Response) => response.json());
-    }
-
     delete(id: number) {
-        return this.http.delete('/api/users/' + id, this.jwt()).map((response: Response) => response.json());
+        return this.httpInterceptorService.deleteJson('user.php/'+id);
     }
-*/
 }

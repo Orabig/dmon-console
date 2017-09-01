@@ -1,6 +1,6 @@
 <div class="header">
     <div><a [routerLink]="['/']">Home</a></div>
     <div><a [routerLink]="['/group']">Monitor</a></div>
-   <!-- <div><a [routerLink]="['/users']">Users</a></div> -->
+    <div *ngIf="user.administrator"><a [routerLink]="['/users']">Users</a></div>
     <div><a [routerLink]="['/login']">Logout</a></div>
 </div>
