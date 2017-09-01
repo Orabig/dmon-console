@@ -15,7 +15,8 @@ import { AlertService,
 		 SendCommandService, 
 		 HostService, 
 		 HttpInterceptorService,
-		 GroupService } from './_services';
+		 GroupService,
+		 OrderManageService		 } from './_services';
 
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './group/index';
@@ -60,7 +61,8 @@ import { HeaderComponent, OrdersComponent } from './_comps';
 		CentrifugeService,
 		SendCommandService,
 		HostService,
-		HttpInterceptorService
+		HttpInterceptorService,
+		OrderManageService
 	],
   bootstrap: [AppComponent]
 })

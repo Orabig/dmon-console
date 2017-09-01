@@ -25,6 +25,7 @@ export class SendCommandService {
   // Send an order to a client
   sendOrder(host: Host, args: any): void {
 	    var orderLoad = Order.buildOrderLoad('CMD', host, args);
+		console.log("Emit>>>>",orderLoad);
 		this.orderEmitter.emit( orderLoad );
 		this.httpInterceptorService.postJson("send-order.php", orderLoad ).subscribe();
   }

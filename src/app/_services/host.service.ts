@@ -9,6 +9,7 @@ import { CentrifugeService } from './centrifuge.service';
 import { SendCommandService } from './send-command.service';
 import { AlertService } from './alert.service';
 import { HttpInterceptorService } from './http-interceptor.service';
+import { OrderManageService } from './order-manage.service';
 
 import { environment } from '../../environments/environment';
 
@@ -28,7 +29,8 @@ export class HostService {
   constructor(private httpInterceptorService: HttpInterceptorService,
 			  private centrifugeService: CentrifugeService,
 			  private alertService: AlertService,
-			  private sendCommandService: SendCommandService) { }
+			  private sendCommandService: SendCommandService,
+			  private orderManageService: OrderManageService) { }
   
     // Will emit any received message
 	// TODO : Refaire TOUT le modele : ce champ ne devrait pas être static, mais il devient undefined sans explication quand il passe en instance.
@@ -43,7 +45,10 @@ export class HostService {
 		  // A l'observable qui émet la liste initiale des hosts ...
 		return this.getGroupMembers(groupName)
 		  // ... on combine celui qui modifie ces valeurs
-		  .combineLatest( this.centrifugeService.getMessages('$'+groupName)
+		  .combineLatest( this.centrifugeService.getMessagesOn('$'+groupName)
+				.filter(msg => {
+					return this.orderManageService.isMessageKnown(msg);
+				})
 				.startWith( 'NOOP' ) // Il faut simuler un premier message qui duplique la liste initiale
 			, this.transformHosts ); // La fonction qui transforme la liste de host avec les messages ultérieurs
 	}

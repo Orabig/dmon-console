@@ -16,6 +16,12 @@ export class CentrifugeService {
 	  return this.stateEmitter;
   }
   
+    messageEmitter = new EventEmitter<any>();
+
+	getMessages(): Observable<any> {
+	  return this.messageEmitter;
+	}
+  
   connect(parameters: any): void {
 	if (this.connected) {
 		throw new Error('Centrifuge is already connected.');
@@ -45,7 +51,7 @@ export class CentrifugeService {
 	this.handler.disconnect();
   }
   
-  getMessages(channel: string): Observable<any> {
+  getMessagesOn(channel: string): Observable<any> {
 	var subscription = this.handler.subscribe(channel);
 	var self = this;
 
@@ -56,6 +62,8 @@ export class CentrifugeService {
 			if (self.debug) { console.log("Centrifugo Subscribe error :", error); }
 			self.stateEmitter.emit({type:'error',info:error});
 		});
-	return Observable.fromEvent(subscription, 'message');
+	var messages = Observable.fromEvent(subscription, 'message');
+	messages.subscribe(msg => this.messageEmitter.emit(msg));
+	return messages;
   }
 }
