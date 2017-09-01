@@ -20,11 +20,35 @@ export class Host {
 	  host.services = Object.assign( host.services );
   }
   
-  static addServiceTo(host:Host, id:string,cmdline:string):void {
+  static registerService(host:Host, id:string,cmdline:string):void {
 	  if (!host.services) host.services = [];
-	  host.services[id]=new Service();
-	  host.services[id].id = id;
-	  host.services[id].cmdLine = cmdline;
+	  var service = new Service();
+	  service.id = id;
+	  service.cmdLine = cmdline;
+	  service.last_output = '(registered. Waiting for data)';
+	  service.last_time = new Date();
+	  host.services[id]=service;
+	  host.services = Object.assign( host.services );
+  }
+  
+  static addServiceFromMessage(host:Host, message: any):void {
+	  if (!host.services) host.services = [];
+	  var serviceId = message.data['id'];
+	  var service = new Service();
+	  service.id=serviceId;
+	  service.cmdLine=message.data['cmdline'];
+	  service.last_value=message.data['exit_value'];
+	  service.last_output=message.data['stdout'][0];
+	  if (service.last_output) {
+	  	var split = service.last_output.split("|");
+	  	service.last_output = split[0];
+	  	service.last_perfdata = split[1];
+	  	service.last_time = new Date();
+	  }
+	  if (!host.services) {
+	  	host.services = [];
+	  }
+	  host.services[serviceId] = service;
 	  host.services = Object.assign( host.services );
   }
 }

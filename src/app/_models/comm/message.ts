@@ -16,23 +16,7 @@ export class Message {
 			host.alive = false;
 		}
 		if (message.data['t']=='SERVICE'){
-			var serviceId = message.data['id'];
-			var service = new Service();
-			service.id=serviceId;
-			service.cmdLine=message.data['cmdline'];
-			service.last_value=message.data['exit_value'];
-			service.last_output=message.data['stdout'][0];
-			if (service.last_output) {
-				var split = service.last_output.split("|");
-				service.last_output = split[0];
-				service.last_perfdata = split[1];
-				service.last_time = new Date();
-			}
-			if (!host.services) {
-				host.services = [];
-			}
-			host.services[serviceId] = service;
-			host.services = Object.assign( host.services );
+			Host.addServiceFromMessage(host, message);
 		} else if (message.data['t']=='ACK'){
 			// ASIS : ACK ignored for now
 			// TODO : check ACK
@@ -60,7 +44,7 @@ export class Message {
 			var id = message.data['id'];
 			var cmdline = message.data['cmdline'];
 			console.log(message);
-			Host.addServiceTo(host,id,cmdline);
+			Host.registerService(host,id,cmdline);
 		} else {
 			console.log("Unknown message type : " + message.data['t'],message);
 		}
