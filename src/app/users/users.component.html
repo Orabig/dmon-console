@@ -3,12 +3,13 @@
 	
     <h3>All registered users:</h3>
 	<table>
-	<tr><th>Login</th><th>Full name</th><th>Organization</th><th>Created</th><th></th><th></th></tr>
+	<tr><th>Login</th><th>Full name</th><th>Organization</th><th>Created</th><th>Last login</th><th></th><th></th></tr>
 	<tr *ngFor="let user of users">
 		<td>{{user.userName}}</td>
 		<td>{{user.firstName}} {{user.lastName}}</td>
 		<td>-</td>
-		<td>{{user.created_at | date:"dd MMM yyyy - HH:mm"}}</td>
+		<td>{{user.created_at   | date:"dd MMM yyyy - HH:mm"}}</td>
+		<td>{{user.lastLogin_at | date:"dd MMM yyyy - HH:mm"}}</td>
 		<td><button *ngIf="user.administrator<1" (click)="deleteUser(user.id)">Delete</button></td>
 		<td><button *ngIf="currentUser.administrator && currentUser.id!=user.id" (click)="loginAs(user.id)">Log as...</button></td>
 	</tr>
