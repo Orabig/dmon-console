@@ -4,6 +4,7 @@ import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/throw';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
+import { Router } from '@angular/router';
 
 import { environment } from '../../environments/environment';
 
@@ -12,7 +13,9 @@ import { AlertService } from './alert.service';
 @Injectable()
 export class HttpInterceptorService {
 	
-    constructor(private http: Http, private alertService: AlertService) { }
+    constructor(private http: Http,
+        private router: Router,
+		private alertService: AlertService) { }
 	
 	getJson(url: string, load:any): Observable<any> {
 		return this.http.get(environment.dmonApiRoot+url, this.jwtWithSearch( load ))
@@ -36,7 +39,9 @@ export class HttpInterceptorService {
 		if (data['error']) {
 			this.alertService.error(data['detail'] || data['error'])
 			if (data['disconnect']) {
-				// TODO
+				// logout
+				//localStorage.removeItem('currentUser');
+				this.router.navigate(['login']);
 			}
 			// We must throw an error, so that caller may treat these accordingly
 			return Observable.throw(data['detail'] || data['error']);
