@@ -1,6 +1,7 @@
 ﻿import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/observable/throw';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
 
@@ -28,7 +29,7 @@ export class HttpInterceptorService {
 	deleteJson(url: string): Observable<any> {
 		return this.http.delete(environment.dmonApiRoot+url, this.jwt())
 			.map((response: Response) => response.json())
-			.filter( data => this.filterError(data) );
+			.map( data => this.filterError(data) );
 	}  
 	
 	filterError(data: any): any {
@@ -37,9 +38,10 @@ export class HttpInterceptorService {
 			if (data['disconnect']) {
 				// TODO
 			}
-			return false;
+			// We must throw an error, so that caller may treat these accordingly
+			return Observable.throw(data['detail'] || data['error']);
 		}
-		return true;
+		return data;
 	}
 
     private jwt() {
