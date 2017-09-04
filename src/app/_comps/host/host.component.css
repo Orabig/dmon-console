@@ -4,7 +4,9 @@
     background-color: #EEE;
     margin: .5em;
     padding: .3em 0;
-    height: 1.6em;
+    height: 26px;
+    line-height: 23px;
+    vertical-align: middle;
     border-radius: 14px;
   }
   
@@ -49,5 +51,10 @@ li:hover {
   
 .services {
 	  float: right;
-	  margin:10px;
+	  margin: 0 6px;
   }
+  
+.host-name {
+    position: relative;
+    top: -3px;
+}

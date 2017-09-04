@@ -1,12 +1,25 @@
 .header {
     height:50px;
-    background:#F0F0F0;
+	background: #7284a0;
     border:1px solid #CCC;
-    width:100%;
-    margin:0px auto;
+    width:110%;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: bold;
+    margin: -11px 0px 0 -11px;
+    margin-bottom: 0px;
 }
 
-.header div {
+a:link, a:visited {
+	text-decoration: none;
+	color: #eee;
+}
+
+.header :hover {
+	background:#567;
+}
+
+.header a {
 	padding:16px;
 	float:left;
+	color: white;
 }

@@ -1,13 +1,11 @@
 ﻿.alert{
     border: 1px solid #CCC;
     width: 110%;
-    margin: -10px;
-	margin-bottom: 10px;
     padding: 10px;
 }
 
 .alert-danger {
-    background:#e0780a;
+    background:#EB4527;
     color: #FFF;
     font-weight: bold;
     font-size: larger;

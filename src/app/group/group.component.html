@@ -1,18 +1,20 @@
-﻿<div >
+﻿<div class="main-page">
     <header></header>
-	
-<div [class]="connectionState">{{connectionState}}</div>
+		
+	<div [class]="connectionState">{{connectionState}}</div>
 
-<ul class="hosts">
-  <host *ngFor="let host of hosts"
-	[host]="host"
-	(click)="onSelect(host)"
-	[class.selected]="host === selectedHost">
-  </host>
-</ul>
+	<ul class="hosts">
+	  <host *ngFor="let host of hosts"
+		[host]="host"
+		(click)="onSelect(host)"
+		[class.selected]="host === selectedHost">
+	  </host>
+	</ul>
 
-<!-- <orders class="messages"></orders> -->
+	<!-- <orders class="messages"></orders> -->
 
-<div class="detail" *ngIf="selectedHost">
-	<host-detail [host]="selectedHost"></host-detail>
+	<div class="detail" *ngIf="selectedHost">
+		<host-detail [host]="selectedHost"></host-detail>
+	</div>
+
 </div>

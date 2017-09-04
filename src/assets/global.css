@@ -1,0 +1,17 @@
+.main-page {
+	margin:10px;
+	font-family: 'Open Sans', sans-serif;
+	font-size: 14px;
+}
+
+h1 {
+    color: #2a5275;
+    font-size: 27px;
+    padding: 0 16px;
+}
+
+h2 {
+    color: #2a5275;
+    font-size: 22px;
+    padding: 0 8px;
+}
