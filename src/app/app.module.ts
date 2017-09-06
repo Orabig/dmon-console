@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 import { routing }        from './app.routing';
 
 import { AlertComponent } from './_directives/index';
-import { AuthGuard } from './_guards/index';
+import { AuthGuard,AdminGuard } from './_guards/index';
 import { AlertService,
 		 AuthenticationService, 
 		 UserService, 
@@ -21,6 +21,7 @@ import { AlertService,
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './page-monitor/index';
 import { PageDefineComponent } from './page-define/index';
+import { PageTemplateComponent } from './page-template/index';
 
 import { UsersComponent, ApiKeyComponent } from './users/index';
 
@@ -40,6 +41,7 @@ import { HeaderComponent, OrdersComponent } from './_comps';
     UsersComponent,
 	ApiKeyComponent,
     GroupComponent,
+    PageTemplateComponent,
     PageDefineComponent,
     LoginComponent,
     RegisterComponent,
@@ -57,6 +59,7 @@ import { HeaderComponent, OrdersComponent } from './_comps';
   ],
   providers: [
         AuthGuard,
+		AdminGuard,
         AlertService,
         AuthenticationService,
         UserService,
