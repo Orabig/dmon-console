@@ -1,7 +1,7 @@
 ﻿import { Routes, RouterModule } from '@angular/router';
 
 import { HomeComponent } from './home/index';
-import { GroupComponent } from './group/index';
+import { GroupComponent } from './page-monitor/index';
 import { PageDefineComponent } from './page-define/index';
 import { LoginComponent } from './login/index';
 import { UsersComponent } from './users/index';
@@ -11,7 +11,7 @@ import { AuthGuard } from './_guards/index';
 const appRoutes: Routes = [
     { path: '', component: HomeComponent, canActivate: [AuthGuard] },
     { path: 'define', component: PageDefineComponent, canActivate: [AuthGuard]  },
-    { path: 'group', component: GroupComponent, canActivate: [AuthGuard]  },
+    { path: 'monitor', component: GroupComponent, canActivate: [AuthGuard]  },
     { path: 'users', component: UsersComponent, canActivate: [AuthGuard]  },
 	
     { path: 'login', component: LoginComponent },

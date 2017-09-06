@@ -19,7 +19,7 @@ import { AlertService,
 		 OrderManageService		 } from './_services';
 
 import { HomeComponent } from './home/index';
-import { GroupComponent } from './group/index';
+import { GroupComponent } from './page-monitor/index';
 import { PageDefineComponent } from './page-define/index';
 
 import { UsersComponent, ApiKeyComponent } from './users/index';
