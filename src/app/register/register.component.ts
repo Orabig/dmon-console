@@ -24,7 +24,6 @@ export class RegisterComponent {
             .subscribe(
                 data => {
 					if (data['error']) {
-						console.log(data);
 						this.alertService.error(data['error']);
 						this.loading = false;
 					} else {
