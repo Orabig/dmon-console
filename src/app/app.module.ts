@@ -20,6 +20,7 @@ import { AlertService,
 
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './group/index';
+import { PageDefineComponent } from './page-define/index';
 
 import { UsersComponent, ApiKeyComponent } from './users/index';
 
@@ -39,6 +40,7 @@ import { HeaderComponent, OrdersComponent } from './_comps';
     UsersComponent,
 	ApiKeyComponent,
     GroupComponent,
+    PageDefineComponent,
     LoginComponent,
     RegisterComponent,
 	HostComponent,
