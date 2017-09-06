@@ -47,7 +47,7 @@ export class HostService {
 		  // ... on combine celui qui modifie ces valeurs
 		  .combineLatest( this.centrifugeService.getMessagesOn('$'+groupName)
 				.filter(msg => {
-					return this.orderManageService.isMessageKnown(msg);
+					return (! this.shouldMessageBeKnown(msg)) || this.orderManageService.isMessageKnown(msg);
 				})
 				.startWith( 'NOOP' ) // Il faut simuler un premier message qui duplique la liste initiale
 			, this.transformHosts ); // La fonction qui transforme la liste de host avec les messages ultérieurs
@@ -56,6 +56,13 @@ export class HostService {
 	// Renvoie un observable contenant la liste (persistée sur le serveur) des hosts d'un groupe
 	getGroupMembers(group: string): Observable<Host[]> {
 		return this.httpInterceptorService.getJson('get-group-members.php', { group: group} )
+	}
+	
+	// True if that message type must be processed only if known
+	// Typically, RESULTS should be known, because they result of a 'CMD' request
+	// On the contrary, 'SERVICE' or 'ALIVE' messages must NOT be known to be handled
+	shouldMessageBeKnown(message: any) :boolean {
+		return message.data['t']==='RESULT';
 	}
 	
 	// Envoie une requete au serveur de demande de token
