@@ -3,6 +3,28 @@
 
 	<h1>Templates</h1>
 
-	<h2>Technologies</h2>
+	<section class="technologyapp">
+	  <div class="header">
+		<h1>Technologies</h1>
+		<input class="new-technology" 
+			placeholder="Enter new tech name"
+			autofocus=""
+			[(ngModel)]="newTechnology.name"
+			(keyup.enter)="addTechnology()">
+	  </div>
+	  <section class="main" *ngIf="technologies.length > 0">
+		<table class="technology-list">
+		  <tr *ngFor="let technology of technologies">
+			<td>
+			  <img src="{{ technology.iconUri }}">
+			 </td><th>
+			  <label>{{technology.name}}</label>
+			  </th><td>
+			  <button class="destroy" (click)="removeTechnology(technology)">Delete</button>
+			  </td>
+		  </tr>
+		</table>
+	  </section>
+	</section>
 
 </div>
