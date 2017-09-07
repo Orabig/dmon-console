@@ -1,0 +1,26 @@
+﻿<section>
+  <div class="header">
+	<h1>Applications</h1>	
+	<input class="new-application" 
+		placeholder="Enter new application"
+		autofocus=""
+		[(ngModel)]="newApplication.name"
+		(keyup.enter)="addApplication()">
+
+  <div class="fullname">{{ newApplication.name }}</div>
+
+	  
+  </div>
+  <section class="main" *ngIf="applications.length > 0">
+	<table class="application-list">
+	  <tr *ngFor="let application of applications">
+		<td>
+		  <label>{{application.name}}</label>
+		  </td>
+		  <td>
+		  <button class="destroy" (click)="removeApplication(application)">Delete</button>
+		  </td>
+	  </tr>
+	</table>
+  </section>
+</section>

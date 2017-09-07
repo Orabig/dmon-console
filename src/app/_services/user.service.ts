@@ -23,6 +23,6 @@ export class UserService {
 	}
 	
     delete(id: number) {
-        return this.httpInterceptorService.deleteJson('user.php/'+id);
+        return this.httpInterceptorService.deleteJson('user.php', id);
     }
 }

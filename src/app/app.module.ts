@@ -20,8 +20,8 @@ import { AlertService,
 
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './page-monitor/index';
-import { PageDefineComponent } from './page-define/index';
-import { PageTemplateComponent } from './page-template/index';
+import { PageDefineComponent, ApplicationListComponent } from './page-define/index';
+import { PageTemplateComponent, TechnologyListComponent, FamilyListComponent } from './page-template/index';
 
 import { UsersComponent, ApiKeyComponent } from './users/index';
 
@@ -41,7 +41,10 @@ import { HeaderComponent, OrdersComponent } from './_comps';
     UsersComponent,
 	ApiKeyComponent,
     GroupComponent,
+    ApplicationListComponent,
     PageTemplateComponent,
+    TechnologyListComponent,
+    FamilyListComponent,
     PageDefineComponent,
     LoginComponent,
     RegisterComponent,

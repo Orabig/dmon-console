@@ -48,7 +48,9 @@ export class CentrifugeService {
   }
   
   disconnect(): void {
-	this.handler.disconnect();
+	if (this.handler) { // handler may be undefined in case of network outage
+		this.handler.disconnect();
+	}
   }
   
   getMessagesOn(channel: string): Observable<any> {

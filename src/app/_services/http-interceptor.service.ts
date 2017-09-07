@@ -19,32 +19,40 @@ export class HttpInterceptorService {
 	
 	getJson(url: string, load:any): Observable<any> {
 		return this.http.get(environment.dmonApiRoot+url, this.jwtWithSearch( load ))
-			.map((response: Response) => response.json())
-			.filter( data => this.filterError(data) );
+			.map(response => response.json())
+			.map( data => this.filterError(data) );
 	}
 	
+	// POST a request (with the JWT token) and returns an Observable (which MUST be subscribed to have any effect)
 	postJson(url: string, load: any): Observable<any> {
 		return this.http.post(environment.dmonApiRoot+url, load, this.jwt())
-			.map((response: Response) => response.json())
-			.filter( data => this.filterError(data) );
-	}  
-	
-	deleteJson(url: string): Observable<any> {
-		return this.http.delete(environment.dmonApiRoot+url, this.jwt())
-			.map((response: Response) => response.json())
+			.map(response => response.json())
 			.map( data => this.filterError(data) );
 	}  
 	
+	// sends a DELETE request (with the JWT token) and returns an Observable (which MUST be subscribed to have any effect)
+	// containing the number of affected rows
+	deleteJson(url: string, id: any): Observable<number> {
+		return this.http.delete(environment.dmonApiRoot+url + '/' + id, this.jwt())
+			.map((response: Response) => response.json())
+			.map( data => this.filterError(data))
+			.filter( data => data > 0 );
+	}  
+	
+	// TODO : improve this with : https://stackoverflow.com/questions/35326689/how-to-catch-exception-correctly-from-http-request
 	filterError(data: any): any {
-		if (data['error']) {
-			this.alertService.error(data['detail'] || data['error'])
-			if (data['disconnect']) {
+		if (data===0) return data; // API returns 0 in some cases (when inserting without autoincrement ID)
+		var errorMsg = data ? data['detail'] || data['error'] : 'Integrity error'; // TODO : work on api.php to get DB error
+		if (errorMsg) {			
+			console.error( errorMsg );
+			this.alertService.error( errorMsg )
+			if (data && data['disconnect']) {
 				// logout
 				//localStorage.removeItem('currentUser');
 				this.router.navigate(['login']);
 			}
 			// We must throw an error, so that caller may treat these accordingly
-			return Observable.throw(data['detail'] || data['error']);
+			return Observable.throw( errorMsg );
 		}
 		return data;
 	}
