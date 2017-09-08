@@ -11,8 +11,9 @@
   <section class="main" *ngIf="technologies.length > 0">
 	<table class="technology-list">
 	  <tr *ngFor="let technology of technologies">
-		<td>
+		<td><div>
 		  <img src="{{ technology.iconUri }}">
+		  </div>
 		 </td><th *ngIf="detailed">
 		  <label>{{technology.name}}</label>
 		  </th><td *ngIf="editable">
