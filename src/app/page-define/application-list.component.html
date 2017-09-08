@@ -1,17 +1,19 @@
-﻿<section>
+<section>
   <div class="header">
 	<h1>Applications</h1>	
 	<input class="new-application" 
 		placeholder="Enter new application"
 		autofocus=""
 		[(ngModel)]="newApplication.name"
-		(keyup.enter)="addApplication()">
+		(keyup.enter)="addApplication()"/>
+	<input type="radio">Prod
+	<input type="radio">Dev
   </div>
   
   <section class="main" *ngIf="applications.length > 0">
 	<table class="application-list">
 	  <tr *ngFor="let application of applications">
-		<td class="application">
+		<td class="application" (click)="selectApplication(application)">
 		  <label>{{application.name}}</label>
 		  </td>
 		  <td>

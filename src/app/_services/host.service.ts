@@ -15,6 +15,9 @@ import { environment } from '../../environments/environment';
 
 import { Host } from '../_models/objects/host';
 import { Message } from '../_models/comm/message';
+import { ObjectsDataService } from './objects-data.service';
+
+import { generateUUID } from '../_helpers/utils';
 
 
 // Le service qui fournit l'état de tous les hosts.
@@ -30,7 +33,8 @@ export class HostService {
 			  private centrifugeService: CentrifugeService,
 			  private alertService: AlertService,
 			  private sendCommandService: SendCommandService,
-			  private orderManageService: OrderManageService) { }
+			  private orderManageService: OrderManageService,
+        private objectsDataService: ObjectsDataService) { }
   
     // Will emit any received message
 	// TODO : Refaire TOUT le modele : ce champ ne devrait pas être static, mais il devient undefined sans explication quand il passe en instance.
@@ -44,6 +48,8 @@ export class HostService {
 	getHosts(groupName: string): Observable<Host[]> {
 		  // A l'observable qui émet la liste initiale des hosts ...
 		return this.getGroupMembers(groupName)
+      // ... On enregistre la liste de ces hosts en passant
+      .do(hosts => this.registerHosts(hosts))
 		  // ... on combine celui qui modifie ces valeurs
 		  .combineLatest( this.centrifugeService.getMessagesOn('$'+groupName)
 				.filter(msg => {
@@ -97,7 +103,26 @@ export class HostService {
 			host.client = undefined;
 			hosts.push(host);
 			hosts = Object.assign( hosts );
+      // Record the host in the database if it's not known
+      this.getHostIdOrInsert( host );
 		}
 		return hosts;
 	}
+  
+  registerHosts( hosts:Host[] ) {
+    hosts.forEach(host => this.getHostIdOrInsert(host));
+  }
+  
+  getHostIdOrInsert( host:Host ) {
+    this.objectsDataService.getHostByName(host.name).subscribe(
+      gotHost => {
+        if (gotHost===undefined) {
+          host.id = generateUUID();
+          this.objectsDataService.addHost(host).subscribe(result=>{});
+        }else{
+          host.id = gotHost.id;
+        }
+      }
+    ); 
+  }
 }

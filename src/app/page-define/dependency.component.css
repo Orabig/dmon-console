@@ -1,0 +1,19 @@
+
+ h3 {
+	margin-bottom:0px;
+}
+
+
+/* Temporaire */
+.app-name {
+}
+
+table.hosts td {
+	border:dashed 1px #aaa;
+	height:72px;
+}
+
+table.hosts th {
+	vertical-align:top;
+	width:10%;
+}

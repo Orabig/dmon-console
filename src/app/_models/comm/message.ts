@@ -20,7 +20,6 @@ export class Message {
 			// ASIS : ACK ignored for now
 			// TODO : check ACK
 		} else if (message.data['t']=='RESULT'){
-			// TODO : check ACK ID (ne prendre en compte QUE les RESULT de NOS commandes) <<<<<<<< IMPORTANT
 			host.last_stdout = message.data['stdout'].join('\n');
 			host.last_stderr = message.data['stderr'].join('\n');
 			if (! message.data['terminated']) {

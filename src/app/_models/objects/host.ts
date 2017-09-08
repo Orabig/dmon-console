@@ -1,6 +1,7 @@
 import { Service } from './service';
 
 export class Host {
+  id: string;
   name: string;
   client: string;
   alive: boolean;

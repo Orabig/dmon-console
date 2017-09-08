@@ -31,6 +31,8 @@ import { RegisterComponent } from './register/index';
 import { HostComponent, HostDetailComponent } from './_comps/host';
 import { ServiceStateComponent } from './_comps/service';
 import { HeaderComponent, OrdersComponent } from './_comps';
+import { ObjectsDataService } from './_services/objects-data.service';
+import { DependencyComponent } from './page-define/dependency.component';
 
 
 @NgModule({
@@ -52,7 +54,8 @@ import { HeaderComponent, OrdersComponent } from './_comps';
 	OrdersComponent,
 	HostDetailComponent,
 	ServiceStateComponent,
-	HeaderComponent
+	HeaderComponent,
+	DependencyComponent
   ],
   imports: [
     BrowserModule,
@@ -70,7 +73,8 @@ import { HeaderComponent, OrdersComponent } from './_comps';
 		SendCommandService,
 		HostService,
 		HttpInterceptorService,
-		OrderManageService
+		OrderManageService,
+    ObjectsDataService
 	],
   bootstrap: [AppComponent]
 })

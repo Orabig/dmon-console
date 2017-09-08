@@ -1,8 +1,10 @@
 ﻿import { Component, OnInit } from '@angular/core';
-import {Observable} from 'rxjs/Observable';
 
 import { ObjectsDataService } from '../_services/objects-data.service';
 import { Application } from '../_models/objects';
+import { Observable } from 'rxjs';
+import { generateUUID } from '../_helpers/utils';
+import { BusService } from './bus.service';
 
 @Component({
   selector: 'application-list',
@@ -16,7 +18,8 @@ export class ApplicationListComponent implements OnInit {
 	newApplication: Application =  new Application({ });
 	applications: Application[] = [];
 	
-	constructor(private objectsDataService: ObjectsDataService) { 
+	constructor(private objectsDataService: ObjectsDataService,
+              private busService: BusService) { 
 	}
 
 	ngOnInit(): void {
@@ -26,10 +29,13 @@ export class ApplicationListComponent implements OnInit {
 	isProtocolLocal(protocol: string) {
 		return protocol==='local' || protocol===undefined
 	}
+  
+  selectApplication(application: Application) {
+    this.busService.applicationselected(application);
+  }
 
 	addApplication() {
-		// Generates a new UUID
-		var newId = guid();
+		var newId = generateUUID();
 		this.newApplication.id = newId;
 		this.objectsDataService.addApplication(this.newApplication).subscribe(
 			(result: any) => {
@@ -54,16 +60,4 @@ export class ApplicationListComponent implements OnInit {
 			}
 		);
 	}
-}
-
-// TODO TODO Mettre ca dans une méthode utilitaire (il y a en d'autres, chercher random)
-// Generates a random id
-function guid() {
-  function s4() {
-	return Math.floor((1 + Math.random()) * 0x10000)
-	  .toString(16)
-	  .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-	s4() + '-' + s4() + s4() + s4();
 }

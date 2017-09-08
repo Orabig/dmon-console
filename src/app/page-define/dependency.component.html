@@ -1,0 +1,15 @@
+<div *ngIf="this.application != null">
+	
+	<div class="app-name"><h3>{{ this.application.name }}</h3></div>
+	<div>
+	
+		<table class="hosts">	
+		<tr *ngFor="let host of knownHosts">
+			<th>{{ host.name }}</th><td>(list of components...)</td>
+		</tr>
+		</table>
+	
+	</div>
+	
+</div>
+	
