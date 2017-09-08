@@ -6,11 +6,8 @@
 		autofocus=""
 		[(ngModel)]="newApplication.name"
 		(keyup.enter)="addApplication()">
-
-  <div class="fullname">{{ newApplication.name }}</div>
-
-	  
   </div>
+  
   <section class="main" *ngIf="applications.length > 0">
 	<table class="application-list">
 	  <tr *ngFor="let application of applications">
