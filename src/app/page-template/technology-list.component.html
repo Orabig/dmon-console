@@ -1,7 +1,8 @@
-﻿<section class="technologyapp">
+﻿<section class="technologyapp" [class.detailed]="detailed" [class.summary]="!detailed">
   <div class="header">
-	<h1>Technologies</h1>
-	<input class="new-technology" 
+	<h1>{{ title }}</h1>
+	<input *ngIf="editable"
+		class="new-technology" 
 		placeholder="Enter new tech name"
 		autofocus=""
 		[(ngModel)]="newTechnology.name"
@@ -12,10 +13,12 @@
 	  <tr *ngFor="let technology of technologies">
 		<td>
 		  <img src="{{ technology.iconUri }}">
-		 </td><th>
+		 </td><th *ngIf="detailed">
 		  <label>{{technology.name}}</label>
-		  </th><td>
-		  <button class="destroy" (click)="removeTechnology(technology)">Delete</button>
+		  </th><td *ngIf="editable">
+		  <button
+			class="destroy"
+			(click)="removeTechnology(technology)">Delete</button>
 		  </td>
 	  </tr>
 	</table>

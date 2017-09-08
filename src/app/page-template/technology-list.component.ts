@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, Input } from '@angular/core';
 
 import {TemplatesDataService} from '../_services/templates-data.service';
 import { Technology , Family } from '../_models/templates';
@@ -14,6 +14,10 @@ export class TechnologyListComponent implements OnInit {
 	
 	newTechnology: Technology = new Technology();
 	technologies: Technology[] = [];
+	
+	@Input() public title: string='Technologies';
+	@Input() public editable: boolean = true;
+	@Input() public detailed: boolean = true;
 
 	constructor(private templatesDataService: TemplatesDataService) { }
 

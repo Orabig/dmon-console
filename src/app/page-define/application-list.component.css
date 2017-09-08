@@ -1,0 +1,16 @@
+td.application {
+	width:140px;
+	background:#aaa;
+	
+    padding: 3px 35px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2), inset 0px 5px 30px rgba(255,255,255,0.2);
+    text-align: center;
+}
+
+
+td.application:hover {
+    color: #607D8B;
+    background-color: #999;
+	position:relative;
+    left: .3em;
+  }
