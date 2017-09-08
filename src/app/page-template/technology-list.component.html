@@ -1,4 +1,4 @@
-﻿<section class="technologyapp" [class.detailed]="detailed" [class.summary]="!detailed">
+<section class="technologyapp" [class.detailed]="detailed" [class.summary]="!detailed">
   <div class="header">
 	<h1>{{ title }}</h1>
 	<input *ngIf="editable"
@@ -11,7 +11,7 @@
   <section class="main" *ngIf="technologies.length > 0">
 	<table class="technology-list">
 	  <tr *ngFor="let technology of technologies">
-		<td><div>
+		<td><div dnd-draggable [dragEnabled]="!detailed" [dragData]="technology">
 		  <img src="{{ technology.iconUri }}">
 		  </div>
 		 </td><th *ngIf="detailed">

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import { HttpInterceptorService } from './http-interceptor.service';
 
 import { Application, Host } from '../_models/objects';
+import { Technology } from '../_models/templates';
 
 // This service contains all Data-Access method for Client-managed objects :
 // * Host (TODO)
@@ -88,4 +89,11 @@ export class ObjectsDataService {
     return null;
   }
 
+  // ------------------------- Composant --------------------------
+  
+  // Creates a new composant linked to the given technology, the application and the host
+  createNewComponent(host:Host, application:Application, technology: Technology): Observable<any> {    
+    console.log("host=",host," techn=",technology," app=",application);
+    return null;
+  }
 }

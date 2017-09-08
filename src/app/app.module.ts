@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { DndModule } from 'ng2-dnd';
 import { FormsModule }   from '@angular/forms'; 
 import { HttpModule } from '@angular/http';
 
@@ -61,7 +62,8 @@ import { DependencyComponent } from './page-define/dependency.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    routing
+    routing,
+    DndModule.forRoot()
   ],
   providers: [
         AuthGuard,
