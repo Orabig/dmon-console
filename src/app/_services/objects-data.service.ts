@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { HttpInterceptorService } from './http-interceptor.service';
 
-import { Application, Host } from '../_models/objects';
+import { Application, Host, Composant } from '../_models/objects';
 import { Technology } from '../_models/templates';
 
 // This service contains all Data-Access method for Client-managed objects :
@@ -91,9 +91,20 @@ export class ObjectsDataService {
 
   // ------------------------- Composant --------------------------
   
+  getAllComponentsFor(host:Host, application:Application):Observable<Composant[]> {
+    return this.httpInterceptorService
+      .getJson('get-composants.php', { host_id: host.id, application_id: application.id } )
+      .do ( response => console.log(response) );
+  }
+  
   // Creates a new composant linked to the given technology, the application and the host
-  createNewComponent(host:Host, application:Application, technology: Technology): Observable<any> {    
-    console.log("host=",host," techn=",technology," app=",application);
-    return null;
+  // Returns (an observable of) the id of the created component
+  createNewComponent(host:Host, application:Application, technology: Technology, name: string): Observable<Composant> {    
+    return this.httpInterceptorService.postJson('create-composant.php', {
+      host_id: host.id,
+      application_id: application.id,
+      technology_id: technology.id,
+      name: name
+    });
   }
 }

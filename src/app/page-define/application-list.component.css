@@ -14,3 +14,9 @@ td.application:hover {
 	position:relative;
     left: .3em;
   }
+  
+td.application.selected {
+    background-color: #E99;
+	position:relative;
+    left: .3em;
+}

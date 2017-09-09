@@ -13,7 +13,9 @@
   <section class="main" *ngIf="applications.length > 0">
 	<table class="application-list">
 	  <tr *ngFor="let application of applications">
-		<td class="application" (click)="selectApplication(application)">
+		<td class="application"
+			[class.selected]="selectedApplication==application"
+			(click)="selectApplication(application)">
 		  <label>{{application.name}}</label>
 		  </td>
 		  <td>

@@ -17,6 +17,7 @@ export class ApplicationListComponent implements OnInit {
 	
 	newApplication: Application =  new Application({ });
 	applications: Application[] = [];
+  selectedApplication: Application;
 	
 	constructor(private objectsDataService: ObjectsDataService,
               private busService: BusService) { 
@@ -31,6 +32,7 @@ export class ApplicationListComponent implements OnInit {
 	}
   
   selectApplication(application: Application) {
+    this.selectedApplication=application;
     this.busService.applicationselected(application);
   }
 

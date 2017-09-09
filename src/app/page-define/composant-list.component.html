@@ -1,0 +1,9 @@
+<div dnd-droppable (onDropSuccess)="drop(host, $event.dragData)" class="top">
+
+	<div *ngFor="let composant of composants" class="component">
+		<div><img src="{{ composant.tech_iconUri }}"></div>
+		<div>{{ composant.name }}</div>
+	</div>
+	
+	<div>    (drop new components here...)</div>
+</div>

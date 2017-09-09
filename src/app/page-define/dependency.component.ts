@@ -4,6 +4,9 @@ import { Technology } from '../_models/templates';
 import { ObjectsDataService } from '../_services/objects-data.service';
 import { BusService } from './bus.service';
 
+/**
+ * Displays the list of components for the given host and application
+ */
 @Component({
   selector: 'dependency',
   templateUrl: './dependency.component.html',
@@ -11,6 +14,10 @@ import { BusService } from './bus.service';
   providers: [ ObjectsDataService ]
 })
 export class DependencyComponent implements OnInit {
+  
+  application: Application;
+  
+  @Input() knownHosts: Host[];
 
   constructor( private busService: BusService, private objectsDataService: ObjectsDataService ) {
     busService.applicationSelected$.subscribe(
@@ -22,14 +29,4 @@ export class DependencyComponent implements OnInit {
   ngOnInit() {
   }
   
-  @Input() knownHosts: Host[];
-  
-  application: Application;
-  
-  // Called when the user drops a technology to a host
-  drop(host: Host, technology: Technology) {
-    var application = this.application;
-    this.objectsDataService.createNewComponent(host, application, technology);
-  }
-
 }

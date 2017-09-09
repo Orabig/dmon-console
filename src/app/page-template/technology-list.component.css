@@ -5,27 +5,13 @@
 .summary table {
 	margin-top:15px;
 }	
-.summary table:hover {
-	margin-top:0px;
-}	
 .summary td div {
 	background:#fff;
 	border:dashed 1px black;
-	width:60px;
-	height:30px;
+	margin:1px;
 	vertical-align:middle;
-}
-.summary td:hover {
-	position:relative;
-	top:-30px;
-	left:-30px;
-	height: 60px;
-}
+}	
 .summary td:hover div {
-	position:absolute;
-	width:120px;
-	height:60px;
-}
-.summary img {
-	width:100%;
+	border:solid 2px black;
+	margin:0px;
 }

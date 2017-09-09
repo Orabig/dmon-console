@@ -6,7 +6,9 @@
 		<table class="hosts">	
 		<tr *ngFor="let host of knownHosts">
 			<th>{{ host.name }}</th>
-			<td dnd-droppable (onDropSuccess)="drop(host, $event.dragData)">(list of components...)</td>
+			<td>
+				<composant-list [application]="this.application" [host]="host"></composant-list>
+			</td>
 		</tr>
 		</table>
 	

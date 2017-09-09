@@ -13,7 +13,6 @@ export class BusService {
   
   // Service commands
   applicationselected(application: Application) {
-    console.log("in bus");
     this.applicationSelectedSource.next( application );
   }
 }
