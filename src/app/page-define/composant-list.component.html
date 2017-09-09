@@ -3,6 +3,7 @@
 	<div *ngFor="let composant of composants" class="component">
 		<div><img src="{{ composant.tech_iconUri }}"></div>
 		<div>{{ composant.name }}</div>
+		<button (click)="delete(composant)" class="delete-btn">&times;</button>
 	</div>
 	
 	<div>    (drop new components here...)</div>

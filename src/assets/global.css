@@ -16,6 +16,23 @@ h2 {
     padding: 0 8px;
 }
 
+h3 {
+    color: #2a5275;
+    font-size: 18px;
+}
+
+.delete-btn {	
+    position: absolute;
+    right: -9px;
+    top: -3px;
+    background: #cc4a4a;
+    color: #fff;
+    font-size: 14px;
+    padding: 0px 4px;
+    border-radius: 11px;
+    cursor: pointer;
+}
+
 .dnd-drag-start {
     -moz-transform:scale(0.8);
     -webkit-transform:scale(0.8);

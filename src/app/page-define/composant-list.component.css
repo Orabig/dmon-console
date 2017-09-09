@@ -4,6 +4,7 @@
 }
 
 .component {
+	position: relative;
 	display: inline-block;
 	border:solid 1px #aaa;
 	padding: 4px;
@@ -16,3 +17,4 @@
 	width:40px;
 	height:20px;
 }
+

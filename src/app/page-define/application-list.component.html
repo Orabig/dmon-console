@@ -11,17 +11,12 @@
   </div>
   
   <section class="main" *ngIf="applications.length > 0">
-	<table class="application-list">
-	  <tr *ngFor="let application of applications">
-		<td class="application"
+	  <div *ngFor="let application of applications"
+			class="application"
 			[class.selected]="selectedApplication==application"
 			(click)="selectApplication(application)">
 		  <label>{{application.name}}</label>
-		  </td>
-		  <td>
-		  <button class="destroy" (click)="removeApplication(application)">Delete</button>
-		  </td>
-	  </tr>
-	</table>
+		  <button class="delete-btn" (click)="removeApplication(application)">&times;</button>
+	  </div>
   </section>
 </section>

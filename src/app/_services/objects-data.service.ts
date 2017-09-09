@@ -93,8 +93,7 @@ export class ObjectsDataService {
   
   getAllComponentsFor(host:Host, application:Application):Observable<Composant[]> {
     return this.httpInterceptorService
-      .getJson('get-composants.php', { host_id: host.id, application_id: application.id } )
-      .do ( response => console.log(response) );
+      .getJson('get-composants.php', { host_id: host.id, application_id: application.id } );
   }
   
   // Creates a new composant linked to the given technology, the application and the host
@@ -105,6 +104,13 @@ export class ObjectsDataService {
       application_id: application.id,
       technology_id: technology.id,
       name: name
+    });
+  }
+  
+  // Deletes a composant. Returns the number of affected rows (should be >1)
+  deleteComponent(composant: Composant): Observable<number> {    
+    return this.httpInterceptorService.postJson('delete-composant.php', {
+      composant_id: composant.id
     });
   }
 }

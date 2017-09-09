@@ -16,10 +16,10 @@
 		  </div>
 		 </td><th *ngIf="detailed">
 		  <label>{{technology.name}}</label>
-		  </th><td *ngIf="editable">
+		  </th><td *ngIf="editable" class="delete">
 		  <button
-			class="destroy"
-			(click)="removeTechnology(technology)">Delete</button>
+			class="delete-btn"
+			(click)="removeTechnology(technology)">&times;</button>
 		  </td>
 	  </tr>
 	</table>

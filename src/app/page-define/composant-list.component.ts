@@ -33,6 +33,11 @@ export class ComposantListComponent implements OnChanges {
       comp => this.composants.push(comp)
     );
   }
+  
+  delete(composant: Composant) {
+    this.objectsDataService.deleteComponent(composant)
+      .subscribe(num => this.composants = this.composants.filter(item => item.id !== composant.id ))
+  }
 
   s4() {
   return Math.floor((1 + Math.random()) * 0x10000)
