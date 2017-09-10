@@ -6,5 +6,5 @@
 		<button (click)="delete(composant)" class="delete-btn">&times;</button>
 	</div>
 	
-	<div>    (drop new components here...)</div>
+	<div *ngIf="composants.length==0" class="empty">(drop new components here...)</div>
 </div>
