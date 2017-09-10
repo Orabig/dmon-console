@@ -1,0 +1,16 @@
+<table>
+
+<tr class="header">
+	<td></td>
+	<th *ngFor="let host of hosts">{{host.name}}</th>
+</tr>
+
+<tr *ngFor="let application of applications">
+	<th>{{ application.name }}</th>
+	<td *ngFor="let host of hosts">
+		<monitor-composant [host]="host" [application]="application"></monitor-composant>
+	</td>
+</tr>
+
+
+</table>

@@ -35,6 +35,8 @@ import { HeaderComponent, OrdersComponent } from './_comps';
 import { ObjectsDataService } from './_services/objects-data.service';
 import { DependencyComponent } from './page-define/dependency.component';
 import { ComposantListComponent } from './page-define/composant-list.component';
+import { StatusComponent } from './page-monitor/status.component';
+import { ComposantComponent } from './page-monitor/composant.component';
 
 
 @NgModule({
@@ -58,7 +60,9 @@ import { ComposantListComponent } from './page-define/composant-list.component';
 	ServiceStateComponent,
 	HeaderComponent,
 	DependencyComponent,
-	ComposantListComponent
+	ComposantListComponent,
+	StatusComponent,
+	ComposantComponent
   ],
   imports: [
     BrowserModule,

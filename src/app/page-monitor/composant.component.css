@@ -1,0 +1,65 @@
+/*
+   
+   Gros block (désactivé pour présentation plus condensée)
+   
+.composant {
+    text-align: center;
+    margin: 10px;
+    width: 140px;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+.top {
+    border-top: solid 1px #000;
+    border-left: solid 1px #000;
+    border-right: solid 1px #000;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    margin-bottom: -4px;
+}
+
+.bottom {
+    border-left: solid 1px #000;
+    border-right: solid 1px #000;
+	border-bottom: solid 1px #000;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;    
+	background: #aaa;
+}
+
+.composant img {
+	width: 90px;
+	height: 45px;
+}
+*/
+
+.composant {
+	width: 233px;
+	border: solid 1px #444;
+	margin: 6px;
+	margin-left: 24px;
+	font-size: 12px;	
+    font-weight: bold;
+    font-family: monospace;
+    text-align: left;
+}
+.left, .right {
+    display: inline-flex;
+}
+.left {
+	line-height: 15px;
+    vertical-align: middle;
+	background: #fff;
+}
+.right {  
+	background: #aaa;
+	height: 16px;
+    float: right;
+    padding: 0 6px;
+}
+img {
+	width:30px;
+	height:15px;
+    margin:0 4px;
+}
