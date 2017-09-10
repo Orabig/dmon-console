@@ -1,10 +1,12 @@
 <div dnd-droppable (onDropSuccess)="drop(host, $event.dragData)" class="top">
 
-	<div *ngFor="let composant of composants" class="component">
+	<div *ngFor="let composant of composants"
+		class="component"
+		dnd-draggable [dragData]="composant">
 		<div><img src="{{ composant.tech_iconUri }}"></div>
 		<div>{{ composant.name }}</div>
-		<button (click)="delete(composant)" class="delete-btn">&times;</button>
+		<button (click)="delete(application, host, composant)" class="delete-btn">&times;</button>
 	</div>
 	
-	<div *ngIf="composants.length==0" class="empty">(drop new components here...)</div>
+	<div *ngIf="composants && composants.length==0" class="empty">(drop new components here...)</div>
 </div>

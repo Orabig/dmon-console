@@ -6,6 +6,8 @@ import { HttpInterceptorService } from './http-interceptor.service';
 import { Application, Host, Composant } from '../_models/objects';
 import { Technology } from '../_models/templates';
 
+import { generateUUID } from '../_helpers/utils';
+
 // This service contains all Data-Access method for Client-managed objects :
 // * Host (TODO)
 // * Application
@@ -91,6 +93,9 @@ export class ObjectsDataService {
 
   // ------------------------- Composant --------------------------
   
+  // Renvoie la liste des composants pour l'application donnée, et le host donné
+  // IMPORTANT : Les objets Composant sont renseignés avec leur implantation_id et le host_id
+  // pour le hosts demandé, ainsi que l'iconUri de la technologie associée (tech_iconUri)
   getAllComponentsFor(host:Host, application:Application):Observable<Composant[]> {
     return this.httpInterceptorService
       .getJson('get-composants.php', { host_id: host.id, application_id: application.id } );
@@ -107,10 +112,26 @@ export class ObjectsDataService {
     });
   }
   
-  // Deletes a composant. Returns the number of affected rows (should be >1)
-  deleteComponent(composant: Composant): Observable<number> {    
-    return this.httpInterceptorService.postJson('delete-composant.php', {
+  // Deletes an Implantation. If this was the last implantation, then delete the composant
+  deleteComponent(application:Application, host:Host, composant: Composant): Observable<number> {    
+    return this.httpInterceptorService.postJson('delete-implantation.php', {
+      host_id: host.id,
+      application_id: application.id,
       composant_id: composant.id
     });
+  }
+  
+  // Creates a new Implantation (Composant <-> Host) and returns the new component object
+  // (containing the host_id and implantation_id
+  assignComponentToHost(composant: Composant, host_id: string): Observable<Composant> {
+    var newImplantationId = generateUUID();
+    var implantation = {
+      id: newImplantationId,
+      composant_id: composant.id,
+      host_id: host_id
+    }
+    return this.httpInterceptorService
+        .postJson('api.php/Implantation', implantation)
+        .map(result => Object.assign({}, composant, {implantation_id: newImplantationId, host_id: host_id}));
   }
 }

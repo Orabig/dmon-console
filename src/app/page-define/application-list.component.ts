@@ -42,7 +42,6 @@ export class ApplicationListComponent implements OnInit {
 		this.objectsDataService.addApplication(this.newApplication).subscribe(
 			(result: any) => {
 				if (result instanceof Observable) return; // TODO : should be handled in http-interceptor
-				console.log("result=",result);
 				this.applications.push( this.newApplication );
 				this.newApplication = new Application({ });
 			}

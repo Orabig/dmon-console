@@ -23,10 +23,31 @@ export class ComposantListComponent implements OnChanges {
     );
   }
 
-  // Called when the user drops a technology to a host
-  drop(host: Host, technology: Technology) {
-    var application = this.application;
-    var name = technology.name+this.s4(); // TODO (APP-TECHNO-n)
+  // Called when the user drops a technology to a host OR a component to another host
+  drop(host: Host, object: any) {
+    // Detects if objects is a Technology or a Composant
+    if (object['technology_id']){
+      // This is a component
+      this.dropComponent(this.application, host, object);
+    }else {
+      // This is a technology
+      this.dropTechnology(this.application, host, object);
+    }
+  }
+  
+  // will copy the existing component to this host
+  dropComponent(application: Application, host: Host, composant: Composant) {    
+    console.log("DROP1",composant,"to",host);
+    this.objectsDataService.assignComponentToHost(composant, host.id)
+      .do(result => console.log("DROP RETURNED ",result))
+      .subscribe(
+      result => this.composants.push(result)
+    );
+  }
+    
+  // will create a new component for the given host
+  dropTechnology(application: Application, host: Host, technology: Technology) {
+    var name = application.name + '-' + technology.name + '/'+this.s4(); // TODO (APP-TECHNO-n)
     this.objectsDataService.createNewComponent(host, application, technology, name).map(
       comp => Object.assign(comp, {tech_iconUri: technology.iconUri}) 
     ).subscribe(
@@ -34,8 +55,10 @@ export class ComposantListComponent implements OnChanges {
     );
   }
   
-  delete(composant: Composant) {
-    this.objectsDataService.deleteComponent(composant)
+  // UNASSIGN the composant on THIS host and for THIS application. If these were the last ones, then removes the composant
+  // (could be impossible if there are agents assigned to it)
+  delete(application: Application, host: Host, composant: Composant) {
+    this.objectsDataService.deleteComponent(application, host, composant)
       .subscribe(num => this.composants = this.composants.filter(item => item.id !== composant.id ))
   }
 

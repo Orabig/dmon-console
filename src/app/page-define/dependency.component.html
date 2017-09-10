@@ -1,13 +1,13 @@
-<div *ngIf="this.application != null">
+<div *ngIf="application != null">
 	
-	<div class="app-name"><h3>{{ this.application.name }}</h3></div>
+	<div class="app-name"><h3>{{ application.name }}</h3></div>
 	<div>
 	
 		<table class="hosts">	
 		<tr *ngFor="let host of knownHosts">
 			<th>{{ host.name }}</th>
 			<td>
-				<composant-list [application]="this.application" [host]="host"></composant-list>
+				<composant-list [application]="application" [host]="host"></composant-list>
 			</td>
 		</tr>
 		</table>
