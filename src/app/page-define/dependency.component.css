@@ -6,8 +6,28 @@ table.hosts th {
 	vertical-align:top;
 	width:10%;
 }
-
-.host {
-	padding:0 12px 0 0;
+.hosts .host {
 	position: relative;
+    padding-right: 33px;
+    padding-top: 16px;
+}
+.header {
+	width: 200px;
+    display: inline-block;
+}
+
+.app-name {
+    display: inline-block;
+}
+.app-name h3 {
+	line-height:36px;
+}
+.no-app-title {
+	font-size: 12px;
+	padding-left: 48px;
+}
+
+.host .delete-btn {
+    right: 11px;
+    top: 2px;
 }

@@ -19,9 +19,9 @@ export class ComposantListComponent implements OnChanges {
   constructor( private objectsDataService: ObjectsDataService, private busService: BusService ) { }
 
   ngOnChanges() {
-    this.objectsDataService.getAllComponentsFor(this.host, this.application).subscribe(
-        composants => this.loadComposants(composants)
-    );
+    if (this.application!=null)
+      this.objectsDataService.getAllComponentsFor(this.host, this.application)
+        .subscribe( composants => this.loadComposants(composants) );
   }
   
   loadComposants(composants: Composant[]){

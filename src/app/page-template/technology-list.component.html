@@ -8,20 +8,20 @@
 		[(ngModel)]="newTechnology.name"
 		(keyup.enter)="addTechnology()">
   </div>
-  <section class="main" *ngIf="technologies.length > 0">
-	<table class="technology-list">
-	  <tr *ngFor="let technology of technologies">
-		<td><div dnd-draggable [dragEnabled]="!detailed" [dragData]="technology">
-		  <img src="{{ technology.iconUri }}">
-		  </div>
-		 </td><th *ngIf="detailed">
-		  <label>{{technology.name}}</label>
-		  </th><td *ngIf="editable" class="delete">
-		  <button
-			class="delete-btn"
-			(click)="removeTechnology(technology)">&times;</button>
-		  </td>
-	  </tr>
-	</table>
+  <section class="list" *ngIf="technologies.length > 0">
+	<div class="technology-list">
+	  <div *ngFor="let technology of technologies" class="main">
+		<div>
+			<div dnd-draggable [dragEnabled]="!detailed" [dragData]="technology" class="drag">
+		    	<img src="{{ technology.iconUri }}">
+		  	</div>
+		</div>
+		<div *ngIf="editable" class="delete">
+		    <button
+			  class="delete-btn"
+			  (click)="removeTechnology(technology)">&times;</button>
+		</div>
+	  </div>
+	</div>
   </section>
 </section>

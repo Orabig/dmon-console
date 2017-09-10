@@ -1,20 +1,24 @@
+.main {
+	width:132px;
+	position: relative;
+    display: inline-block;
+}
+.main .drag {
+	background:#fff;
+	border:dashed 1px black;
+	padding:1px;
+	margin:4px;
+	vertical-align:middle;
+}
 .summary h1 {
 	font-size: 12px;
 	padding:0px;
 }
-.summary table {
-	margin-top:15px;
-}	
-.summary td div {
-	background:#fff;
-	border:dashed 1px black;
-	margin:1px;
-	vertical-align:middle;
-}	
-.summary td:hover div {
+.summary div.main:hover .drag {
 	border:solid 2px black;
-	margin:0px;
+	padding:0px;
 }
 .delete {
-	position: relative;
+    position: relative;
+    top: -70px;
 }

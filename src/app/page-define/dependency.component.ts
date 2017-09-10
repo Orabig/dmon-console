@@ -64,7 +64,7 @@ export class DependencyComponent {
   
   // -------- Ajout dynamique de nouveau host
   
-  private newHostname: string="";
+  newHostname: string="";
   
   addHost() {
     this.objectsDataService.addHost(new Host({name: this.newHostname}))

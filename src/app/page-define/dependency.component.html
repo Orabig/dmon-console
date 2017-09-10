@@ -1,6 +1,16 @@
-<div *ngIf="application != null">
-	
-	<div class="app-name"><h3>{{ application.name }}</h3></div>
+<section>
+  <div class="header">
+	<h1>Hosts</h1>	
+	<input class="new-host" 
+				placeholder="Enter new host"
+				[(ngModel)]="newHostname"
+				(keyup.enter)="addHost()"/>
+  </div>
+  
+	<div class="app-name">
+		<h3 *ngIf="application != null">{{ application.name }}</h3>
+		<h3 *ngIf="application == null" class="no-app-title">(select an application)</h3>
+	</div>
 	<div>
 	
 		<table class="hosts">	
@@ -14,18 +24,10 @@
 			<td>
 				<composant-list [application]="application" [host]="host"></composant-list>
 			</td>
-		</tr>
-		
-		<!-- Ajout de host -->
-		<tr><th>
-			<input class="new-host" 
-				placeholder="Enter new host"
-				[(ngModel)]="newHostname"
-				(keyup.enter)="addHost()"/>
-		</th></tr>
+		</tr>		
 		
 		</table>
 	
 	</div>
 	
-</div>
+</section>
