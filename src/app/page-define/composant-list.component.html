@@ -5,7 +5,7 @@
 		dnd-draggable [dragData]="composant">
 		<div><img src="{{ composant.tech_iconUri }}"></div>
 		<div>{{ composant.name }}</div>
-		<button (click)="delete(application, host, composant)" class="delete-btn">&times;</button>
+		<button (click)="deleteComponent(application, host, composant)" class="delete-btn">&times;</button>
 	</div>
 	
 	<div *ngIf="composants && composants.length==0" class="empty">(drop new components here...)</div>

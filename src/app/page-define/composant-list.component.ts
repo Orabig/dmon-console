@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { Host, Application, Composant } from '../_models/objects';
 import { Technology } from '../_models/templates';
 import { ObjectsDataService } from '../_services/objects-data.service';
+import { BusService } from './bus.service';
 
 @Component({
   selector: 'composant-list',
@@ -15,12 +16,18 @@ export class ComposantListComponent implements OnChanges {
   
   composants: Composant[];
   
-  constructor( private objectsDataService: ObjectsDataService ) { }
+  constructor( private objectsDataService: ObjectsDataService, private busService: BusService ) { }
 
   ngOnChanges() {
     this.objectsDataService.getAllComponentsFor(this.host, this.application).subscribe(
-        composants => this.composants = composants
+        composants => this.loadComposants(composants)
     );
+  }
+  
+  loadComposants(composants: Composant[]){
+    this.composants = composants;
+    // Register the composants to the bus
+    composants.forEach(composant => this.busService.composantKnown(composant));
   }
 
   // Called when the user drops a technology to a host OR a component to another host
@@ -37,34 +44,36 @@ export class ComposantListComponent implements OnChanges {
   
   // will copy the existing component to this host
   dropComponent(application: Application, host: Host, composant: Composant) {    
-    console.log("DROP1",composant,"to",host);
     this.objectsDataService.assignComponentToHost(composant, host.id)
-      .do(result => console.log("DROP RETURNED ",result))
-      .subscribe(
-      result => this.composants.push(result)
-    );
+      .subscribe( composant => this.composants.push(composant) );
   }
     
   // will create a new component for the given host
   dropTechnology(application: Application, host: Host, technology: Technology) {
-    var name = application.name + '-' + technology.name + '/'+this.s4(); // TODO (APP-TECHNO-n)
+    // This componant needs to send a request to the bug to get an unique name
+    var shortTermSubscription = this.busService.uniqueNameFound$
+      .subscribe(name=>{ // This will be called when the name has been found
+        this.createComponent(application, host, technology, name);
+        shortTermSubscription.unsubscribe(); // Only listen once to this   
+      });
+    this.busService.uniqueNameRequest({application: application, technology: technology});
+  }
+  
+  createComponent(application: Application, host: Host, technology: Technology, name: string) {
     this.objectsDataService.createNewComponent(host, application, technology, name).map(
       comp => Object.assign(comp, {tech_iconUri: technology.iconUri}) 
     ).subscribe(
-      comp => this.composants.push(comp)
+      comp => {
+        this.composants.push(comp);
+        this.busService.composantKnown(comp);
+      }
     );
   }
   
   // UNASSIGN the composant on THIS host and for THIS application. If these were the last ones, then removes the composant
   // (could be impossible if there are agents assigned to it)
-  delete(application: Application, host: Host, composant: Composant) {
+  deleteComponent(application: Application, host: Host, composant: Composant) {
     this.objectsDataService.deleteComponent(application, host, composant)
       .subscribe(num => this.composants = this.composants.filter(item => item.id !== composant.id ))
-  }
-
-  s4() {
-  return Math.floor((1 + Math.random()) * 0x10000)
-    .toString(16)
-    .substring(1);
   }
 }
