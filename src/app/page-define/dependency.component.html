@@ -5,11 +5,25 @@
 	
 		<table class="hosts">	
 		<tr *ngFor="let host of knownHosts">
-			<th>{{ host.name }}</th>
+			<th class="host">
+				{{ host.name }}
+				<button
+					(click)="deleteHost(host)"
+					class="delete-btn">&times;</button>
+			</th>
 			<td>
 				<composant-list [application]="application" [host]="host"></composant-list>
 			</td>
 		</tr>
+		
+		<!-- Ajout de host -->
+		<tr><th>
+			<input class="new-host" 
+				placeholder="Enter new host"
+				[(ngModel)]="newHostname"
+				(keyup.enter)="addHost()"/>
+		</th></tr>
+		
 		</table>
 	
 	</div>

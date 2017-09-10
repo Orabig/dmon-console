@@ -37,12 +37,9 @@ export class ApplicationListComponent implements OnInit {
   }
 
 	addApplication() {
-		var newId = generateUUID();
-		this.newApplication.id = newId;
 		this.objectsDataService.addApplication(this.newApplication).subscribe(
-			(result: any) => {
-				if (result instanceof Observable) return; // TODO : should be handled in http-interceptor
-				this.applications.push( this.newApplication );
+			(application: Application) => {
+				this.applications.push( application );
 				this.newApplication = new Application({ });
 			}
 		);		
@@ -50,7 +47,11 @@ export class ApplicationListComponent implements OnInit {
 	
 	removeApplication(application) {
 		this.objectsDataService.deleteApplicationById(application.id).subscribe(
-			ok => this.applications = this.applications.filter(item => item.id !== application.id )
+			ok => {
+        if (this.selectedApplication.id===application.id)
+           this.selectApplication(null);
+        this.applications = this.applications.filter(item => item.id !== application.id )
+      }
 		);		
 	}
 	

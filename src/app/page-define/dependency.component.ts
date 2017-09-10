@@ -61,4 +61,22 @@ export class DependencyComponent {
     // Sends the name to the caller
     this.busService.uniqueNameFound(uniqueName);
   }
+  
+  // -------- Ajout dynamique de nouveau host
+  
+  private newHostname: string="";
+  
+  addHost() {
+    this.objectsDataService.addHost(new Host({name: this.newHostname}))
+      .subscribe(host=>{
+        this.knownHosts.push(host);
+        this.newHostname="";
+      });
+  }
+  
+  deleteHost(host: Host) {
+    this.objectsDataService.deleteHost(host)
+      .subscribe(result => this.knownHosts = this.knownHosts.filter(h => h.id !== host.id));
+  }
+  
 }

@@ -42,10 +42,12 @@ export class ComposantListComponent implements OnChanges {
     }
   }
   
-  // will copy the existing component to this host
+  // copy an existing component to this host
   dropComponent(application: Application, host: Host, composant: Composant) {    
     this.objectsDataService.assignComponentToHost(composant, host.id)
-      .subscribe( composant => this.composants.push(composant) );
+      .subscribe( 
+        composant => this.composants.push(composant),
+        err => console.log("traped:",err) );
   }
     
   // will create a new component for the given host

@@ -42,17 +42,14 @@ export class HttpInterceptorService {
 	// TODO : improve this with : https://stackoverflow.com/questions/35326689/how-to-catch-exception-correctly-from-http-request
 	filterError(data: any): any {
 		if (data===0) return data; // API returns 0 in some cases (when inserting without autoincrement ID)
-		var errorMsg = data ? data['detail'] || data['error'] : 'Integrity error'; // TODO : work on api.php to get DB error
+    if (data && data['disconnect']) {
+      // logout
+      this.router.navigate(['login']);
+    }
+    var errorMsg = data ? data['detail'] || data['error'] : 'Integrity error'; // TODO : work on api.php to get DB error
 		if (errorMsg) {			
-			console.error( errorMsg );
-			this.alertService.error( errorMsg )
-			if (data && data['disconnect']) {
-				// logout
-				//localStorage.removeItem('currentUser');
-				this.router.navigate(['login']);
-			}
 			// We must throw an error, so that caller may treat these accordingly
-			return Observable.throw( errorMsg );
+			throw( errorMsg );
 		}
 		return data;
 	}

@@ -1,21 +1,25 @@
 .application {
 	width:140px;
 	background:#aaa;
+    border: solid 2px #aaa;
 	position:relative;
 	margin:12px 4px;
     padding: 3px 35px;
     text-align: center;
+    vertical-align: middle;
+    line-height: 40px;    
 }
 
 
 .application:hover {
-    color: #607D8B;
     background-color: #999;
+    border: solid 2px black;
 	position:relative;
-    left: .3em;
+    left: 1em;
   }
   
 .application.selected {
+    border: solid 2px #444;
     background-color: #8cabe4;
-    left: .3em;
+    left: 2em;
 }

@@ -6,6 +6,10 @@ export class Host {
   client: string;
   alive: boolean;
   
+  constructor(values: Object = {}) {
+    Object.assign(this, values);
+  }
+  
   // This is not an array, but a hash (ID:string -> Service)
   services: Service[];
   

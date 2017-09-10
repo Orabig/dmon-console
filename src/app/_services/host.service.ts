@@ -17,8 +17,6 @@ import { Host } from '../_models/objects/host';
 import { Message } from '../_models/comm/message';
 import { ObjectsDataService } from './objects-data.service';
 
-import { generateUUID } from '../_helpers/utils';
-
 
 // Le service qui fournit l'état de tous les hosts.
 // Il fournit un Observer capable de mettre à jour la liste des hosts
@@ -117,7 +115,6 @@ export class HostService {
     this.objectsDataService.getHostByName(host.name).subscribe(
       gotHost => {
         if (gotHost===undefined) {
-          host.id = generateUUID();
           this.objectsDataService.addHost(host).subscribe(result=>{});
         }else{
           host.id = gotHost.id;

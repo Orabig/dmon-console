@@ -13,6 +13,8 @@ import { generateUUID } from '../_helpers/utils';
 // * Application
 // * ...
 
+// underlying api.php is documented here : https://github.com/mevdschee/php-crud-api
+
 @Injectable()
 export class ObjectsDataService {
 
@@ -23,14 +25,16 @@ export class ObjectsDataService {
   // GET ALL applications from API
   getAllApplications(): Observable<Application[]> {
   return this.httpInterceptorService
-      .getJson('api.php/Application', { transform: true} )
+      .getJson('api.php/Application', { transform: true, order: 'name' } )
       .map ( response => response['Application'] );
   }
   
   // POST a new application (the returned Observable MUST be subscribed and returns the ID)
-  addApplication(application: Application): Observable<string> {    
+  addApplication(application: Application): Observable<Application> {
+    var newApplication: Application = Object.assign({}, application, {id: generateUUID()} );    
     return this.httpInterceptorService
-        .postJson('api.php/Application', application );
+        .postJson('api.php/Application', newApplication )
+        .map(result => newApplication);
   }
 
   // DELETE /applications/:id
@@ -56,20 +60,21 @@ export class ObjectsDataService {
   // GET ALL hosts from API
   getAllHosts(): Observable<Host[]> {
   return this.httpInterceptorService
-      .getJson('api.php/Host', { transform: true} )
+      .getJson('api.php/Host', { transform: true, order: 'name' } )
       .map ( response => response['Host'] );
   }
   
   // POST a new host (the returned Observable MUST be subscribed and returns the ID)
-  addHost(host: Host): Observable<string> {    
+  addHost(host: Host): Observable<Host> {  
+    var newHost: Host = Object.assign({}, host, {id: generateUUID()});
     return this.httpInterceptorService
-        .postJson('api.php/Host', host );
+        .postJson('api.php/Host', newHost).map( result => newHost );
   }
 
   // DELETE /hosts/:id
-  deleteHostById(id: string): Observable<number> {
+  deleteHost(host: Host): Observable<number> {
     return this.httpInterceptorService
-    .deleteJson('api.php/Host', id );
+    .deleteJson('api.php/Host', host.id );
   }
 
   // PUT /hosts/:id
