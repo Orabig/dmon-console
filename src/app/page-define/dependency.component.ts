@@ -47,9 +47,7 @@ export class DependencyComponent {
   }
 
   findUniqueName(data: any) {
-    var application = data.application;
-    var technology = data.technology;
-    var baseName = application.name + '-' + technology.name;
+    var baseName = data.baseName
     var uniqueName = baseName;
     if (this.nameExist(uniqueName)) {
       var inc = 2;

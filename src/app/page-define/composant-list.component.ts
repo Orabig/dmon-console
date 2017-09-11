@@ -86,12 +86,17 @@ export class ComposantListComponent implements OnChanges {
   // will create a new component for the given host
   dropTechnology(application: Application, host: Host, technology: Technology) {
     // This componant needs to send a request to the bug to get an unique name
+	this.checkNameThenCreateComposant(application, host, technology);
+  }
+  
+  checkNameThenCreateComposant(application: Application, host: Host, technology: Technology) {
     var shortTermSubscription = this.busService.uniqueNameFound$
       .subscribe(name=>{ // This will be called when the name has been found
         this.createComponent(application, host, technology, name);
         shortTermSubscription.unsubscribe(); // Only listen once to this   
       });
-    this.busService.uniqueNameRequest({application: application, technology: technology});
+	var baseName = application.name + '-' + technology.name;
+    this.busService.uniqueNameRequest({baseName: baseName});
   }
   
   createComponent(application: Application, host: Host, technology: Technology, name: string) {

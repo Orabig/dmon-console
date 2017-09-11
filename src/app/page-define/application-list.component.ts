@@ -74,13 +74,27 @@ export class ApplicationListComponent implements OnInit {
 		var newName = composant.name.replace(regexp,'');
 		if (newName != composant.name) {
 			// TODO we should find an unique name
-			this.objectsDataService.updateComposant(composant, {name: newName}).subscribe(
-				result => this.busService.composantKnown(result),
-				err => console.error("Could not rename composant : ",err)
-			);
+			this.checkNameThenRenameComposant(composant, newName);
 		}
 	}
+
+	// Finds an unique name for the composant, then rename it
+	checkNameThenRenameComposant(composant: Composant, newName: string) {
+		var shortTermSubscription = this.busService.uniqueNameFound$
+		  .subscribe(name=>{ // This will be called when the name has been found
+			this.renameComposant(composant, name);
+			shortTermSubscription.unsubscribe(); // Only listen once to this   
+		  });
+		this.busService.uniqueNameRequest({baseName: newName});
+	}
 	
+	renameComposant(composant: Composant, newName: string) {
+		this.objectsDataService.updateComposant(composant, {name: newName}).subscribe(
+			result => this.busService.composantKnown(result),
+			err => console.error("Could not rename composant : ",err)
+		);
+	}
+
 	removeApplication(application) {
 		this.objectsDataService.deleteApplicationById(application.id).subscribe(
 			ok => {
