@@ -30,6 +30,13 @@ export class HttpInterceptorService {
 			.map( data => this.filterError(data) );
 	}  
 	
+	// PUT a request (with the JWT token) and returns an Observable (which MUST be subscribed to have any effect)
+	putJson(url: string, load: any): Observable<any> {
+		return this.http.put(environment.dmonApiRoot+url, load, this.jwt())
+			.map(response => response.json())
+			.map( data => this.filterError(data) );
+	}  
+	
 	// sends a DELETE request (with the JWT token) and returns an Observable (which MUST be subscribed to have any effect)
 	// containing the number of affected rows
 	deleteJson(url: string, id: any): Observable<number> {

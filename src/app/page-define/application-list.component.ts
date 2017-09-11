@@ -54,7 +54,7 @@ export class ApplicationListComponent implements OnInit {
 	dropComposant(application: Application, event: any) {
 		var composant: Composant = event['dragData'];
 		this.objectsDataService.assignComponentToApplication(composant, application.id)
-			.subscribe(result => console.log("Added"), err => console.error(err));
+			.subscribe(result => this.removePrefixFromName(result), err => console.error(err));
 	} 
 
 	addApplication() {
@@ -64,6 +64,21 @@ export class ApplicationListComponent implements OnInit {
 				this.newApplication = new Application({ });
 			}
 		);		
+	}
+	
+	// Appelé quand un composant est ajouté à une autre application.
+	// Il faut renommer ce composant pour supprimer le pefixe correspondant au nom de l'application
+	removePrefixFromName(composant: Composant) {
+		var prefix = '^' + this.selectedApplication.name + '-';
+		var regexp = new RegExp(prefix);
+		var newName = composant.name.replace(regexp,'');
+		if (newName != composant.name) {
+			// TODO we should find an unique name
+			this.objectsDataService.updateComposant(composant, {name: newName}).subscribe(
+				result => this.busService.composantKnown(result),
+				err => console.error("Could not rename composant : ",err)
+			);
+		}
 	}
 	
 	removeApplication(application) {

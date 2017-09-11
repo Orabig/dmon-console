@@ -16,7 +16,14 @@ export class ComposantListComponent implements OnChanges {
   
   composants: Composant[];
   
-  constructor( private objectsDataService: ObjectsDataService, private busService: BusService ) { }
+  constructor(
+		private objectsDataService: ObjectsDataService,
+		private busService: BusService ) {
+			busService.composantKnown$.subscribe(
+				// Updates the list if some composant has changed (name mostly)
+				composant => this.updateComposantsFor(composant)
+			);
+		}
 
   ngOnChanges() {
     if (this.application!=null)
@@ -26,8 +33,17 @@ export class ComposantListComponent implements OnChanges {
   
   loadComposants(composants: Composant[]){
     this.composants = composants;
-    // Register the composants to the bus
+    // Tell the bus that the composants do exist
     composants.forEach(composant => this.busService.composantKnown(composant));
+  }
+  
+  // This method is called when a composant (not necessary known here) is new or has changed its name
+  // (or any parameter). It's time to update in that case
+  updateComposantsFor(composant: Composant) {
+	if (this.composants != null) {
+		this.composants.filter(comp => comp.id===composant.id)
+			.forEach(toUpdate => Object.assign(toUpdate,composant));
+	}
   }
   
   allowDropFunction() {

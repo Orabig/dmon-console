@@ -21,8 +21,8 @@ export class BusService {
   // ----------------------------------------------------------
   // [composantKnown] message
   
-  // Sent by the composant lists to tell about the composants known. Allows to choose an unique name
-  // for a new one.
+  // Sent by the composant lists to tell about the composants known.
+  // When updated, the composants are also send throught all the listeners with this message
   
   private composantKnownSource = new Subject<Composant>();
   

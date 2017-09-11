@@ -126,6 +126,14 @@ export class ObjectsDataService {
     });
   }
   
+  // Updates a Composant
+  // Syntax : updateComposant(composant, {name: newName, ...}).subscribe(...)
+  updateComposant(composant: Composant, update: any) : Observable<Composant> {
+	return this.httpInterceptorService
+        .putJson('api.php/Composant/'+composant.id, update)
+		.map( result => Object.assign({},composant,update) ); 
+  }
+  
   // Creates a new Implantation (Composant <-> Host) and returns the component object
   // along with the host_id and implantation_id
   assignComponentToHost(composant: Composant, host_id: string): Observable<Composant> {
