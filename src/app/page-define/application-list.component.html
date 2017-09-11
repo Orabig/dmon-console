@@ -16,7 +16,7 @@
 			(onDropSuccess)="dropComposant(application,$event)"
 			[class.selected]="selectedApplication==application"
 			(click)="selectApplication(application)">
-		  <label>{{application.name}}</label>
+		  {{application.name}}
 		  <button class="delete-btn" (click)="removeApplication(application)">&times;</button>
 	  </div>
   </section>

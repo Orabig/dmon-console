@@ -39,7 +39,9 @@ export class ApplicationListComponent implements OnInit {
 	  // Should return true if the data can be dropped there
 	  allowDropFunction(application: Application) {
 		return (dragData: any) => {
-			if (application===this.selectedApplication) return false; // Do not drop anything on the current application		
+			if (application===this.selectedApplication) {
+				return false; // Do not drop anything on the current application		
+			}
 			if (dragData['technology_id']){
 			  // This is a composant
 			  return true; // TRUE : we accept composants
