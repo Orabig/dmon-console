@@ -126,8 +126,8 @@ export class ObjectsDataService {
     });
   }
   
-  // Creates a new Implantation (Composant <-> Host) and returns the new component object
-  // (containing the host_id and implantation_id
+  // Creates a new Implantation (Composant <-> Host) and returns the component object
+  // along with the host_id and implantation_id
   assignComponentToHost(composant: Composant, host_id: string): Observable<Composant> {
     var newImplantationId = generateUUID();
     var implantation = {
@@ -138,5 +138,16 @@ export class ObjectsDataService {
     return this.httpInterceptorService
         .postJson('api.php/Implantation', implantation)
         .map(result => Object.assign({}, composant, {implantation_id: newImplantationId, host_id: host_id}));
+  }
+  
+  // Creates a new Dependency (Composant <-> Application) and returns the component object itself
+  assignComponentToApplication(composant: Composant, application_id: string): Observable<Composant> {
+    var dependency = {
+      composant_id: composant.id,
+      application_id: application_id
+    }
+    return this.httpInterceptorService
+        .postJson('api.php/Dependency', dependency)
+        .map(result => composant);
   }
 }

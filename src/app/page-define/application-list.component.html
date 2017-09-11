@@ -11,6 +11,9 @@
   <section class="main" *ngIf="applications.length > 0">
 	  <div *ngFor="let application of applications"
 			class="application"
+			dnd-droppable
+			[allowDrop]="allowDropFunction(application)"
+			(onDropSuccess)="dropComposant(application,$event)"
 			[class.selected]="selectedApplication==application"
 			(click)="selectApplication(application)">
 		  <label>{{application.name}}</label>

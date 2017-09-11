@@ -1,8 +1,8 @@
 ﻿import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 
 import { ObjectsDataService } from '../_services/objects-data.service';
-import { Application } from '../_models/objects';
-import { Observable } from 'rxjs';
+import { Application, Composant } from '../_models/objects';
 import { generateUUID } from '../_helpers/utils';
 import { BusService } from './bus.service';
 
@@ -35,6 +35,27 @@ export class ApplicationListComponent implements OnInit {
     this.selectedApplication=application;
     this.busService.applicationselected(application);
   }
+  
+	  // Should return true if the data can be dropped there
+	  allowDropFunction(application: Application) {
+		return (dragData: any) => {
+			if (application===this.selectedApplication) return false; // Do not drop anything on the current application		
+			if (dragData['technology_id']){
+			  // This is a composant
+			  return true; // TRUE : we accept composants
+			}else {
+			  // This is a technology
+			  return false; // Do not drop technologies to applications
+			}
+		}  
+	  }
+
+	// A composant has been dropped into another application : add a new dependency   
+	dropComposant(application: Application, event: any) {
+		var composant: Composant = event['dragData'];
+		this.objectsDataService.assignComponentToApplication(composant, application.id)
+			.subscribe(result => console.log("Added"), err => console.error(err));
+	} 
 
 	addApplication() {
 		this.objectsDataService.addApplication(this.newApplication).subscribe(
