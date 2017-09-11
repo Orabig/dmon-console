@@ -29,6 +29,22 @@ export class ComposantListComponent implements OnChanges {
     // Register the composants to the bus
     composants.forEach(composant => this.busService.composantKnown(composant));
   }
+  
+  allowDropFunction() {
+	return (dragData: any) => {
+	// Detects if objects is a Technology or a Composant
+    if (dragData['technology_id']){
+      // This is a component. Do NOT allow the drop if the composant is already in the list
+	  if (this.composants.filter(c => c.id===dragData['id']).length>0) {
+		  return false;
+	  }
+      return true;
+    }else {
+      // This is a technology
+      return true; // allow drop
+    }	
+	}  	  
+  }
 
   // Called when the user drops a technology to a host OR a component to another host
   drop(host: Host, object: any) {
@@ -47,7 +63,7 @@ export class ComposantListComponent implements OnChanges {
     this.objectsDataService.assignComponentToHost(composant, host.id)
       .subscribe( 
         composant => this.composants.push(composant),
-        err => console.log("traped:",err) );
+        err => console.error(err) );
   }
     
   // will create a new component for the given host
