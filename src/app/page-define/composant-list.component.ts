@@ -48,17 +48,18 @@ export class ComposantListComponent implements OnChanges {
   
   allowDropFunction() {
 	return (dragData: any) => {
-	// Detects if objects is a Technology or a Composant
-    if (dragData['technology_id']){
-      // This is a component. Do NOT allow the drop if the composant is already in the list
-	  if (this.composants.filter(c => c.id===dragData['id']).length>0) {
-		  return false;
-	  }
-      return true;
-    }else {
-      // This is a technology
-      return true; // allow drop
-    }	
+		if (this.application==null) return false;
+		// Detects if objects is a Technology or a Composant
+		if (dragData['technology_id']){
+		  // This is a component. Do NOT allow the drop if the composant is already in the list
+		  if (this.composants.filter(c => c.id===dragData['id']).length>0) {
+			  return false;
+		  }
+		  return true;
+		}else {
+		  // This is a technology
+		  return true; // allow drop
+		}	
 	}  	  
   }
 
