@@ -3,7 +3,7 @@ import { Service } from './service';
 export class Host {
   id: string;
   name: string;
-  client: string;
+  client: string; // TODO : cette information ne devrait PAS apparaitre ici. L'ID du client Centrifugo ne devrait être connue que du serveur !!!!!
   alive: boolean;
   
   constructor(values: Object = {}) {

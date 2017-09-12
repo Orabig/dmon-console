@@ -1,7 +1,7 @@
 ﻿<div class="main-page">
     <header></header>
 		
-	<div [class]="connectionState">{{connectionState}}</div>
+	<div [class]="connectionState">{{connectionState}}</div><!-- TODO : Factorize(page-plugin-discovery.composant) -->
 
 	<ul class="hosts">
 	  <host *ngFor="let host of hosts"

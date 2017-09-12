@@ -1,4 +1,4 @@
- .host {
+.host, .plugin, .mode {
 	width: 18em;
     cursor: pointer;
     position: relative;
@@ -11,16 +11,126 @@
     border-radius: 14px;
   }
   
-.host:hover {
+.host:hover, .plugin:hover, .mode:hover {
     color: #607D8B;
     background-color: #DDD;
     left: .3em;
   }
+
+.plugin {
+	display: inline-block;
+	width: 26em;
+	height: 22px;
+    line-height: 19px;
+    margin: .2em;
+    padding: .1em 1em;
+}
   
 .cmdline {
-	font-family: SansSerif;
+	font-family: monospace;
 	background: #aaa;
 	color: #000;
 	padding: 2px;
 }
-  
+
+pre {
+	font-family: monospace;
+	background: #aaa;
+	color: #000;
+	font-size: 10px;
+	border-left : solid 1px black;
+	margin-left : 48px;
+	padding-left: 8px;
+}
+
+.back {
+	padding: 4px 20px;
+	margin-left: 48px;
+	font-size: 12px;
+	font-color: black;
+	border: solid 1px black;
+	background: #EEE;
+}
+
+.back:hover {
+	background-color: #DDD;
+}  
+
+.disconnected,  .connected, .error {
+    position: absolute;
+    display: inline-block;
+    right: 6px;
+    padding: 3px 35px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2), inset 0px 5px 30px rgba(255,255,255,0.2);
+    text-align: center;
+    text-transform: uppercase;
+    width: 130px;
+}
+
+.disconnected, .error {
+    background: #d93131;
+}
+
+.connected {
+    background: #60f360;
+}
+
+/* progress */
+
+/* loading indicator */
+
+.lds-css{
+	display: inline-block;
+    top: 10px;
+	left: 24px;
+    position: relative;
+}
+
+@keyframes lds-rolling {
+  0% {
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+@-webkit-keyframes lds-rolling {
+  0% {
+    -webkit-transform: translate(-50%, -50%) rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    -webkit-transform: translate(-50%, -50%) rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+.lds-rolling {
+  position: relative;
+}
+.lds-rolling div,
+.lds-rolling div:after {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border: 24px solid #7284a0;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+.lds-rolling div {
+  -webkit-animation: lds-rolling 1s linear infinite;
+  animation: lds-rolling 1s linear infinite;
+  top: 100px;
+  left: 100px;
+}
+.lds-rolling div:after {
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+.lds-rolling {
+  width: 29px !important;
+  height: 29px !important;
+  -webkit-transform: translate(-14.5px, -14.5px) scale(0.145) translate(14.5px, 14.5px);
+  transform: translate(-14.5px, -14.5px) scale(0.145) translate(14.5px, 14.5px);
+}

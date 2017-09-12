@@ -1,16 +1,62 @@
 <div class="main-page">
     <header></header>
 
-	<h1>Discovery</h1>
+	<div [class]="connectionState">{{connectionState}}</div><!-- TODO : Factorize(group.composant) -->
 	
-	<div *ngIf="selectedHost == null">
-		<h2>Step 1 : Select host</h2>
+	<h1>Discovery</h1>
+
+	<h2>Step 1 : Select host</h2>
+	
+	<div *ngIf="selectedHost == null;else step2">
 		<div class="host" 
 			(click)="selectHost(host)"
 			*ngFor="let host of hosts">{{ host.name }}</div>
 	</div>
 	
-	<div *ngIf="selectedHost != null">
-		<h2>Step 2 : Running <span class="cmdline">!check --list-plugin</span> on '{{ selectedHost.name }}'</h2>
-	</div>
+	
+	
+	<ng-template #step2>
+		<h2>Step 2 : Running <span class="cmdline">!check --list-plugin</span></h2>
+		
+		<div *ngIf="plugins != null; then step3 else showProgress"></div>
+	</ng-template>
+
+	
+	
+	<ng-template #step3>
+		<h2>Step 3 : Select plugin</h2>
+
+		<div *ngIf="selectedPlugin == null;else step4">
+			<div class="plugin" 
+				(click)="selectPlugin(plugin)"
+				*ngFor="let plugin of plugins">{{ plugin.name }}</div>
+		</div>
+	</ng-template>
+
+	
+	
+	<ng-template #step4>
+		<h2>Step 4 : You selected {{ selectedPlugin.name }} <span class="back" (click)="cancelSelectedPlugin()">Back</span></h2>
+		<div class="description">{{ selectedPlugin.description }}</div>
+		<pre>{{ outputStep4 }}</pre>	
+
+		<div class="mode" 
+				(click)="selectMode(mode)"
+				*ngFor="let mode of selectedPluginModes">{{ mode }}</div>
+
+		<pre>{{ outputStep5 }}</pre>	
+
+	</ng-template>
+	
+	
+	
+	
+	<ng-template #showProgress>
+		<div class="lds-css">
+			<div style="width:100%;height:100%" class="lds-rolling">
+				<div></div>
+			</div>
+		</div>
+	</ng-template>
+
 </div>
