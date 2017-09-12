@@ -1,0 +1,26 @@
+ .host {
+	width: 18em;
+    cursor: pointer;
+    position: relative;
+    background-color: #EEE;
+    margin: .5em;
+    padding: .3em 1em;
+    height: 26px;
+    line-height: 23px;
+    vertical-align: middle;
+    border-radius: 14px;
+  }
+  
+.host:hover {
+    color: #607D8B;
+    background-color: #DDD;
+    left: .3em;
+  }
+  
+.cmdline {
+	font-family: SansSerif;
+	background: #aaa;
+	color: #000;
+	padding: 2px;
+}
+  

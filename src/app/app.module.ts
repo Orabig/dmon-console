@@ -37,6 +37,7 @@ import { DependencyComponent } from './page-define/dependency.component';
 import { ComposantListComponent } from './page-define/composant-list.component';
 import { StatusComponent } from './page-monitor/status.component';
 import { ComposantComponent } from './page-monitor/composant.component';
+import { PagePluginDiscoveryComponent } from './page-plugin-discovery/page-plugin-discovery.component';
 
 
 @NgModule({
@@ -62,7 +63,8 @@ import { ComposantComponent } from './page-monitor/composant.component';
 	DependencyComponent,
 	ComposantListComponent,
 	StatusComponent,
-	ComposantComponent
+	ComposantComponent,
+	PagePluginDiscoveryComponent
   ],
   imports: [
     BrowserModule,

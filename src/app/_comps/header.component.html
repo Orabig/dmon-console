@@ -3,6 +3,7 @@
     <div><a [routerLink]="['/define']">Define</a></div>
     <div><a [routerLink]="['/monitor']">Monitor</a></div>
     <div *ngIf="user.administrator"><a [routerLink]="['/templates']">Templates</a></div>
+    <div *ngIf="user.administrator"><a [routerLink]="['/plugin-discovery']">Discovery</a></div>
     <div *ngIf="user.administrator"><a [routerLink]="['/users']">Users</a></div>
     <div><a [routerLink]="['/login']">Logout</a></div>
 </div>

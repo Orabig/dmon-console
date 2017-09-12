@@ -1,0 +1,16 @@
+<div class="main-page">
+    <header></header>
+
+	<h1>Discovery</h1>
+	
+	<div *ngIf="selectedHost == null">
+		<h2>Step 1 : Select host</h2>
+		<div class="host" 
+			(click)="selectHost(host)"
+			*ngFor="let host of hosts">{{ host.name }}</div>
+	</div>
+	
+	<div *ngIf="selectedHost != null">
+		<h2>Step 2 : Running <span class="cmdline">!check --list-plugin</span> on '{{ selectedHost.name }}'</h2>
+	</div>
+</div>

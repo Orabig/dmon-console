@@ -4,6 +4,7 @@ import { HomeComponent } from './home/index';
 import { GroupComponent } from './page-monitor/index';
 import { PageDefineComponent } from './page-define/index';
 import { PageTemplateComponent } from './page-template/index';
+import { PagePluginDiscoveryComponent } from './page-plugin-discovery/page-plugin-discovery.component';
 import { LoginComponent } from './login/index';
 import { UsersComponent } from './users/index';
 import { RegisterComponent } from './register/index';
@@ -15,6 +16,7 @@ const appRoutes: Routes = [
     { path: 'monitor', component: GroupComponent, canActivate: [AuthGuard]  },
 	
     { path: 'templates', component: PageTemplateComponent, canActivate: [AdminGuard]  },
+    { path: 'plugin-discovery', component: PagePluginDiscoveryComponent, canActivate: [AdminGuard]  },
     { path: 'users', component: UsersComponent, canActivate: [AdminGuard]  },
 	
     { path: 'login', component: LoginComponent },
