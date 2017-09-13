@@ -19,7 +19,7 @@
 
 .plugin {
 	display: inline-block;
-	width: 26em;
+	width: 31em;
 	height: 22px;
     line-height: 19px;
     margin: .2em;
@@ -31,6 +31,26 @@
 	background: #aaa;
 	color: #000;
 	padding: 2px;
+}
+
+.family {
+	position: relative;
+	margin-left: 70px;
+	border: solid 1px #666;
+	padding: 12px;
+}
+
+.family label {
+	font-size: small;
+    font-weight: bold;
+    min-width: 7em;
+    display: inline-block;
+}
+
+.family .save, .family .saved {
+	position: absolute;
+	top: 2px;
+	right: 2px;
 }
 
 pre {

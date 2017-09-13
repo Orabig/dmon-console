@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Host } from '../_models/objects/index';
 import { User } from '../_models/users/user';
-import { ObjectsDataService, CentrifugeService, HostService, GroupService, SendCommandService, HttpInterceptorService } from '../_services/index';
+import { Family } from '../_models/templates/family';
+import { ObjectsDataService, TemplatesDataService, CentrifugeService, HostService, GroupService, SendCommandService, HttpInterceptorService } from '../_services/index';
 
 import { environment } from '../../environments/environment';
 
@@ -9,7 +10,7 @@ import { environment } from '../../environments/environment';
   selector: 'app-page-plugin-discovery',
   templateUrl: './page-plugin-discovery.component.html',
   styleUrls: ['./page-plugin-discovery.component.css'],
-  providers: [ GroupService ]
+  providers: [ GroupService, TemplatesDataService ]
 })
 export class PagePluginDiscoveryComponent implements OnInit {
 
@@ -18,18 +19,18 @@ export class PagePluginDiscoveryComponent implements OnInit {
   connectionState: string;
   user: User;
   groupId: string;
-  shortTermSubscription: any;
   outputStep2: string;
   outputStep4: string;
   outputStep5: string;
   plugins: any[];
-  selectedPlugin: any;
-  selectedPluginModes: string[];
+  selectedFamily: any;
+  selectedFamilyModes: string[];
 
   constructor(  private hostService: HostService,
 				private groupService: GroupService,
 				private sendCommandService: SendCommandService,
 				private httpInterceptorService: HttpInterceptorService,
+				private templatesDataService: TemplatesDataService,
 				private objectsDataService: ObjectsDataService,
 				private centrifugeService: CentrifugeService) {  }
 
@@ -94,21 +95,19 @@ export class PagePluginDiscoveryComponent implements OnInit {
   }
   
   requestPluginList() {
-	  var groupId = this.groupId;
 	  // On se mets à l'écoute du canal de retour
-	  this.shortTermSubscription = this.centrifugeService.getMessagesOn('$'+groupId)
-		.subscribe(message => this.checkPluginListMessage(message));
+	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
+	    .map(message => message['data'])
+		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-plugin")>-1)
+		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+		.map( data => data['stdout'])
+		.subscribe(
+			stdout => this.processPluginList(stdout),
+			err  => console.error(err),
+			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
 	  // On on envoie une commande au host
 	  this.selectedHost.cmdline = "!check --list-plugin";
 	  this.sendCommandService.sendCommandLine(this.selectedHost);
-  }
-  
-  checkPluginListMessage(message: string) {
-	  if (! message['data']['cmdline']) return;
-	  if (message['data']['cmdline'].indexOf("--list-plugin")<0) return;
-	  if (message['data']['terminated']==0) return;
-	  this.shortTermSubscription.unsubscribe();
-	  this.processPluginList(message['data']['stdout']);
   }
   
   processPluginList(stdout: string[]) {
@@ -120,79 +119,79 @@ export class PagePluginDiscoveryComponent implements OnInit {
 					.sort()
 					.map( line => {
 						var match = pluginRE.exec(line); 
-						return match ?
-							{
-								name:match[1], 
-								description:match[2].replace(/ +/g," ")
-							} : null ;
-					}).filter( line => line!=null );
+						if (!match) return null;
+						var plugin = match[1];
+						var description = match[2].replace(/ +/g," ");
+						var name = description.replace(/^Check +(an? +)?/,"").replace(/ *(\.|\(|through|locally|in SNMP).*/,"");
+						console.log(description);
+						console.log(name);
+						return { name:name,	plugin:plugin, description:description};
+					}).filter( family => family != null );
 	  					
   }
   
-  selectPlugin(plugin: any) {
-	  this.selectedPlugin = plugin;
-	  this.requestPluginModes(plugin);
+  saveFamily(family: any) {
+	  this.templatesDataService.insertOrUpdateFamilyByPlugin(new Family( family ))
+	  .subscribe(family => this.selectedFamily = family);
+  }
+  
+  selectPlugin(family: any) {
+	  this.selectedFamily = family;
+	  this.requestPluginModes(family);
   }
   
   cancelSelectedPlugin() {
-	  this.selectedPlugin = null;
+	  this.selectedFamily = null;
 	  this.outputStep4='';
 	  this.outputStep5='';
-	  this.selectedPluginModes=null;
+	  this.selectedFamilyModes=null;
   }
   
   // Execute    !check --plugin ... --list-mode
-  requestPluginModes(plugin) {
-	  var groupId = this.groupId;
+  requestPluginModes(family) {
 	  // On se mets à l'écoute du canal de retour
-	  this.shortTermSubscription = this.centrifugeService.getMessagesOn('$'+groupId)
-		.subscribe(message => this.checkPluginModesMessage(message));
+	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
+	    .map(message => message['data'])
+		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-mode")>-1)
+		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+		.subscribe(
+			data => this.processModes(data['stdout']),
+			err  => console.error(err),
+			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
 	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + plugin.name + " --list-mode";
+	  this.selectedHost.cmdline = "!check --plugin " + family.plugin + " --list-mode";
 	  this.sendCommandService.sendCommandLine(this.selectedHost);
-  }
-  
-  checkPluginModesMessage(message: string) {
-	  if (! message['data']['cmdline']) return;
-	  if (message['data']['cmdline'].indexOf("--list-mode")<0) return;
-	  if (message['data']['terminated']==0) return;
-	  this.shortTermSubscription.unsubscribe();
-	  this.processModes(message['data']['stdout']);
   }
   
   // extraction of "Modes available" infos...
   processModes(stdout: string[]) {
-	  console.log("hu?");
 	  this.outputStep4 = stdout.join("\n");
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
 	  var groups = modesRE.exec(stdout.join(""));
-	  this.selectedPluginModes = groups[1].split(/ +/);
+	  this.selectedFamilyModes = groups[1].split(/ +/);
   }
   
   selectMode(mode: string) {
 	  // this.selectedMode = mode;
-	  this.requestPluginParameters(this.selectedPlugin, mode);
+	  this.requestPluginParameters(this.selectedFamily, mode);
   }
   
   // Execute    !check --plugin ... --mode ... --help
-  requestPluginParameters(plugin, mode) {
-	  var groupId = this.groupId;
+  requestPluginParameters(family, mode) {
 	  // On se mets à l'écoute du canal de retour
-	  this.shortTermSubscription = this.centrifugeService.getMessagesOn('$'+groupId)
-		.subscribe(message => this.checkPluginParametersMessage(message));
+	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
+	    .map(message => message['data'])
+		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--help")>-1)
+		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,"").replace(/;;/g,"\n"))
+		.subscribe(
+			help => this.processParameters(help),
+			err  => console.error(err),
+			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
 	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + plugin.name + " --mode " + mode + " --help";
+	  this.selectedHost.cmdline = "!check --plugin " + family.plugin + " --mode " + mode + " --help";
 	  this.sendCommandService.sendCommandLine(this.selectedHost);
-  }
-  
-  checkPluginParametersMessage(message: string) {
-	  if (! message['data']['cmdline']) return;
-	  if (message['data']['cmdline'].indexOf("--help")<0) return;
-	  if (message['data']['terminated']==0) return;
-	  this.shortTermSubscription.unsubscribe();
-	  var modeDocumentation = message['data']['stdout'].join(";;").replace(/.*;;;;Mode:;;/,"").replace(/;;/g,"\n");
-	  this.processParameters(modeDocumentation);
   }
   
   processParameters(stdout: string) {

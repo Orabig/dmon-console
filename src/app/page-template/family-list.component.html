@@ -4,24 +4,31 @@
 	<input class="new-family" 
 		placeholder="Enter new family name"
 		autofocus=""
-		[(ngModel)]="this.shortname"
+		[(ngModel)]="newFamily.name"
+		(keyup.enter)="addFamily()">
+	<input class="new-family" 
+		placeholder="Enter plugin"
+		autofocus=""
+		[(ngModel)]="newFamily.plugin"
 		(keyup.enter)="addFamily()">
 		<br>
-	  <input type="radio" value="local" name="food" [(ngModel)]="this.protocol"> local
-	  <input type="radio" value="NRPE" name="food" [(ngModel)]="this.protocol"> NRPE
-	  <input type="radio" value="SSH" name="food" [(ngModel)]="this.protocol"> SSH
-	  <input type="radio" value="mysql:3306" name="food" [(ngModel)]="this.protocol"> mysql:3306
 
-  <div class="fullname">{{ newFamily.name }}</div>
-
-	  
   </div>
   <section class="main" *ngIf="families.length > 0">
 	<table class="family-list">
 	  <tr *ngFor="let family of families">
 		<th>
+		  <label>{{family.id}}</label>
+		  </th>
+    	  <th>
 		  <label>{{family.name}}</label>
-		  </th><td>
+		  </th>
+    	  <th>
+		  <label>{{family.plugin}}</label>
+		  </th>
+		  <td>{{family.description}}
+		  </td>
+		  <td>
 		  <button class="destroy" (click)="removeFamily(family)">Delete</button>
 		  </td>
 	  </tr>

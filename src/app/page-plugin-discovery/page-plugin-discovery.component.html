@@ -26,23 +26,29 @@
 	<ng-template #step3>
 		<h2>Step 3 : Select plugin</h2>
 
-		<div *ngIf="selectedPlugin == null;else step4">
+		<div *ngIf="selectedFamily == null;else step4">
 			<div class="plugin" 
-				(click)="selectPlugin(plugin)"
-				*ngFor="let plugin of plugins">{{ plugin.name }}</div>
+				(click)="selectPlugin(family)"
+				*ngFor="let family of plugins">{{ family.name }}</div>
 		</div>
 	</ng-template>
 
 	
 	
 	<ng-template #step4>
-		<h2>Step 4 : You selected {{ selectedPlugin.name }} <span class="back" (click)="cancelSelectedPlugin()">Back</span></h2>
-		<div class="description">{{ selectedPlugin.description }}</div>
+		<h2>Step 4 : You selected {{ selectedFamily.name }} <span class="back" (click)="cancelSelectedPlugin()">Back</span></h2>
+		<div class="family">
+			<div class="description"><label>Name :</label>{{ selectedFamily.name }}</div>
+			<div class="description"><label>Plugin :</label>{{ selectedFamily.plugin }}</div>
+			<div class="description"><label>Description :</label>{{ selectedFamily.description }}</div>
+			<button class="save" *ngIf="! selectedFamily.id" (click)="saveFamily(selectedFamily)">Save</button>
+			<button class="saved" *ngIf="selectedFamily.id">Update (id={{selectedFamily.id}})</button>
+		</div>
 		<pre>{{ outputStep4 }}</pre>	
 
 		<div class="mode" 
 				(click)="selectMode(mode)"
-				*ngFor="let mode of selectedPluginModes">{{ mode }}</div>
+				*ngFor="let mode of selectedFamilyModes">{{ mode }}</div>
 
 		<pre>{{ outputStep5 }}</pre>	
 

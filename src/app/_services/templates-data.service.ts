@@ -60,27 +60,47 @@ export class TemplatesDataService {
   }
   
   // POST a new family (the returned Observable MUST be subscribed and returns the ID)
-  addFamily(family: Family): Observable<number> {	  
+  insertFamily(family: Family): Observable<Family> {	  
 	  return this.httpInterceptorService
-				.postJson('api.php/Family', family );
+				.postJson('api.php/Family', family )
+				.map( id => Object.assign({}, family, {id: id}) );
   }
 
-  // DELETE /tamilies/:id
+  // DELETE /families/:id
   deleteFamilyById(id: number): Observable<number> {
 	  return this.httpInterceptorService
 		.deleteJson('api.php/Family', id );
   }
 
-  // PUT /tamilies/:id
-  updateFamilyById(id: number, values: Object = {}): Family {
-	  console.log("Not implemented");
-	  return null;
+  // PUT /families/:id
+  updateFamily(family: Family, update: any): Observable<Family> {
+	return this.httpInterceptorService
+			.putJson('api.php/Family/'+family.id, update)
+			.map( result => Object.assign({},family,update) ); 
   }
 
-  // GET /tamilies/:id
-  getFamilyById(id: number): Family {
-	  console.log("Not implemented");
-	  return null;
+  // INSERT OR UPDATE /families/:plugin
+  insertOrUpdateFamilyByPlugin(family: Family): Observable<Family> {
+	  var plugin = family.plugin;
+	  if (family.id != null) { // L'ID est déjà connu, on fait un update
+		return this.updateFamily(family, family);
+	  }
+	  // On cherche si le plugin(family) existe déjà
+	  return this.getFamilyByPlugin(family.plugin)
+		.flatMap(original => {
+			if (original && original.id != null) { // On a récupéré l'ID
+				return this.updateFamily(original, family);
+			} else {
+				return this.insertFamily(family);
+			}
+		});
+  }
+
+  // GET /families/:id
+  getFamilyByPlugin(plugin: string): Observable<Family> {
+	  return this.httpInterceptorService
+			.getJson('api.php/Family', { transform: true, filter: "plugin,eq," + plugin } )
+			.map ( response => response['Family'][0] );
   }
 
 }

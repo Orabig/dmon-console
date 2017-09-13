@@ -24,35 +24,15 @@ export class FamilyListComponent implements OnInit {
 	ngOnInit(): void {
 		this.getFamilies();
 	}
-
-	@Input()
-	set protocol(protocol: string) {
-		this.newFamily.protocol = protocol;
-		this.shortname=this.currentShortName;
-	}
-
-	@Input()
-	set shortname(name: string) {
-		var protocol = this.newFamily.protocol;
-		this.currentShortName=name;
-		this.newFamily.name = this.isProtocolLocal(protocol) ? name +' (local)' : name==='' ? '' : name + ' (Remote/'+protocol+')';
-	}
 	
 	newLocalFamily() {
-		this.newFamily = new Family({ protocol: 'local' });
-		this.shortname = this.currentShortName;
-	}
-	
-	isProtocolLocal(protocol: string) {
-		return protocol==='local' || protocol===undefined
+		this.newFamily = new Family({  });
 	}
 
 	addFamily() {
-		this.newFamily.remote = ! this.isProtocolLocal(this.newFamily.protocol);
-		this.templatesDataService.addFamily(this.newFamily).subscribe(
-			newId => {
-				this.newFamily.id = newId;
-				this.families.push( this.newFamily );
+		this.templatesDataService.insertFamily(this.newFamily).subscribe(
+			family => {
+				this.families.push( family );
 				this.newLocalFamily();
 			}
 		);		
