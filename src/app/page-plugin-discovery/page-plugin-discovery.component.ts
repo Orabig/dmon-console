@@ -23,8 +23,8 @@ export class PagePluginDiscoveryComponent implements OnInit {
   outputStep4: string;
   outputStep5: string;
   plugins: any[];
-  selectedFamily: any;
-  selectedFamilyModes: string[];
+  selectedPlugin: any;
+  selectedPluginModes: string[];
 
   constructor(  private hostService: HostService,
 				private groupService: GroupService,
@@ -94,6 +94,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	this.requestPluginList();
   }
   
+  // EXECUTE '!check --list-plugin' and listens for results
   requestPluginList() {
 	  // On se mets à l'écoute du canal de retour
 	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
@@ -110,6 +111,8 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.sendCommandService.sendCommandLine(this.selectedHost);
   }
   
+  // fills this.plugins with a plugin list : {name, plugin, description}
+  // This list is shown to user
   processPluginList(stdout: string[]) {
 	  // Display start of step3
 	  this.outputStep2 = stdout.slice(2,13).join("\n") + "\n(......)";
@@ -123,32 +126,65 @@ export class PagePluginDiscoveryComponent implements OnInit {
 						var plugin = match[1];
 						var description = match[2].replace(/ +/g," ");
 						var name = description.replace(/^Check +(an? +)?/,"").replace(/ *(\.|\(|through|locally|in SNMP).*/,"");
-						console.log(description);
-						console.log(name);
-						return { name:name,	plugin:plugin, description:description};
-					}).filter( family => family != null );
-	  					
+						var local = !!description.match(/\blocal(ly)?\b/);
+						var protocol = null;
+						if (description.match( /\bSNMP\b/i)) protocol='SNMP';
+						if (description.match( /\bSSH\b/i )) protocol='SSH';
+						if (description.match( /\bTCP|SMTP\b/i )) protocol='TCP';
+						if (description.match( /\bUDP\b/i )) protocol='UDP';
+						if (description.match( /\bAPI\b/i )) protocol='API';
+						if (description.match( /\bHTTP|Webpage\b/i )) protocol='HTTP';
+						if (description.match( /\bJMX\b/i )) protocol='JMX';
+						if (description.match( /\bws-management|WinRM|wsman\b/i )) protocol='WinRM';
+						if (description.match( /\bcan use SSH\b/i )) {
+							local = true; // There will be 2 families in that case (one local, and one with SSH)
+							protocol='SSH';
+						}
+						if (protocol==null) local=true;
+						return { name:name,	plugin:plugin, local:local, protocol:protocol, description:description};
+					}).filter( plugin => plugin != null );
   }
   
-  saveFamily(family: any) {
-	  this.templatesDataService.insertOrUpdateFamilyByPlugin(new Family( family ))
-	  .subscribe(family => this.selectedFamily = family);
+  // USER clicked on a Plugin
+  selectPlugin(plugin: any) {
+	  this.selectedPlugin = plugin;
+	  this.requestPluginModes(plugin);
+  }
+
+  // USER clicked on Family/SAVE  
+  saveSelectedPluginToFamily() {
+	  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
+	  if (this.selectedPlugin.local) this.saveFamily( new Family( {
+			id: this.selectedPlugin.family_id,
+			name: this.selectedPlugin.name,
+			description: this.selectedPlugin.description,
+			local: true,
+			protocol: null
+	  } ));
+	  if (this.selectedPlugin.protocol!=null) this.saveFamily( new Family( {
+			id: this.selectedPlugin.family_id,
+			name: this.selectedPlugin.name,
+			description: this.selectedPlugin.description,
+			local: false,
+			protocol: this.selectedPlugin.protocol
+	  } ));
   }
   
-  selectPlugin(family: any) {
-	  this.selectedFamily = family;
-	  this.requestPluginModes(family);
+  saveFamily( family: Family ) {
+	  this.templatesDataService.insertOrUpdateFamilyByNameLocalProtocol( family )
+		.subscribe(family => this.selectedPlugin.family_id = family.id);
   }
   
+  // USER clicked on Back
   cancelSelectedPlugin() {
-	  this.selectedFamily = null;
+	  this.selectedPlugin = null;
 	  this.outputStep4='';
 	  this.outputStep5='';
-	  this.selectedFamilyModes=null;
+	  this.selectedPluginModes=null;
   }
   
   // Execute    !check --plugin ... --list-mode
-  requestPluginModes(family) {
+  requestPluginModes(plugin) {
 	  // On se mets à l'écoute du canal de retour
 	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
 	    .map(message => message['data'])
@@ -159,7 +195,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 			err  => console.error(err),
 			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
 	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + family.plugin + " --list-mode";
+	  this.selectedHost.cmdline = "!check --plugin " + plugin.plugin + " --list-mode";
 	  this.sendCommandService.sendCommandLine(this.selectedHost);
   }
   
@@ -169,12 +205,12 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
 	  var groups = modesRE.exec(stdout.join(""));
-	  this.selectedFamilyModes = groups[1].split(/ +/);
+	  this.selectedPluginModes = groups[1].split(/ +/);
   }
   
   selectMode(mode: string) {
 	  // this.selectedMode = mode;
-	  this.requestPluginParameters(this.selectedFamily, mode);
+	  this.requestPluginParameters(this.selectedPlugin, mode);
   }
   
   // Execute    !check --plugin ... --mode ... --help

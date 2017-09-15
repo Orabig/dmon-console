@@ -16,6 +16,8 @@ import { Family, Technology } from '../_models/templates';
 export class TemplatesDataService {
 
   constructor(private httpInterceptorService: HttpInterceptorService) { }
+  
+  private protocols: any[]; // {id:id, name: name}
 
   // ------------------------- Technology --------------------------
   
@@ -79,28 +81,68 @@ export class TemplatesDataService {
 			.map( result => Object.assign({},family,update) ); 
   }
 
-  // INSERT OR UPDATE /families/:plugin
-  insertOrUpdateFamilyByPlugin(family: Family): Observable<Family> {
-	  var plugin = family.plugin;
-	  if (family.id != null) { // L'ID est déjà connu, on fait un update
-		return this.updateFamily(family, family);
-	  }
-	  // On cherche si le plugin(family) existe déjà
-	  return this.getFamilyByPlugin(family.plugin)
-		.flatMap(original => {
-			if (original && original.id != null) { // On a récupéré l'ID
-				return this.updateFamily(original, family);
-			} else {
-				return this.insertFamily(family);
-			}
-		});
+  // INSERT OR UPDATE /families/:name,:local,:protocol
+  insertOrUpdateFamilyByNameLocalProtocol(family: Family): Observable<Family> {
+	  return this.getProtocolId(family['protocol'])
+		.flatMap(protocolId => {
+			  delete family['protocol'];
+			  family['protocol_id']=protocolId;
+			  
+			  if (family.id != null) { // L'ID est déjà connu, on fait un update
+				return this.updateFamily(family, family);
+			  }
+			  // On cherche si le name(family) existe déjà
+			  return this.getFamilyByNameLocalProtocolId(family)
+				.flatMap(original => {
+					if (original && original.id != null) { // On a récupéré l'ID
+						return this.updateFamily(original, family);
+					} else {
+						return this.insertFamily(family);
+					}
+				});
+	});
   }
 
   // GET /families/:id
-  getFamilyByPlugin(plugin: string): Observable<Family> {
-	  return this.httpInterceptorService
-			.getJson('api.php/Family', { transform: true, filter: "plugin,eq," + plugin } )
-			.map ( response => response['Family'][0] );
+  getFamilyByNameLocalProtocolId(filter: any): Observable<Family> {
+	var protocolOp = filter.protocol_id==null ? 'is' : 'eq'; // API needs 'field,is,null' syntax
+	var local = filter.local ? 1 : 0; // API does not support boolean in filter[]
+	return this.httpInterceptorService
+				.getJson('api.php/Family', { transform: true, 'filter[]': 
+					["name,eq," + filter.name, 
+					 "local,eq," + local,
+					 "protocol_id," + protocolOp + "," + filter.protocol_id
+					 ] } )
+				.map ( response => response['Family'][0] );
   }
+  
+  // ------------------------------- Protocols ---------------------------------
 
+  getProtocolId(name: string): Observable<number> {
+	  if (name==null) return Observable.of(null);
+	  return this.getProtocols()
+		.flatMap(protocols => {
+			var found = protocols.filter(protocol => protocol.name == name);
+			if (found[0]) return Observable.of(found[0].id);
+			// The protocol does not exist, so we should insert it
+			return this.insertProtocol({name: name});
+ 	  });
+  }
+  
+  insertProtocol(protocol: any) {
+	  return this.httpInterceptorService
+				.postJson('api.php/Protocol', protocol )
+				.do( id => this.protocols.push( Object.assign( {id:id}, protocol )) );
+  }
+  
+  getProtocols(): Observable<any[]> {
+	  if (this.protocols != null) {
+		  return Observable.of( this.protocols );
+	  }else {
+		return this.httpInterceptorService
+			.getJson('api.php/Protocol', { transform: true } )
+			.map ( response => response['Protocol'] )
+			.do( protocols => this.protocols = protocols );
+	  }
+  }
 }
