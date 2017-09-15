@@ -25,6 +25,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
   plugins: any[];
   selectedPlugin: any;
   selectedPluginModes: string[];
+  selectedCommand: any;
 
   constructor(  private hostService: HostService,
 				private groupService: GroupService,
@@ -153,26 +154,27 @@ export class PagePluginDiscoveryComponent implements OnInit {
 
   // USER clicked on Family/SAVE  
   saveSelectedPluginToFamily() {
-	  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
-	  if (this.selectedPlugin.local) this.saveFamily( new Family( {
-			id: this.selectedPlugin.family_id,
-			name: this.selectedPlugin.name,
-			description: this.selectedPlugin.description,
-			local: true,
-			protocol: null
-	  } ));
-	  if (this.selectedPlugin.protocol!=null) this.saveFamily( new Family( {
-			id: this.selectedPlugin.family_id,
-			name: this.selectedPlugin.name,
-			description: this.selectedPlugin.description,
-			local: false,
-			protocol: this.selectedPlugin.protocol
-	  } ));
+	  if (this.selectedPlugin.familyIds == null) {
+		  this.selectedPlugin.familyIds = [];
+		  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
+		  if (this.selectedPlugin.local) this.saveFamily( new Family( {
+				name: this.selectedPlugin.name,
+				description: this.selectedPlugin.description,
+				local: true,
+				protocol: null
+		  } ));
+		  if (this.selectedPlugin.protocol!=null) this.saveFamily( new Family( {
+				name: this.selectedPlugin.name,
+				description: this.selectedPlugin.description,
+				local: false,
+				protocol: this.selectedPlugin.protocol
+		  } ));
+	  }
   }
   
   saveFamily( family: Family ) {
 	  this.templatesDataService.insertOrUpdateFamilyByNameLocalProtocol( family )
-		.subscribe(family => this.selectedPlugin.family_id = family.id);
+		.subscribe(family => this.selectedPlugin.familyIds.push( family.id ));
   }
   
   // USER clicked on Back
@@ -181,6 +183,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.outputStep4='';
 	  this.outputStep5='';
 	  this.selectedPluginModes=null;
+	  this.selectedCommand=null;
   }
   
   // Execute    !check --plugin ... --list-mode
@@ -190,8 +193,9 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	    .map(message => message['data'])
 		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-mode")>-1)
 		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+		.map( data => data['stdout'].join("\n"))
 		.subscribe(
-			data => this.processModes(data['stdout']),
+			data => this.processModes(data),
 			err  => console.error(err),
 			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
 	  // On envoie une commande au host
@@ -200,29 +204,29 @@ export class PagePluginDiscoveryComponent implements OnInit {
   }
   
   // extraction of "Modes available" infos...
-  processModes(stdout: string[]) {
-	  this.outputStep4 = stdout.join("\n");
+  processModes(stdout: string) {
+	  // DISPLAY
+	  this.outputStep4 = stdout;
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
-	  var groups = modesRE.exec(stdout.join(""));
+	  var groups = modesRE.exec(stdout.replace(/\n/g,''));
 	  this.selectedPluginModes = groups[1].split(/ +/);
   }
   
   selectMode(mode: string) {
-	  // this.selectedMode = mode;
-	  this.requestPluginParameters(this.selectedPlugin, mode);
+	  this.requestPluginCommand(this.selectedPlugin, mode);
   }
   
   // Execute    !check --plugin ... --mode ... --help
-  requestPluginParameters(family, mode) {
+  requestPluginCommand(family, mode) {
 	  // On se mets à l'écoute du canal de retour
 	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
 	    .map(message => message['data'])
 		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--help")>-1)
 		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
-		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,"").replace(/;;/g,"\n"))
+		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,'').replace(/;;/g,"\n"))
 		.subscribe(
-			help => this.processParameters(help),
+			help => this.processCommand(mode, family.plugin, help),
 			err  => console.error(err),
 			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
 	  // On envoie une commande au host
@@ -230,8 +234,36 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.sendCommandService.sendCommandLine(this.selectedHost);
   }
   
-  processParameters(stdout: string) {
+  // Reads the result of '--mode mode --help' to get the command description and variables
+  processCommand(mode: string, plugin: string, stdout: string) {
+	  // DISPLAY
+	  this.outputStep4 = '';
 	  this.outputStep5 = stdout;
+	  // PROCESS
+	  var paragraphs = stdout.split(/\n\n/);
+	  var description = paragraphs.shift().replace(/^ +/,'');
+	  console.log("description=",description);
+	  var variables = paragraphs.map(help => {
+			var nameRE = /^ +--(\S+)/;
+			var match = nameRE.exec(help);
+			if (!match) {
+				console.error("Erreur de definition de variable pour le plugin "+this.selectedPlugin.plugin+" mode "+mode);
+				return null;
+			} else {
+				var varName = match[1];
+				var varDesc = help.replace(nameRE,'').replace(/[\n ]+/g,' ');
+				return { name: varName, description: varDesc };
+			}
+		  }).filter(variable => variable!=null);
+	  this.selectedCommand = {
+		  name: mode,
+		  description: description,
+		  plugin: plugin,
+		  discovery: mode.match(/^list-/),
+		  cmdLine: '',
+		  defaultAgentName: '',
+		  variables: variables
+		  };
   }
   
 }
