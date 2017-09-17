@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+
 import { Host } from '../_models/objects/index';
 import { User } from '../_models/users/user';
 import { Family } from '../_models/templates/family';
 import { ObjectsDataService, TemplatesDataService, CentrifugeService, HostService, GroupService, SendCommandService, HttpInterceptorService } from '../_services/index';
 
 import { environment } from '../../environments/environment';
+
+import { generateUUID } from '../_helpers/utils';
 
 @Component({
   selector: 'app-page-plugin-discovery',
@@ -97,19 +101,11 @@ export class PagePluginDiscoveryComponent implements OnInit {
   
   // EXECUTE '!check --list-plugin' and listens for results
   requestPluginList() {
-	  // On se mets à l'écoute du canal de retour
-	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
-	    .map(message => message['data'])
-		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-plugin")>-1)
-		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+	  this.getResultFromSelectedHost("!check --list-plugin")
 		.map( data => data['stdout'])
 		.subscribe(
 			stdout => this.processPluginList(stdout),
-			err  => console.error(err),
-			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
-	  // On on envoie une commande au host
-	  this.selectedHost.cmdline = "!check --list-plugin";
-	  this.sendCommandService.sendCommandLine(this.selectedHost);
+			err  => console.error(err));
   }
   
   // fills this.plugins with a plugin list : {name, plugin, description}
@@ -188,19 +184,11 @@ export class PagePluginDiscoveryComponent implements OnInit {
   
   // Execute    !check --plugin ... --list-mode
   requestPluginModes(plugin) {
-	  // On se mets à l'écoute du canal de retour
-	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
-	    .map(message => message['data'])
-		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-mode")>-1)
-		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-mode")
 		.map( data => data['stdout'].join("\n"))
 		.subscribe(
 			data => this.processModes(data),
-			err  => console.error(err),
-			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
-	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + plugin.plugin + " --list-mode";
-	  this.sendCommandService.sendCommandLine(this.selectedHost);
+			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
   // extraction of "Modes available" infos...
@@ -219,30 +207,21 @@ export class PagePluginDiscoveryComponent implements OnInit {
   
   // Execute    !check --plugin ... --mode ... --help
   requestPluginCommand(family, mode) {
-	  // On se mets à l'écoute du canal de retour
-	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
-	    .map(message => message['data'])
-		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--help")>-1)
-		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+	  this.getResultFromSelectedHost("!check --plugin " + family.plugin + " --mode " + mode + " --help")
 		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,'').replace(/;;/g,"\n"))
 		.subscribe(
 			help => this.processCommand(mode, family.plugin, help),
-			err  => console.error(err),
-			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
-	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + family.plugin + " --mode " + mode + " --help";
-	  this.sendCommandService.sendCommandLine(this.selectedHost);
+			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
   // Reads the result of '--mode mode --help' to get the command description and variables
-  processCommand(mode: string, plugin: string, stdout: string) {
+  processCommand(mode: string, plugin: string, stdout: string) {	  
 	  // DISPLAY
 	  this.outputStep4 = '';
 	  this.outputStep5 = stdout;
 	  // PROCESS
 	  var paragraphs = stdout.split(/\n\n/);
 	  var description = paragraphs.shift().replace(/^ +/,'');
-	  console.log("description=",description);
 	  var variables = paragraphs.map(help => {
 			var nameRE = /^ +--(\S+)/;
 			var match = nameRE.exec(help);
@@ -264,6 +243,19 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		  defaultAgentName: '',
 		  variables: variables
 		  };
-  }
+ }
+ 
+  // ------------------------- Utility method (used several times here)
   
+  getResultFromSelectedHost(cmdline: string): Observable<any> {
+	  var cmdId = generateUUID();
+	  var observable = this.centrifugeService.getMessagesOn('$'+this.groupId)
+	    .map(message => message['data'])
+		.filter( data=> data['cmdId']==cmdId && data['t']=='RESULT' )
+		.skipWhile( data=> data['terminated'] == 0 ) // Only keep the completed result
+		.take(1);
+	  // On envoie la commande au host
+	  this.sendCommandService.sendCommandLineWithId(this.selectedHost,cmdId,cmdline);  
+	  return observable;
+  }
 }

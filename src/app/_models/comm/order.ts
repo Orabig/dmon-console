@@ -1,4 +1,5 @@
 import { Host } from '../objects';
+import { generateUUID } from '../../_helpers/utils';
 
 // An Order object represents the state of an order sent to a client and the messages received in return.
 
@@ -23,21 +24,19 @@ export class Order {
 	public static buildOrderLoad(type: string, destination: Host, load: any) {
 		return Object.assign( {
 			t: type,
-			cmdId: guid(),
+			cmdId: generateUUID(),
 			'client-id': destination.client, 
 			'host-id': destination.name
 		}, load);
-	};
+	}
 	
-}
-
-// Generates a random id
-function guid() {
-  function s4() {
-	return Math.floor((1 + Math.random()) * 0x10000)
-	  .toString(16)
-	  .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-	s4() + '-' + s4() + s4() + s4();
+	public static buildOrderLoadWithId(type: string, destination: Host, load: any, id: string) {
+		return Object.assign( {
+			t: type,
+			cmdId: id,
+			'client-id': destination.client, 
+			'host-id': destination.name
+		}, load);
+	}
+	
 }
