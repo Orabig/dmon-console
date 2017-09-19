@@ -68,6 +68,13 @@
 					</div>
 				</div>
 			  </div>
+			<div *ngIf="selectedPlugin.familyIds!=null">
+				<button class="save" *ngIf="selectedCommand.id==null" (click)="saveSelectedModeToCommand()">Save</button>
+				<button class="saved" 
+					disabled 
+					*ngIf="selectedCommand.id!=null" 
+					(click)="saveSelectedModeToCommand()">Saved</button>
+			</div>
 		</div>
 		
 		<pre>{{ outputStep5 }}</pre>	

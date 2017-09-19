@@ -4,6 +4,8 @@ import { Observable } from 'rxjs/Observable';
 import { Host } from '../_models/objects/index';
 import { User } from '../_models/users/user';
 import { Family } from '../_models/templates/family';
+import { Command } from '../_models/templates/command';
+import { Variable } from '../_models/templates/variable';
 import { ObjectsDataService, TemplatesDataService, CentrifugeService, HostService, GroupService, SendCommandService, HttpInterceptorService } from '../_services/index';
 
 import { environment } from '../../environments/environment';
@@ -243,6 +245,26 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		  defaultAgentName: '',
 		  variables: variables
 		  };
+ }
+ 
+ saveSelectedModeToCommand() {
+	 if (this.selectedCommand.id == null) {
+		this.saveCommand( new Command( {
+				name: this.selectedCommand.name,
+				description: this.selectedCommand.description,
+				plugin: this.selectedCommand.plugin,
+				cmdLine: this.selectedCommand.cmdLine,
+				DefaultAgentName: this.selectedCommand.DefaultAgentName,
+				variables: this.selectedCommand.variables
+		  } ));
+	  }
+ }
+ 
+ saveCommand(command: Command) {
+	var familyId = this.selectedPlugin.familyIds[0];
+	console.log("familyId=", familyId);
+	this.templatesDataService.insertOrUpdateCommandByName(familyId, command)
+		.subscribe(command => this.selectedCommand.id = command.id); 
  }
  
   // ------------------------- Utility method (used several times here)

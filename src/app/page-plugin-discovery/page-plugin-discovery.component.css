@@ -47,7 +47,7 @@ label {
     display: inline-block;
 }
 
-.family .save, .family .saved {
+.family .save, .family .saved, .command .save, .command .saved {
 	position: absolute;
 	top: 2px;
 	right: 2px;
