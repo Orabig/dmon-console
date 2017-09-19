@@ -16,7 +16,7 @@ import { generateUUID } from '../_helpers/utils';
   selector: 'app-page-plugin-discovery',
   templateUrl: './page-plugin-discovery.component.html',
   styleUrls: ['./page-plugin-discovery.component.css'],
-  providers: [ GroupService, TemplatesDataService ]
+  providers: [ GroupService ]
 })
 export class PagePluginDiscoveryComponent implements OnInit {
 

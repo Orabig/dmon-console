@@ -54,11 +54,22 @@ export class TemplatesDataService {
 
   // ------------------------- Family --------------------------
   
-  // GET ALL tamilies from API
+  // GET ALL families from API with linked protocols, technologies and commands
   getAllFamilies(): Observable<Family[]> {
 	return this.httpInterceptorService
-			.getJson('api.php/Family', { transform: true} )
-			.map ( response => response['Family'] );
+			.getJson('api.php/Family', { transform: true, include: 'Protocol,Technology,Command' } )
+			.map ( response => response['Family'] )
+			// Transformation du format renvoyée par CRUD-PHP-API
+			.map ( families => families.map( family=> {
+				// Protocol[] -> protocol
+				family.protocol = family.Protocol[0];
+				delete family.Protocol;
+				delete family.protocol_id;
+				// Command[] -> commands[]
+				family.commands = family.Command;
+				delete family.Command;
+				return family;
+			}) );
   }
   
   // POST a new family (the returned Observable MUST be subscribed and returns the ID)
@@ -148,9 +159,29 @@ export class TemplatesDataService {
   
   // ------------------------------- Command ---------------------------------
   
+  // GET Full command from API with linked requirements and variable
+  getCommandById(id: number): Observable<Command> {
+	  return this.httpInterceptorService
+				.getJson('api.php/Command', {
+					transform: true, 
+					filter: "id,eq," + id,
+					include: 'Requirement,Variable'
+					} )
+				.map ( response => response['Command'][0] )
+				.map ( command => {
+				// Variable[] -> variables[]
+				command.variables = command.Variable;
+				delete command.Variable;
+				// Requirement[] -> requirements[]
+				command.requirements = command.Requirement;
+				delete command.Requirement;
+				return command;
+				});
+  }
   getCommandByName(familyId: number, command: Command): Observable<Command> {
 	  return this.httpInterceptorService
-				.getJson('api.php/Command', { transform: true, 'filter[]': 
+				.getJson('api.php/Command', {
+					transform: true, 'filter[]': 
 					["family_id,eq," + familyId,
 					 "name,eq," + command['name']
 					 ] } )

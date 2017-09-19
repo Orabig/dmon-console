@@ -6,8 +6,7 @@ import { Technology , Family } from '../_models/templates';
 @Component({
   selector: 'page-template',
   templateUrl: './page-template.component.html',
-  styleUrls: ['./page-template.component.css'],
-  providers: [TemplatesDataService]
+  styleUrls: ['./page-template.component.css']
 })
 
 export class PageTemplateComponent {

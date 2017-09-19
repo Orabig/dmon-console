@@ -1,0 +1,1 @@
+﻿export {PageImplantationComponent} from './page-implantation.component';

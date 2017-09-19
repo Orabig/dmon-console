@@ -17,7 +17,10 @@ import { AlertService,
 		 HostService, 
 		 HttpInterceptorService,
 		 GroupService,
-		 OrderManageService		 } from './_services';
+		 OrderManageService,
+		 TemplatesDataService,
+		 ObjectsDataService
+		} from './_services';
 
 import { HomeComponent } from './home/index';
 import { GroupComponent } from './page-monitor/index';
@@ -32,12 +35,12 @@ import { RegisterComponent } from './register/index';
 import { HostComponent, HostDetailComponent } from './_comps/host';
 import { ServiceStateComponent } from './_comps/service';
 import { HeaderComponent, OrdersComponent } from './_comps';
-import { ObjectsDataService } from './_services/objects-data.service';
 import { DependencyComponent } from './page-define/dependency.component';
 import { ComposantListComponent } from './page-define/composant-list.component';
 import { StatusComponent } from './page-monitor/status.component';
 import { ComposantComponent } from './page-monitor/composant.component';
 import { PagePluginDiscoveryComponent } from './page-plugin-discovery/page-plugin-discovery.component';
+import { PageImplantationComponent } from './page-implantation/index';
 
 
 @NgModule({
@@ -64,7 +67,8 @@ import { PagePluginDiscoveryComponent } from './page-plugin-discovery/page-plugi
 	ComposantListComponent,
 	StatusComponent,
 	ComposantComponent,
-	PagePluginDiscoveryComponent
+	PagePluginDiscoveryComponent,
+	PageImplantationComponent
   ],
   imports: [
     BrowserModule,
@@ -84,7 +88,8 @@ import { PagePluginDiscoveryComponent } from './page-plugin-discovery/page-plugi
 		HostService,
 		HttpInterceptorService,
 		OrderManageService,
-    ObjectsDataService
+		ObjectsDataService,
+		TemplatesDataService
 	],
   bootstrap: [AppComponent]
 })
