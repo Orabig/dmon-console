@@ -2,6 +2,7 @@
 
 export class Command {
     id: number;
+	family_id: number;
     name: string;
 	description: string;
 	plugin: string;

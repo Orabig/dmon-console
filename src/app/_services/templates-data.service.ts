@@ -72,6 +72,21 @@ export class TemplatesDataService {
 			}) );
   }
   
+  // GET families with the given name (with protocol name in 'protocol' field)
+  getFamiliesByName(name: string): Observable<Family[]> {
+	return this.httpInterceptorService
+			.getJson('api.php/Family', { transform: true, include: 'Protocol', filter: 'name,eq,'+name } )
+			.map ( response => response['Family'] )
+			// Transformation du format renvoyée par CRUD-PHP-API
+			.map ( families => families.map( family=> {
+				// Protocol[] -> protocol
+				family.protocol = family.Protocol[0] ? family.Protocol[0].name : null;
+				delete family.Protocol;
+				delete family.protocol_id;
+				return family;
+			}) );
+  }
+  
   // POST a new family (the returned Observable MUST be subscribed and returns the ID)
   insertFamily(family: Family): Observable<Family> {	  
 	  return this.httpInterceptorService
@@ -139,6 +154,14 @@ export class TemplatesDataService {
 				.map ( response => response['Variable'][0] );
   }
   
+  deleteVariablesNotIn(command: Command) {
+	  // TODO
+  }
+  
+  updateVariablesIn(command: Command) {
+	  // TODO
+  }
+  
   insertVariable(familyId: number, commandId: number, variable: Variable): Observable<Variable> {
 	  return this.httpInterceptorService
 				.postJson('api.php/Variable', Object.assign(variable, {family_id: familyId, command_id: commandId}) )
@@ -178,33 +201,50 @@ export class TemplatesDataService {
 				return command;
 				});
   }
-  getCommandByName(familyId: number, command: Command): Observable<Command> {
+  getCommandByName( command: Command): Observable<Command> {
 	  return this.httpInterceptorService
 				.getJson('api.php/Command', {
 					transform: true, 'filter[]': 
-					["family_id,eq," + familyId,
+					["family_id,eq," + command['family_id'],
 					 "name,eq," + command['name']
 					 ] } )
 				.map ( response => response['Command'][0] );
   }
   
-  insertCommand(familyId: number, command: Command): Observable<Command> {
+  insertCommand(command: Command): Observable<Command> {
 	  return this.httpInterceptorService
-				.postJson('api.php/Command', Object.assign(command, {family_id: familyId}) )
+				.postJson('api.php/Command', command)
+				.do( id => 
+					command.variables.forEach(
+						variable => this.insertVariable(command.family_id, command.id, variable).subscribe( ok => {} ) 
+					)
+				)
 				.map( id => Object.assign({}, command, {id: id}) );
   }
   
-  insertOrUpdateCommandByName(familyId: number, command: Command): Observable<Command> {
+  updateCommand(command: Command): Observable<Command> {
+	  return this.httpInterceptorService
+				.putJson('api.php/Command/'+command.id, command)
+				.do ( result =>
+					// Suppression des variables qui n'existent plus
+					this.deleteVariablesNotIn(command)
+				).do ( result =>
+					// update des variables
+					this.updateVariablesIn(command)
+				)
+				.map( result => command );
+  }
+  
+  insertOrUpdateCommandByName(command: Command): Observable<Command> {
 	// On cherche si le name(command) existe déjà
-	return this.getCommandByName(familyId, command)
+	return this.getCommandByName(command)
 		.flatMap(original => {
 			if (original && original.id!=null) {
-				return Observable.of( Object.assign({}, command, {id: original.id})); // TODO : l'update n'est pas encore implémenté
+				return this.updateCommand(Object.assign(command, {id: original.id}));
 			} else {
-				return this.insertCommand(familyId, command);
+				return this.insertCommand(command);
 			}
 		})
-		.do (command => command.variables.forEach(variable => this.insertOrUpdateVariableByName(familyId, command.id, variable).do(ok=>console.log(ok)).subscribe( ok => {} ) ) );
   }
   
   // ------------------------------- Protocols ---------------------------------

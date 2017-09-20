@@ -11,6 +11,7 @@ import { ObjectsDataService, TemplatesDataService, CentrifugeService, HostServic
 import { environment } from '../../environments/environment';
 
 import { generateUUID } from '../_helpers/utils';
+import { isSSHVariable } from '../_helpers/rules';
 
 @Component({
   selector: 'app-page-plugin-discovery',
@@ -140,39 +141,46 @@ export class PagePluginDiscoveryComponent implements OnInit {
 							protocol='SSH';
 						}
 						if (protocol==null) local=true;
-						return { name:name,	plugin:plugin, local:local, protocol:protocol, description:description};
+						return { name:name,	plugin:plugin, local:local, protocol:protocol, description:description, families:null};
 					}).filter( plugin => plugin != null );
   }
   
   // USER clicked on a Plugin
   selectPlugin(plugin: any) {
 	  this.selectedPlugin = plugin;
+	  this.loadKnownFamily(plugin); // Cherche dans la base de donnée si une ou plusieurs familles correspondent, et dans ce cas, alimente selectedPlugin.families
 	  this.requestPluginModes(plugin);
+  }
+  
+  loadKnownFamily(plugin: any) {
+	  this.templatesDataService.getFamiliesByName(plugin.name).subscribe(
+		families => this.selectedPlugin.families = families.length>0 ? families : null
+	  )
   }
 
   // USER clicked on Family/SAVE  
   saveSelectedPluginToFamily() {
-	  if (this.selectedPlugin.familyIds == null) {
-		  this.selectedPlugin.familyIds = [];
+	  if (this.selectedPlugin.families == null) {
+		  this.selectedPlugin.families = [];
 		  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
 		  if (this.selectedPlugin.local) this.saveFamily( new Family( {
 				name: this.selectedPlugin.name,
 				description: this.selectedPlugin.description,
 				local: true,
-				protocol: null
+				protocol: null // --- local
 		  } ));
 		  if (this.selectedPlugin.protocol!=null) this.saveFamily( new Family( {
 				name: this.selectedPlugin.name,
 				description: this.selectedPlugin.description,
 				local: false,
-				protocol: this.selectedPlugin.protocol
+				protocol: this.selectedPlugin.protocol // --- SSH
 		  } ));
 	  }
   }
   
   saveFamily( family: Family ) {
 	  this.templatesDataService.insertOrUpdateFamilyByNameLocalProtocol( family )
-		.subscribe(family => this.selectedPlugin.familyIds.push( family.id ));
+		.subscribe(family => this.selectedPlugin.families.push( family ));
   }
   
   // USER clicked on Back
@@ -235,10 +243,10 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.outputStep4 = '';
 	  this.outputStep5 = stdout;
 	  // PROCESS
-	  var paragraphs = stdout.split(/\n\n/);
+	  var paragraphs = stdout.split(/\n\n/); // Arguments are in paragraphs separed with 2 newlines ...
 	  var description = paragraphs.shift().replace(/^ +/,'');
 	  var variables = paragraphs.map(help => {
-			var nameRE = /^ +--(\S+)/;
+			var nameRE = /^ +--(\S+)/; // ... and start with "  --argument ...."
 			var match = nameRE.exec(help);
 			if (!match) {
 				console.error("Erreur de definition de variable pour le plugin "+this.selectedPlugin.plugin+" mode "+mode);
@@ -262,7 +270,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
  
  saveSelectedModeToCommand() {
 	 if (this.selectedCommand.id == null) {
-		this.saveCommand( new Command( {
+		this.saveCommand( new Command( { // ?????
 				name: this.selectedCommand.name,
 				description: this.selectedCommand.description,
 				plugin: this.selectedCommand.plugin,
@@ -273,11 +281,23 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  }
  }
  
+ // Sauve la commande avec ses arguments pour la famille sélectionnée (ou les familles si SSH+local)
  saveCommand(command: Command) {
-	var familyId = this.selectedPlugin.familyIds[0];
-	console.log("familyId=", familyId);
-	this.templatesDataService.insertOrUpdateCommandByName(familyId, command)
-		.subscribe(command => this.selectedCommand.id = command.id); 
+	this.selectedPlugin.families.forEach(family =>
+		{
+		var familyId = family.id;
+		var protocol = family.protocol;
+		console.log("family:",familyId,protocol);
+		var fixedCommand = Object.assign(command, {family_id: familyId});
+		if (protocol!="SSH") {
+			var localVariables = command.variables.filter(variable=> ! isSSHVariable(variable));
+			fixedCommand = Object.assign(fixedCommand, {variables: localVariables});
+		}
+		console.log("command:",fixedCommand);
+		this.templatesDataService.insertOrUpdateCommandByName(fixedCommand)
+			.subscribe(command => this.selectedCommand.id = command.id); 
+		}
+	);
  }
  
   // ------------------------- Utility method (used several times here)
