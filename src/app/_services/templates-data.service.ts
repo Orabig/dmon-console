@@ -154,12 +154,38 @@ export class TemplatesDataService {
 				.map ( response => response['Variable'][0] );
   }
   
-  deleteVariablesNotIn(command: Command) {
-	  // TODO
+  deleteVariablesNotInAsync(command: Command) {
+	  this.httpInterceptorService
+				.getJson('api.php/Variable', { transform: true, 'filter[]': 
+					["family_id,eq," + command.family_id,
+					"command_id,eq," + command.id] } ) // Lecture de toutes les variables
+				.map(response => response['Variable'])
+				.subscribe(variables =>
+					variables.filter( // ne garder que celle qui ne sont pas dans la commande
+						variable=>command.variables.filter(cvar=>cvar.name==variable.name).length==0 )
+						.forEach( // Pour chacune, envoyer un ordre de suppression
+						variable=>this.httpInterceptorService
+							.deleteJson('api.php/Variable', variable.id ).subscribe(ok=>{})
+						)
+				);
   }
   
-  updateVariablesIn(command: Command) {
-	  // TODO
+  // Update the variables (asynchronously)
+  insertOrUpdateVariablesInAsync(command: Command) {
+	  command.variables.forEach(variable=>
+	    this.getVariableByName(command.family_id, command.id, variable)
+				.subscribe(original => {
+					if (original!=null) {
+						this.httpInterceptorService
+							.putJson('api.php/Variable/'+original.id, Object.assign({},variable,{id:original.id}))
+							.subscribe(ok=>{})
+					} else {
+						this.insertVariable(command.family_id, command.id, variable)
+							.subscribe(ok=>{})
+					}
+					}
+				)
+	  );
   }
   
   insertVariable(familyId: number, commandId: number, variable: Variable): Observable<Variable> {
@@ -219,7 +245,7 @@ export class TemplatesDataService {
 						variable => this.insertVariable(command.family_id, command.id, variable).subscribe( ok => {} ) 
 					)
 				)
-				.map( id => Object.assign({}, command, {id: id}) );
+				.map( id => Object.assign(command, {id: id}) );
   }
   
   updateCommand(command: Command): Observable<Command> {
@@ -227,14 +253,16 @@ export class TemplatesDataService {
 				.putJson('api.php/Command/'+command.id, command)
 				.do ( result =>
 					// Suppression des variables qui n'existent plus
-					this.deleteVariablesNotIn(command)
+					this.deleteVariablesNotInAsync(command)
 				).do ( result =>
 					// update des variables
-					this.updateVariablesIn(command)
+					this.insertOrUpdateVariablesInAsync(command)
 				)
 				.map( result => command );
   }
   
+  // Insert a new command (and its variables) or if a command with same family_id and same name exist, updates it
+  // IMPORTANT : The id of the parameter is changed after the call of this method (but the ids of the variables are NOT)
   insertOrUpdateCommandByName(command: Command): Observable<Command> {
 	// On cherche si le name(command) existe déjà
 	return this.getCommandByName(command)

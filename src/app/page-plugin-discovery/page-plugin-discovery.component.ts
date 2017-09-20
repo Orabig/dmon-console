@@ -161,7 +161,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
   // USER clicked on Family/SAVE  
   saveSelectedPluginToFamily() {
 	  if (this.selectedPlugin.families == null) {
-		  this.selectedPlugin.families = [];
+		  this.selectedPlugin.families = []; // Will be filled in this.saveFamily()
 		  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
 		  if (this.selectedPlugin.local) this.saveFamily( new Family( {
 				name: this.selectedPlugin.name,
@@ -192,6 +192,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.selectedCommand=null;
   }
   
+  // USER clicked on a Plugin >> selectPlugin() >>
   // Execute    !check --plugin ... --list-mode
   requestPluginModes(plugin) {
 	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-mode")
@@ -201,7 +202,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
-  // extraction of "Modes available" infos...
+  // Will display the list of modes for this plugin (1-2 family)
   processModes(stdout: string) {
 	  // DISPLAY
 	  this.outputStep4 = stdout;
@@ -216,7 +217,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 			var missingLibRE = /Can't locate (\S+) in @INC/;
 			var groups = missingLibRE.exec(stdout);
 			if (groups) {
-				// TODO : Required library
+				// TODO : Required library for this plugin
 				console.log("Pre-requis : ",groups[1]);
 			} else {
 				console.error("Unknown output : ",stdout);
@@ -224,10 +225,12 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		}
   }
   
+  // User clicked on a mode
   selectMode(mode: string) {
 	  this.requestPluginCommand(this.selectedPlugin, mode);
   }
   
+  // USER click >> selectMode() >>
   // Execute    !check --plugin ... --mode ... --help
   requestPluginCommand(family, mode) {
 	  this.getResultFromSelectedHost("!check --plugin " + family.plugin + " --mode " + mode + " --help")
@@ -237,7 +240,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
-  // Reads the result of '--mode mode --help' to get the command description and variables
+  // Reads the result of '--mode mode --help' to display the command description and variables
   processCommand(mode: string, plugin: string, stdout: string) {	  
 	  // DISPLAY
 	  this.outputStep4 = '';
@@ -268,6 +271,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		  };
  }
  
+ // USER clicked on "Save" : should init the save of command and variables
  saveSelectedModeToCommand() {
 	 if (this.selectedCommand.id == null) {
 		this.saveCommand( new Command( { // ?????
@@ -288,12 +292,13 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		var familyId = family.id;
 		var protocol = family.protocol;
 		console.log("family:",familyId,protocol);
-		var fixedCommand = Object.assign(command, {family_id: familyId});
+		var fixedCommand = Object.assign({},command, {family_id: familyId});
+		console.log("command:",command);
+		console.log("fixedCommand:",fixedCommand);
 		if (protocol!="SSH") {
 			var localVariables = command.variables.filter(variable=> ! isSSHVariable(variable));
 			fixedCommand = Object.assign(fixedCommand, {variables: localVariables});
 		}
-		console.log("command:",fixedCommand);
 		this.templatesDataService.insertOrUpdateCommandByName(fixedCommand)
 			.subscribe(command => this.selectedCommand.id = command.id); 
 		}
