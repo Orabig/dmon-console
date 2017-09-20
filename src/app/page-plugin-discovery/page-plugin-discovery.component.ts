@@ -199,26 +199,21 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.outputStep4 = stdout;
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
-<<<<<<< HEAD
-	  var output = stdout.join("");
-	  var groups = modesRE.exec(output);
+	  stdout=stdout.replace(/\n/g,"");
+	  var groups = modesRE.exec(stdout);
 	  if (groups) {
-			this.selectedFamilyModes = groups[1].split(/ +/);
+			this.selectedPluginModes = groups[1].split(/ +/);
 		} else {
 			// Modes available n'apparait pas : sans doute une erreur de library
 			var missingLibRE = /Can't locate (\S+) in @INC/;
-			var groups = missingLibRE.exec(output);
+			var groups = missingLibRE.exec(stdout);
 			if (groups) {
 				// TODO : Required library
 				console.log("Pre-requis : ",groups[1]);
 			} else {
-				console.error("Unknown output : ",output);
+				console.error("Unknown output : ",stdout);
 			}
 		}
-=======
-	  var groups = modesRE.exec(stdout.replace(/\n/g,''));
-	  this.selectedPluginModes = groups[1].split(/ +/);
->>>>>>> refs/remotes/origin/master
   }
   
   selectMode(mode: string) {
@@ -239,10 +234,6 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  // DISPLAY
 	  this.outputStep4 = '';
 	  this.outputStep5 = stdout;
-<<<<<<< HEAD
-	  this.outputStep4='';
-  }
-=======
 	  // PROCESS
 	  var paragraphs = stdout.split(/\n\n/);
 	  var description = paragraphs.shift().replace(/^ +/,'');
@@ -290,7 +281,6 @@ export class PagePluginDiscoveryComponent implements OnInit {
  }
  
   // ------------------------- Utility method (used several times here)
->>>>>>> refs/remotes/origin/master
   
   getResultFromSelectedHost(cmdline: string): Observable<any> {
 	  var cmdId = generateUUID();
