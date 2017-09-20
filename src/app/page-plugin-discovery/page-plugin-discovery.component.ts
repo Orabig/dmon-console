@@ -11,7 +11,7 @@ import { ObjectsDataService, TemplatesDataService, CentrifugeService, HostServic
 import { environment } from '../../environments/environment';
 
 import { generateUUID } from '../_helpers/utils';
-import { isSSHVariable } from '../_helpers/rules';
+import { isSSHVariable, extractDefaultFromVariable, extractValidationFromVariable, isAdvancedVariable, extractCardinalityFromVariable, isMandatoryVariable } from '../_helpers/rules';
 
 @Component({
   selector: 'app-page-plugin-discovery',
@@ -248,6 +248,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  // PROCESS
 	  var paragraphs = stdout.split(/\n\n/); // Arguments are in paragraphs separed with 2 newlines ...
 	  var description = paragraphs.shift().replace(/^ +/,'');
+	  var position=0;
 	  var variables = paragraphs.map(help => {
 			var nameRE = /^ +--(\S+)/; // ... and start with "  --argument ...."
 			var match = nameRE.exec(help);
@@ -257,7 +258,8 @@ export class PagePluginDiscoveryComponent implements OnInit {
 			} else {
 				var varName = match[1];
 				var varDesc = help.replace(nameRE,'').replace(/[\n ]+/g,' ');
-				return { name: varName, description: varDesc };
+				position = position + 1;
+				return { name: varName, description: varDesc, position: position };
 			}
 		  }).filter(variable => variable!=null);
 	  this.selectedCommand = {
@@ -291,14 +293,21 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		{
 		var familyId = family.id;
 		var protocol = family.protocol;
-		console.log("family:",familyId,protocol);
-		var fixedCommand = Object.assign({},command, {family_id: familyId});
-		console.log("command:",command);
-		console.log("fixedCommand:",fixedCommand);
+		// JSON trick to do deep copy
+		var fixedCommand = Object.assign({},JSON.parse(JSON.stringify(command)), {family_id: familyId});
 		if (protocol!="SSH") {
 			var localVariables = command.variables.filter(variable=> ! isSSHVariable(variable));
 			fixedCommand = Object.assign(fixedCommand, {variables: localVariables});
 		}
+		console.log("fix def for",family,fixedCommand.variables);
+		fixedCommand.variables
+			.forEach(variable=> {
+				variable['advanced_variable']=isAdvancedVariable(variable);
+				variable['validation']=extractValidationFromVariable(variable);
+				variable['mandatory']=isMandatoryVariable(variable);
+				variable['cardinality']=extractCardinalityFromVariable(variable);
+				variable['default']=extractDefaultFromVariable(variable); // This last step may change the description
+			});
 		this.templatesDataService.insertOrUpdateCommandByName(fixedCommand)
 			.subscribe(command => this.selectedCommand.id = command.id); 
 		}

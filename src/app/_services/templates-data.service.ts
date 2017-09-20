@@ -194,18 +194,6 @@ export class TemplatesDataService {
 				.map( id => Object.assign({}, variable, {id: id}) );
   }
   
-  insertOrUpdateVariableByName(familyId: number, commandId: number, variable: Variable): Observable<Variable> {
-	// On cherche si le name(variable) existe déjà
-	return this.getVariableByName(familyId, commandId, variable)
-		.flatMap(original => {
-			if (original && original.id!=null) {
-				return Observable.of( Object.assign({}, variable, {id: original.id})); // TODO : l'update n'est pas encore implémenté
-			} else {
-				return this.insertVariable(familyId, commandId, variable);
-			}
-		});
-  }
-  
   // ------------------------------- Command ---------------------------------
   
   // GET Full command from API with linked requirements and variable
@@ -242,7 +230,7 @@ export class TemplatesDataService {
 				.postJson('api.php/Command', command)
 				.do( id => 
 					command.variables.forEach(
-						variable => this.insertVariable(command.family_id, command.id, variable).subscribe( ok => {} ) 
+						variable => this.insertVariable(command.family_id, id, variable).subscribe( ok => {} ) 
 					)
 				)
 				.map( id => Object.assign(command, {id: id}) );
