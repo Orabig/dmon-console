@@ -1,0 +1,69 @@
+<div class="main-page">
+    <header></header>
+
+	<div *ngIf="composant!=null && host!=null && implantation!=null">
+	<h2><img src="{{ composant.technology.iconUri }}">Checklist for {{composant.name}} on {{host.name}}</h2>
+	
+	<div class="editor" *ngIf="selectedAgent">
+		<div class="cartouche">
+			<div class="name">{{ editCommandTemplate.name }}</div>
+			<div class="description">{{ editCommandTemplate.description }}</div>
+		</div>
+		<div class="name">Name : {{selectedAgent.name}}</div>
+		<table>
+			<tr *ngFor="let variable of editCommandTemplate.variables">
+				<th>{{variable.name}}</th>
+				<td><input></td>
+				<td>{{variable.description}}</td>
+			</tr>
+		</table>
+	</div>
+	
+	<div class="container">
+		<div class="family-list">
+			<h3>Drag a family :</h3>
+			<div *ngFor="let family of families">
+				<div class="family"
+					dnd-draggable
+					[dragData]="family"
+					[dropZones]="['family']">
+					<span class="protocol">[ {{family.protocol ? family.protocol.name : 'local'}} ]</span>
+					{{family.name}}
+				</div>
+			</div>
+		</div>
+
+		<div class="check-list">
+			<h3>List of checks :</h3>
+			<div class="all-checks"
+				dnd-droppable
+				[dropZones]="['family']"
+				(onDropSuccess)="dropFamily($event.dragData)">
+				<div
+					*ngFor="let family of selectedFamilies">
+				<div class="family">
+					<span class="protocol">[ {{family.protocol ? family.protocol.name : 'local'}} ]</span>
+					{{family.name}}
+					<div class="command-family-checks">
+						<div class="command-list"
+							*ngIf="commandsShown[family.id]">
+							<div class="command"
+								*ngFor="let command of family.commands"
+								(click)="editNewAgent(family,command)">{{command.name}}</div>
+						</div>
+						<div class="family-checks">						
+							<div class="agent"
+								*ngFor="let agent of checksByFamilies[family.id]"
+								(click)="editAgent(agent)">{{agent.name}}</div>
+							<div class="add-command"
+								(click)="toggleAddCommand(family)"
+								*ngIf="!commandsShown[family.id]">+</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
+	
+</div>

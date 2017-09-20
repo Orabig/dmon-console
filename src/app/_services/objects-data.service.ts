@@ -3,7 +3,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { HttpInterceptorService } from './http-interceptor.service';
 
-import { Application, Host, Composant } from '../_models/objects';
+import { Application, Host, Composant, Implantation, Agent, Argument } from '../_models/objects';
 import { Technology } from '../_models/templates';
 
 import { generateUUID } from '../_helpers/utils';
@@ -79,7 +79,7 @@ export class ObjectsDataService {
 
   // PUT /hosts/:id
   updateHostById(id: string, values: Object = {}): Host {
-    console.log("Not implemented");
+    console.error("Not implemented");
     return null;
   }
 
@@ -92,8 +92,8 @@ export class ObjectsDataService {
 
   // GET /hosts/:id
   getHostById(id: string): Observable<Host> {
-    console.log("Not implemented");
-    return null;
+    return this.httpInterceptorService
+        .getJson('api.php/Host/'+id, { transform: true }); 
   }
 
   // ------------------------- Composant --------------------------
@@ -106,6 +106,21 @@ export class ObjectsDataService {
       .getJson('get-composants.php', { host_id: host.id, application_id: application.id } );
   }
   
+  // Gets a Composant (with linked technology object)
+  // Syntax : getComposant(composant).subscribe(...)
+  getComposantById(id: string) : Observable<Composant> {
+	return this.httpInterceptorService
+        .getJson('api.php/Composant', { transform: true, filter: 'id,eq,'+id, include: 'Technology' })
+		.map(result => result.Composant[0])
+		// Transformation du format renvoyée par CRUD-PHP-API
+		.map ( composant => {
+			composant.technology = composant.Technology[0];
+			delete composant.Technology;
+			delete composant.technology_id;
+			return composant;
+		} );
+  }
+  
   // Creates a new composant linked to the given technology, the application and the host
   // Returns (an observable of) the id of the created component
   createNewComponent(host:Host, application:Application, technology: Technology, name: string): Observable<Composant> {    
@@ -114,15 +129,6 @@ export class ObjectsDataService {
       application_id: application.id,
       technology_id: technology.id,
       name: name
-    });
-  }
-  
-  // Deletes an Implantation. If this was the last implantation, then delete the composant
-  deleteComponent(application:Application, host:Host, composant: Composant): Observable<number> {    
-    return this.httpInterceptorService.postJson('delete-implantation.php', {
-      host_id: host.id,
-      application_id: application.id,
-      composant_id: composant.id
     });
   }
   
@@ -158,4 +164,44 @@ export class ObjectsDataService {
         .postJson('api.php/Dependency', dependency)
         .map(result => composant);
   }
+  
+  // ------------------------- Implantation --------------------------
+  
+  // Gets an Implantation (containing its Agents)
+  // Syntax : getImplantationId(host_id, composant_id).subscribe(...)
+  getImplantation(host_id: string, comp_id: string) : Observable<Implantation> {
+	return this.httpInterceptorService
+        .getJson('api.php/Implantation/', { transform: true, 
+				include: 'Agent,Argument',
+				'filter[]':
+					[ 'host_id,eq,'+host_id,
+					  'composant_id,eq,'+comp_id
+					 ]  })
+				.map( comp => comp['Implantation'][0] )
+				.map( impl => {
+					impl.agents = impl.Agent;
+					delete impl.Agent;
+					return impl;
+				}	); 
+  }
+  
+  // Deletes an Implantation. If this was the last implantation, then delete the composant
+  deleteComponent(application:Application, host:Host, composant: Composant): Observable<number> {    
+    return this.httpInterceptorService.postJson('delete-implantation.php', {
+      host_id: host.id,
+      application_id: application.id,
+      composant_id: composant.id
+    });
+  }
+
+  // ------------------------- Agent --------------------------
+
+  // Creates a new agent
+  // Returns (an observable of) the agent
+  createNewAgent(agent: Agent): Observable<Agent> {    
+    var newAgent: Agent = Object.assign({}, agent, {id: generateUUID()});
+    return this.httpInterceptorService
+        .postJson('api.php/Agent', newAgent).map( result => newAgent );
+  }
+  
 }

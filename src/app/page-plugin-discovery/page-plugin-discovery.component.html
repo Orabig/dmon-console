@@ -26,30 +26,57 @@
 	<ng-template #step3>
 		<h2>Step 3 : Select plugin</h2>
 
-		<div *ngIf="selectedFamily == null;else step4">
+		<div *ngIf="selectedPlugin == null;else step4">
 			<div class="plugin" 
-				(click)="selectPlugin(family)"
-				*ngFor="let family of plugins">{{ family.name }}</div>
+				(click)="selectPlugin(plugin)"
+				*ngFor="let plugin of plugins">{{ plugin.name }}</div>
 		</div>
 	</ng-template>
 
 	
 	
 	<ng-template #step4>
-		<h2>Step 4 : You selected {{ selectedFamily.name }} <span class="back" (click)="cancelSelectedPlugin()">Back</span></h2>
+		<h2>Step 4 : You selected {{ selectedPlugin.name }} <span class="back" (click)="cancelSelectedPlugin()">Back</span></h2>
 		<div class="family">
-			<div class="description"><label>Name :</label>{{ selectedFamily.name }}</div>
-			<div class="description"><label>Plugin :</label>{{ selectedFamily.plugin }}</div>
-			<div class="description"><label>Description :</label>{{ selectedFamily.description }}</div>
-			<button class="save" *ngIf="! selectedFamily.id" (click)="saveFamily(selectedFamily)">Save</button>
-			<button class="saved" *ngIf="selectedFamily.id">Update (id={{selectedFamily.id}})</button>
+			<div class="description"><label>Name :</label>{{ selectedPlugin.name }}</div>
+			<div class="description"><label>Description :</label>{{ selectedPlugin.description }}</div>
+			<div class="description"><label>Local :</label>{{ selectedPlugin.local }}</div>
+			<div class="description" *ngIf="selectedPlugin.protocol!=null"><label>Protocol :</label>{{ selectedPlugin.protocol }}</div>
+			<button class="save" *ngIf="selectedPlugin.familyIds==null" (click)="saveSelectedPluginToFamily()">Save</button>
+			<button class="saved" 
+				disabled 
+				*ngIf="selectedPlugin.familyIds!=null" 
+				(click)="saveSelectedPluginToFamily()">Saved
+				({{ selectedPlugin.familyIds.length }} id<span *ngIf="selectedPlugin.familyIds.length>1">s</span>)</button>
 		</div>
 		<pre>{{ outputStep4 }}</pre>	
 
 		<div class="mode" 
 				(click)="selectMode(mode)"
-				*ngFor="let mode of selectedFamilyModes">{{ mode }}</div>
+				*ngFor="let mode of selectedPluginModes">{{ mode }}</div>
 
+		<div *ngIf="selectedCommand != null" class="command">
+			  <div class="description"><label>Name :</label>{{ selectedCommand.name }}</div>
+			  <div class="description"><label>Description :</label>{{ selectedCommand.description }}</div>
+			  <div class="description"><label>Plugin :</label>{{ selectedCommand.plugin }}</div>
+			  <div class="description"><label>CmdLine :</label>{{ selectedCommand.cmdLine }}</div>
+			  <div class="description"><label>DefaultAgentName :</label>{{ selectedCommand.defaultAgentName }}</div>
+			  <div class="description"><label>Variables :</label>
+				<div class="var-list">
+					<div *ngFor="let variable of selectedCommand.variables">
+						<div class="description"><label>--{{ variable.name }} :</label>{{ variable.description }}</div>
+					</div>
+				</div>
+			  </div>
+			<div *ngIf="selectedPlugin.familyIds!=null">
+				<button class="save" *ngIf="selectedCommand.id==null" (click)="saveSelectedModeToCommand()">Save</button>
+				<button class="saved" 
+					disabled 
+					*ngIf="selectedCommand.id!=null" 
+					(click)="saveSelectedModeToCommand()">Saved</button>
+			</div>
+		</div>
+		
 		<pre>{{ outputStep5 }}</pre>	
 
 	</ng-template>

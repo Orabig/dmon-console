@@ -6,8 +6,7 @@ import { Technology , Family } from '../_models/templates';
 @Component({
   selector: 'technology-list',
   templateUrl: './technology-list.component.html',
-  styleUrls: ['./technology-list.component.css'],
-  providers: [TemplatesDataService]
+  styleUrls: ['./technology-list.component.css']
 })
 
 export class TechnologyListComponent implements OnInit {

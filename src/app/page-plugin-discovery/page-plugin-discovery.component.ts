@@ -1,16 +1,22 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+
 import { Host } from '../_models/objects/index';
 import { User } from '../_models/users/user';
 import { Family } from '../_models/templates/family';
+import { Command } from '../_models/templates/command';
+import { Variable } from '../_models/templates/variable';
 import { ObjectsDataService, TemplatesDataService, CentrifugeService, HostService, GroupService, SendCommandService, HttpInterceptorService } from '../_services/index';
 
 import { environment } from '../../environments/environment';
+
+import { generateUUID } from '../_helpers/utils';
 
 @Component({
   selector: 'app-page-plugin-discovery',
   templateUrl: './page-plugin-discovery.component.html',
   styleUrls: ['./page-plugin-discovery.component.css'],
-  providers: [ GroupService, TemplatesDataService ]
+  providers: [ GroupService ]
 })
 export class PagePluginDiscoveryComponent implements OnInit {
 
@@ -23,8 +29,9 @@ export class PagePluginDiscoveryComponent implements OnInit {
   outputStep4: string;
   outputStep5: string;
   plugins: any[];
-  selectedFamily: any;
-  selectedFamilyModes: string[];
+  selectedPlugin: any;
+  selectedPluginModes: string[];
+  selectedCommand: any;
 
   constructor(  private hostService: HostService,
 				private groupService: GroupService,
@@ -94,22 +101,17 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	this.requestPluginList();
   }
   
+  // EXECUTE '!check --list-plugin' and listens for results
   requestPluginList() {
-	  // On se mets à l'écoute du canal de retour
-	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
-	    .map(message => message['data'])
-		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-plugin")>-1)
-		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+	  this.getResultFromSelectedHost("!check --list-plugin")
 		.map( data => data['stdout'])
 		.subscribe(
 			stdout => this.processPluginList(stdout),
-			err  => console.error(err),
-			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
-	  // On on envoie une commande au host
-	  this.selectedHost.cmdline = "!check --list-plugin";
-	  this.sendCommandService.sendCommandLine(this.selectedHost);
+			err  => console.error(err));
   }
   
+  // fills this.plugins with a plugin list : {name, plugin, description}
+  // This list is shown to user
   processPluginList(stdout: string[]) {
 	  // Display start of step3
 	  this.outputStep2 = stdout.slice(2,13).join("\n") + "\n(......)";
@@ -123,49 +125,81 @@ export class PagePluginDiscoveryComponent implements OnInit {
 						var plugin = match[1];
 						var description = match[2].replace(/ +/g," ");
 						var name = description.replace(/^Check +(an? +)?/,"").replace(/ *(\.|\(|through|locally|in SNMP).*/,"");
-						return { name:name,	plugin:plugin, description:description};
-					}).filter( family => family != null );
-	  					
+						var local = !!description.match(/\blocal(ly)?\b/);
+						var protocol = null;
+						if (description.match( /\bSNMP\b/i)) protocol='SNMP';
+						if (description.match( /\bSSH\b/i )) protocol='SSH';
+						if (description.match( /\bTCP|SMTP\b/i )) protocol='TCP';
+						if (description.match( /\bUDP\b/i )) protocol='UDP';
+						if (description.match( /\bAPI\b/i )) protocol='API';
+						if (description.match( /\bHTTP|Webpage\b/i )) protocol='HTTP';
+						if (description.match( /\bJMX\b/i )) protocol='JMX';
+						if (description.match( /\bws-management|WinRM|wsman\b/i )) protocol='WinRM';
+						if (description.match( /\bcan use SSH\b/i )) {
+							local = true; // There will be 2 families in that case (one local, and one with SSH)
+							protocol='SSH';
+						}
+						if (protocol==null) local=true;
+						return { name:name,	plugin:plugin, local:local, protocol:protocol, description:description};
+					}).filter( plugin => plugin != null );
   }
   
-  saveFamily(family: any) {
-	  this.templatesDataService.insertOrUpdateFamilyByPlugin(new Family( family ))
-	  .subscribe(family => this.selectedFamily = family);
+  // USER clicked on a Plugin
+  selectPlugin(plugin: any) {
+	  this.selectedPlugin = plugin;
+	  this.requestPluginModes(plugin);
+  }
+
+  // USER clicked on Family/SAVE  
+  saveSelectedPluginToFamily() {
+	  if (this.selectedPlugin.familyIds == null) {
+		  this.selectedPlugin.familyIds = [];
+		  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
+		  if (this.selectedPlugin.local) this.saveFamily( new Family( {
+				name: this.selectedPlugin.name,
+				description: this.selectedPlugin.description,
+				local: true,
+				protocol: null
+		  } ));
+		  if (this.selectedPlugin.protocol!=null) this.saveFamily( new Family( {
+				name: this.selectedPlugin.name,
+				description: this.selectedPlugin.description,
+				local: false,
+				protocol: this.selectedPlugin.protocol
+		  } ));
+	  }
   }
   
-  selectPlugin(family: any) {
-	  this.selectedFamily = family;
-	  this.requestPluginModes(family);
+  saveFamily( family: Family ) {
+	  this.templatesDataService.insertOrUpdateFamilyByNameLocalProtocol( family )
+		.subscribe(family => this.selectedPlugin.familyIds.push( family.id ));
   }
   
+  // USER clicked on Back
   cancelSelectedPlugin() {
-	  this.selectedFamily = null;
+	  this.selectedPlugin = null;
 	  this.outputStep4='';
 	  this.outputStep5='';
-	  this.selectedFamilyModes=null;
+	  this.selectedPluginModes=null;
+	  this.selectedCommand=null;
   }
   
   // Execute    !check --plugin ... --list-mode
-  requestPluginModes(family) {
-	  // On se mets à l'écoute du canal de retour
-	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
-	    .map(message => message['data'])
-		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--list-mode")>-1)
-		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
+  requestPluginModes(plugin) {
+	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-mode")
+		.map( data => data['stdout'].join("\n"))
 		.subscribe(
-			data => this.processModes(data['stdout']),
-			err  => console.error(err),
-			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
-	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + family.plugin + " --list-mode";
-	  this.sendCommandService.sendCommandLine(this.selectedHost);
+			data => this.processModes(data),
+			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
   // extraction of "Modes available" infos...
-  processModes(stdout: string[]) {
-	  this.outputStep4 = stdout.join("\n");
+  processModes(stdout: string) {
+	  // DISPLAY
+	  this.outputStep4 = stdout;
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
+<<<<<<< HEAD
 	  var output = stdout.join("");
 	  var groups = modesRE.exec(output);
 	  if (groups) {
@@ -181,33 +215,92 @@ export class PagePluginDiscoveryComponent implements OnInit {
 				console.error("Unknown output : ",output);
 			}
 		}
+=======
+	  var groups = modesRE.exec(stdout.replace(/\n/g,''));
+	  this.selectedPluginModes = groups[1].split(/ +/);
+>>>>>>> refs/remotes/origin/master
   }
   
   selectMode(mode: string) {
-	  // this.selectedMode = mode;
-	  this.requestPluginParameters(this.selectedFamily, mode);
+	  this.requestPluginCommand(this.selectedPlugin, mode);
   }
   
   // Execute    !check --plugin ... --mode ... --help
-  requestPluginParameters(family, mode) {
-	  // On se mets à l'écoute du canal de retour
-	  var shortTermSubscription = this.centrifugeService.getMessagesOn('$'+this.groupId)
-	    .map(message => message['data'])
-		.filter( data=> data['cmdline'] && data['cmdline'].indexOf("--help")>-1)
-		.filter( data=> data['terminated'] == 1 ) // Only keep the completed result
-		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,"").replace(/;;/g,"\n"))
+  requestPluginCommand(family, mode) {
+	  this.getResultFromSelectedHost("!check --plugin " + family.plugin + " --mode " + mode + " --help")
+		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,'').replace(/;;/g,"\n"))
 		.subscribe(
-			help => this.processParameters(help),
-			err  => console.error(err),
-			()   => shortTermSubscription.unsubscribe()); // Unsubscribe when we get the message
-	  // On envoie une commande au host
-	  this.selectedHost.cmdline = "!check --plugin " + family.plugin + " --mode " + mode + " --help";
-	  this.sendCommandService.sendCommandLine(this.selectedHost);
+			help => this.processCommand(mode, family.plugin, help),
+			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
-  processParameters(stdout: string) {
+  // Reads the result of '--mode mode --help' to get the command description and variables
+  processCommand(mode: string, plugin: string, stdout: string) {	  
+	  // DISPLAY
+	  this.outputStep4 = '';
 	  this.outputStep5 = stdout;
+<<<<<<< HEAD
 	  this.outputStep4='';
   }
+=======
+	  // PROCESS
+	  var paragraphs = stdout.split(/\n\n/);
+	  var description = paragraphs.shift().replace(/^ +/,'');
+	  var variables = paragraphs.map(help => {
+			var nameRE = /^ +--(\S+)/;
+			var match = nameRE.exec(help);
+			if (!match) {
+				console.error("Erreur de definition de variable pour le plugin "+this.selectedPlugin.plugin+" mode "+mode);
+				return null;
+			} else {
+				var varName = match[1];
+				var varDesc = help.replace(nameRE,'').replace(/[\n ]+/g,' ');
+				return { name: varName, description: varDesc };
+			}
+		  }).filter(variable => variable!=null);
+	  this.selectedCommand = {
+		  name: mode,
+		  description: description,
+		  plugin: plugin,
+		  discovery: mode.match(/^list-/),
+		  cmdLine: '',
+		  defaultAgentName: '',
+		  variables: variables
+		  };
+ }
+ 
+ saveSelectedModeToCommand() {
+	 if (this.selectedCommand.id == null) {
+		this.saveCommand( new Command( {
+				name: this.selectedCommand.name,
+				description: this.selectedCommand.description,
+				plugin: this.selectedCommand.plugin,
+				cmdLine: this.selectedCommand.cmdLine,
+				DefaultAgentName: this.selectedCommand.DefaultAgentName,
+				variables: this.selectedCommand.variables
+		  } ));
+	  }
+ }
+ 
+ saveCommand(command: Command) {
+	var familyId = this.selectedPlugin.familyIds[0];
+	console.log("familyId=", familyId);
+	this.templatesDataService.insertOrUpdateCommandByName(familyId, command)
+		.subscribe(command => this.selectedCommand.id = command.id); 
+ }
+ 
+  // ------------------------- Utility method (used several times here)
+>>>>>>> refs/remotes/origin/master
   
+  getResultFromSelectedHost(cmdline: string): Observable<any> {
+	  var cmdId = generateUUID();
+	  var observable = this.centrifugeService.getMessagesOn('$'+this.groupId)
+	    .map(message => message['data'])
+		.filter( data=> data['cmdId']==cmdId && data['t']=='RESULT' )
+		.skipWhile( data=> data['terminated'] == 0 ) // Only keep the completed result
+		.take(1);
+	  // On envoie la commande au host
+	  this.sendCommandService.sendCommandLineWithId(this.selectedHost,cmdId,cmdline);  
+	  return observable;
+  }
 }

@@ -5,6 +5,7 @@
 
 	<div *ngFor="let composant of composants"
 		class="component"
+		[routerLink]="['/checklist',host.id,composant.id]"
 		dnd-draggable
 		[dragData]="composant">
 		<div><img src="{{ composant['tech_iconUri'] }}"></div>

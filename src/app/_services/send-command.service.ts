@@ -3,6 +3,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 
 import { Host, Service } from '../_models/objects';
 import { Order } from '../_models/comm/order';
+import { generateUUID } from '../_helpers/utils';
 
 import { HttpInterceptorService } from './http-interceptor.service';
 
@@ -29,11 +30,26 @@ export class SendCommandService {
 		this.httpInterceptorService.postJson("send-order.php", orderLoad ).subscribe();
   }
   
+  // Send an order to a client with a given ID. The caller wants to read the result of this order
+  // using the given ID, so this order is not registered to the orderEmitter observable
+  sendOrderWithId(host: Host, id: string, args: any): void {
+	    var orderLoad = Order.buildOrderLoadWithId('CMD', host, args, id);
+		this.httpInterceptorService.postJson("send-order.php", orderLoad ).subscribe();
+  }
+  
   // Uses this.sendOrder() to send a RUN command
   sendCommandLine(host: Host): void {
 	  this.sendOrder(host, {
 			cmd: 'RUN',
 			args:  {cmdline: host.cmdline}
+		});
+  }
+  
+  // Uses this.sendOrderWithId() to send a RUN command
+  sendCommandLineWithId(host: Host, id: string, cmdline: string): void {
+	  this.sendOrderWithId(host, id, {
+			cmd: 'RUN',
+			args:  {cmdline: cmdline}
 		});
   }
   

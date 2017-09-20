@@ -33,24 +33,28 @@
 	padding: 2px;
 }
 
-.family {
+.family, .command {
 	position: relative;
 	margin-left: 70px;
 	border: solid 1px #666;
 	padding: 12px;
 }
 
-.family label {
+label {
 	font-size: small;
     font-weight: bold;
     min-width: 7em;
     display: inline-block;
 }
 
-.family .save, .family .saved {
+.family .save, .family .saved, .command .save, .command .saved {
 	position: absolute;
 	top: 2px;
 	right: 2px;
+}
+
+.var-list {
+	display: inline-table;
 }
 
 pre {

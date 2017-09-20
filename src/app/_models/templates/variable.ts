@@ -1,12 +1,8 @@
-﻿import { Command } from './command';
-
-export class Family {
+﻿export class Variable {
     id: number;
     name: string;
+	command_id: string;
 	description: string;
-	local: boolean;
-	protocol_id: number;
-	commands: Command[];
 	
 	constructor(values: Object = {}) {
     Object.assign(this, values);
