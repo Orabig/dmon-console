@@ -123,8 +123,6 @@ export class PagePluginDiscoveryComponent implements OnInit {
 						var plugin = match[1];
 						var description = match[2].replace(/ +/g," ");
 						var name = description.replace(/^Check +(an? +)?/,"").replace(/ *(\.|\(|through|locally|in SNMP).*/,"");
-						console.log(description);
-						console.log(name);
 						return { name:name,	plugin:plugin, description:description};
 					}).filter( family => family != null );
 	  					
@@ -168,8 +166,21 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	  this.outputStep4 = stdout.join("\n");
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
-	  var groups = modesRE.exec(stdout.join(""));
-	  this.selectedFamilyModes = groups[1].split(/ +/);
+	  var output = stdout.join("");
+	  var groups = modesRE.exec(output);
+	  if (groups) {
+			this.selectedFamilyModes = groups[1].split(/ +/);
+		} else {
+			// Modes available n'apparait pas : sans doute une erreur de library
+			var missingLibRE = /Can't locate (\S+) in @INC/;
+			var groups = missingLibRE.exec(output);
+			if (groups) {
+				// TODO : Required library
+				console.log("Pre-requis : ",groups[1]);
+			} else {
+				console.error("Unknown output : ",output);
+			}
+		}
   }
   
   selectMode(mode: string) {
@@ -196,6 +207,7 @@ export class PagePluginDiscoveryComponent implements OnInit {
   
   processParameters(stdout: string) {
 	  this.outputStep5 = stdout;
+	  this.outputStep4='';
   }
   
 }
