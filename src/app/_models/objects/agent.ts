@@ -1,9 +1,11 @@
 import { Argument } from './argument';
+import { Command } from '../templates';
 
 export class Agent {
   id: string;
   implantation_id: string;
-  command_id: number;
+  
+  command: Command;
   family_id: number;
   relay_id: string;
   name: string;

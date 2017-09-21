@@ -296,10 +296,14 @@ export class PagePluginDiscoveryComponent implements OnInit {
 		// JSON trick to do deep copy
 		var fixedCommand = Object.assign({},JSON.parse(JSON.stringify(command)), {family_id: familyId});
 		if (protocol!="SSH") {
+			// Removes the SSH specific variables
 			var localVariables = command.variables.filter(variable=> ! isSSHVariable(variable));
 			fixedCommand = Object.assign(fixedCommand, {variables: localVariables});
+		} else {
+			// Mark the SSH variables as "protocol_variable"
+			fixedCommand.variables.filter(variable=> isSSHVariable(variable))
+				.forEach(variable=> variable.protocol_variable=true);
 		}
-		console.log("fix def for",family,fixedCommand.variables);
 		fixedCommand.variables
 			.forEach(variable=> {
 				variable['advanced_variable']=isAdvancedVariable(variable);

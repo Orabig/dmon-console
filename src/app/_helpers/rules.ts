@@ -1,3 +1,5 @@
+import { Agent } from '../_models/objects';
+
 // Business rules
 
 // Tells if a given plugin's variable is dedicated to SSH
@@ -46,4 +48,11 @@ export function extractDefaultFromVariable(variable: any) {
 	if (def=="none") def="";
 	if (def.match(/^'.*$/)) def=def.replace(/^'|'$/g,"");
 	return def;
+}
+
+// ------------- Construction de la cmdLine
+
+export function buildCommandLine(agent: Agent): string {
+	console.log("buildCommandLine on ",agent);
+	return "!check --plugin "+agent.command.plugin;
 }

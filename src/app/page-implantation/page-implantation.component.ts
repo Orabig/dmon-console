@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 
 import { ObjectsDataService, TemplatesDataService } from '../_services/index';
 
-import { Family, Command } from '../_models/templates/index';
+import { Family, Command, Variable } from '../_models/templates/index';
 import { Host, Composant, Implantation, Agent } from '../_models/objects/index';
+
+import { buildCommandLine } from '../_helpers/rules';
 
 @Component({
   templateUrl: './page-implantation.component.html',
@@ -27,9 +29,13 @@ export class PageImplantationComponent implements OnInit {
   
   // The agent currently selected and in edition mode
   private selectedAgent: Agent;
+  private cmdLine: string;
   
   // The command objects (with all properties, requirements AND variables) used for the edition box
   private editCommandTemplate: Command;
+  private editSimpleVariablesTemplate: Variable[];
+  private editAdvancedVariablesTemplate: Variable[];
+  private editProtocolVariablesTemplate: Variable[];
   
   // A source that publish the family list when it's loaded
   private familyListSource = new Subject<Family[]>();
@@ -85,27 +91,36 @@ export class PageImplantationComponent implements OnInit {
 		newValue[family.id] = true;
 	  this.commandsShown=Object.assign({}, newValue);
   }
-
-  // Creates a new agent and displays it in the edition box
-  editAgent(agent: Agent) {
-	  this.templatesDataService.getCommandById(agent.command_id).subscribe( fullCommand => {
-		  console.log(fullCommand);
+  
+  // Loads the command (and variables) from its id, sorts the variables and store it into the template
+  loadCommandTemplate(id: number): Observable<Command> {
+	  return  this.templatesDataService.getCommandById( id )
+		.do( fullCommand => {		  
 		  this.editCommandTemplate = fullCommand;
+		  this.editSimpleVariablesTemplate = this.getSimpleVariables(fullCommand);
+		  this.editAdvancedVariablesTemplate = this.getAdvancedVariables(fullCommand);
+		  this.editProtocolVariablesTemplate = this.getProtocolVariables(fullCommand);
+		});
+  }
+
+  // Displays an existing agent in the edition box
+  editAgent(agent: Agent) {
+	  this.loadCommandTemplate(agent.command.id).subscribe( fullCommand => {
 		  this.selectedAgent = agent;
 		}
 	  );	  
-	//this.objectsDataService.createNewAgent(agent).subscribe(		agent => this.showNewAgent(family.id, agent)	);
   }
 
   // Creates a new agent and displays it in the edition box
   editNewAgent(family: Family, command: Command) {
-	  this.templatesDataService.getCommandById(command.id).subscribe( fullCommand => {
-		  console.log(fullCommand);
-		  this.editCommandTemplate = fullCommand;
-		  this.selectedAgent = new Agent({ command_id: command.id, family_id: family.id, implantation_id: this.implantation.id, name: 'toto' });
+	  this.loadCommandTemplate(command.id).subscribe( fullCommand => {
+		  this.selectedAgent = new Agent(
+			{	command: command, 
+				family_id: family.id, 
+				implantation_id: this.implantation.id, 
+				name: 'toto' });
 		}
 	  );	  
-	//this.objectsDataService.createNewAgent(agent).subscribe(		agent => this.showNewAgent(family.id, agent)	);
   }
   
   // Show the agent in the list of agents for the given family
@@ -125,4 +140,27 @@ export class PageImplantationComponent implements OnInit {
 	}
   }
   
+  // Build the command line and executes it
+  testAgent(agent: Agent) {
+	  this.cmdLine = buildCommandLine(agent);
+  }
+  
+  // ---------------------------------------------------------
+  // function for manipulation of template variables
+  
+  getSimpleVariables(command: Command): Variable[] {
+	  return command.variables
+		.filter(variable => ! variable.protocol_variable && ! variable.advanced_variable)
+		.sort((v1,v2)=> v1.position - v2.position);
+  }
+  getAdvancedVariables(command: Command): Variable[] {
+	  return command.variables
+		.filter(variable => variable.advanced_variable)
+		.sort((v1,v2)=> v1.position - v2.position);
+  }
+  getProtocolVariables(command: Command): Variable[] {
+	  return command.variables
+		.filter(variable => variable.protocol_variable)
+		.sort((v1,v2)=> v1.position - v2.position);
+  }
 }
