@@ -1,8 +1,9 @@
 <div class="main-page">
     <header></header>
+	<div [class]="connectionState">{{connectionState}}</div><!-- TODO : Factorize(page-plugin-discovery.composant) -->
 
-	<div *ngIf="composant!=null && host!=null && implantation!=null">
-	<h2><img src="{{ composant.technology.iconUri }}">Checklist for {{composant.name}} on {{host.name}}</h2>
+	<div *ngIf="composant!=null && selectedHost!=null && implantation!=null">
+	<h2><img src="{{ composant.technology.iconUri }}">Checklist for {{composant.name}} on {{selectedHost.name}}</h2>
 	
 	<div class="editor" *ngIf="selectedAgent">
 		<div class="cartouche">
@@ -13,7 +14,11 @@
 		<div class="controle">
 			<button (click)="testAgent(selectedAgent)" class="test">Test</button>
 			> <div class="cmdline">{{ cmdLine }}</div>
-			<div class="result">-</div>
+			<div class="result" *ngIf="result">
+				<div class="stdout">{{result.stdout}}</div>
+				<div class="stderr">{{result.stderr}}</div>
+				<div class="result">-</div>
+			</div>
 		</div>
 		<div class="simple-vars">
 			<table>

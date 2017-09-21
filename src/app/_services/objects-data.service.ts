@@ -171,8 +171,8 @@ export class ObjectsDataService {
   // Syntax : getImplantationId(host_id, composant_id).subscribe(...)
   getImplantation(host_id: string, comp_id: string) : Observable<Implantation> {
 	return this.httpInterceptorService
-        .getJson('api.php/Implantation/', { transform: true, 
-				include: 'Agent,Argument',
+        .getJson('api.php/Implantation', { transform: true, 
+				include: 'Agent,Argument,Command',
 				'filter[]':
 					[ 'host_id,eq,'+host_id,
 					  'composant_id,eq,'+comp_id
@@ -181,6 +181,10 @@ export class ObjectsDataService {
 				.map( impl => {
 					impl.agents = impl.Agent;
 					delete impl.Agent;
+					impl.agents.forEach(agent => {
+						agent.command = agent.Command[0];
+						delete agent.Command;
+					});
 					return impl;
 				}	); 
   }

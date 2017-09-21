@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Host } from '../_models/objects/index';
@@ -19,7 +19,7 @@ import { isSSHVariable, extractDefaultFromVariable, extractValidationFromVariabl
   styleUrls: ['./page-plugin-discovery.component.css'],
   providers: [ GroupService ]
 })
-export class PagePluginDiscoveryComponent implements OnInit {
+export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 
   hosts: Host[] = [];
   selectedHost: Host;
@@ -46,6 +46,10 @@ export class PagePluginDiscoveryComponent implements OnInit {
 	this.user = JSON.parse(localStorage.getItem('currentUser')) as User;
 	this.initCentrifuge();
 	this.getDefaultGroup();
+  }
+  
+  ngOnDestroy(): void {
+	  this.centrifugeService.disconnect();
   }
   
   // TODO : ce code est quasi identique à celui dans group.composant : mutualiser les deux (et déplacer getToken dans UserService)

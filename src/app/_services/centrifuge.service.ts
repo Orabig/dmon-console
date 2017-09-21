@@ -53,6 +53,7 @@ export class CentrifugeService {
 	}
   }
   
+  // TODO : split this into 2 steps : subscription then messages listening
   getMessagesOn(channel: string): Observable<any> {
 	var subscription = this.handler.subscribe(channel);
 	var self = this;
