@@ -19,14 +19,14 @@ import { buildCommandLine } from '../_helpers/rules';
 })
 export class PageImplantationComponent implements OnInit, OnDestroy {
 
-  private connectionState: string;
+  connectionState: string;
   private groupId: string;
   private user: User;
   private localHosts: Host[];
 
-  private selectedHost: Host;
-  private composant: Composant;
-  private implantation: Implantation;
+  selectedHost: Host;
+  composant: Composant;
+  implantation: Implantation;
   
   private families: Family[];
   private selectedFamilies: Family[] = [];

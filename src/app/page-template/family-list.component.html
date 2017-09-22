@@ -5,12 +5,7 @@
 		placeholder="Enter new family name"
 		autofocus=""
 		[(ngModel)]="newFamily.name"
-		(keyup.enter)="addFamily()">
-	<input class="new-family" 
-		placeholder="Enter plugin"
-		autofocus=""
-		[(ngModel)]="newFamily.plugin"
-		(keyup.enter)="addFamily()">
+		(keyup.enter)="addFamily()">	
 		<br>
 
   </div>
@@ -22,9 +17,6 @@
 		  </th>
     	  <th>
 		  <label>{{family.name}}</label>
-		  </th>
-    	  <th>
-		  <label>{{family.plugin}}</label>
 		  </th>
 		  <td>{{family.description}}
 		  </td>

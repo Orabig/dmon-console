@@ -29,7 +29,7 @@
 		<div *ngIf="selectedPlugin == null;else step4">
 			<div class="plugin" 
 				(click)="selectPlugin(plugin)"
-				*ngFor="let plugin of plugins">{{ plugin.name }}</div>
+				*ngFor="let plugin of plugins">{{ plugin.name }}<br><b>{{ plugin.plugin }}</b></div>
 		</div>
 	</ng-template>
 
