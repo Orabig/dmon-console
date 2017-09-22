@@ -7,7 +7,7 @@ import { environment } from '../../environments/environment';
 
 import { User } from '../_models/users';
 import { Family, Command, Variable } from '../_models/templates';
-import { Host, Composant, Implantation, Agent } from '../_models/objects';
+import { Host, Composant, Implantation, Agent, Argument } from '../_models/objects';
 
 import { generateUUID } from '../_helpers/utils';
 import { buildCommandLine } from '../_helpers/rules';
@@ -35,6 +35,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   
   // An array [ string=>boolean ] telling if the commands are shown (and thus draggable) for the given family ID
   private commandsShown: any[] = [];
+  private values: string[] = [];
   
   // The agent currently selected and in edition mode
   private selectedAgent: Agent;
@@ -112,6 +113,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // ngOnInit >> getDefaultGroup >> Le groupe a été récupéré, il faut maintenant interroger la liste des membres qui en font partie
   setGroup(id:string) {
 	  this.groupId = id;
+	  // TODOTODOTODOTODOTODO : ici , erreur recurrente dans getMessagesOn (cent:58)
   	  this.hostService.getHosts(this.groupId) // Permet de connaitre les hosts avec l'agent ainsi que leur client-id
 		.subscribe(hosts => this.localHosts=hosts);
   }
@@ -169,6 +171,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 
   // Displays an existing agent in the edition box
   editAgent(agent: Agent) {
+	  this.toggleAddCommand(null);
+	  this.cleanEditBox();
 	  this.loadCommandTemplate(agent.command.id).subscribe( fullCommand => {
 		  this.selectedAgent = agent;
 		}
@@ -177,14 +181,22 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 
   // Creates a new agent and displays it in the edition box
   editNewAgent(family: Family, command: Command) {
+	  this.toggleAddCommand(null);
+	  this.cleanEditBox();
 	  this.loadCommandTemplate(command.id).subscribe( fullCommand => {
 		  this.selectedAgent = new Agent(
 			{	command: command, 
 				family_id: family.id, 
 				implantation_id: this.implantation.id, 
-				name: 'toto' });
+				name: command.name });
 		}
 	  );	  
+  }
+  
+  cleanEditBox() {
+	  this.result=null;
+	  this.cmdLine=null;
+	  this.values = [];
   }
   
   // Show the agent in the list of agents for the given family
@@ -204,12 +216,51 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 	}
   }
   
+  // Gets the values in the inputs and stores them in the agent object
+  fillAgentWith( agent: Agent, values: string[] ) {
+	  agent.arguments = Object.keys(values)
+						.filter(name => values[name] != "")
+						.map(name => new Argument({name:name, 'variable_id': this.getVariableId(agent,name), value: values[name]}));
+  }
+  
+  getVariableId(agent: Agent, name: string) {
+	  // La commande de l'agent correspond à this.editCommandTemplate
+	  if (this.editCommandTemplate.id != agent.command.id) {
+			throw("Strange state for editor");
+	  }
+	  // Donc on peut connaitre les variables à partir de cette commande
+	  return this.editCommandTemplate.variables
+		.filter(variable => variable.name==name)[0].id;
+  }
+  
   // Build the command line and executes it
   testAgent(agent: Agent) {
-	  this.cmdLine = buildCommandLine(agent);
+	  this.fillAgentWith( agent, this.values );
+	  this.cmdLine = buildCommandLine(agent, this.editCommandTemplate);
+	  agent.computedCmdLine = this.cmdLine;
 	  this.getResultFromSelectedHost(this.cmdLine).subscribe(
 		result => this.result=result
 	  );
+  }
+  
+  registerAgent(agent: Agent) {
+	  this.testAgent(agent)
+	  if (agent.id) {
+		  this.objectsDataService.updateAgent(agent).subscribe(res => console.log("up:",res));
+	  } else {
+		  this.objectsDataService.createNewAgent(agent).subscribe(res => { 
+		  console.log("cr:",res); 
+		  agent.id=res.id; 
+		  // Afficher dans la liste des agents connus par famille
+		  if (!this.checksByFamilies[agent.family_id]) {
+			this.checksByFamilies = Object.assign( {}, this.checksByFamilies);
+			this.checksByFamilies[agent.family_id] = [];
+		  }
+		  this.checksByFamilies[agent.family_id].push(agent); 
+		  // Enregistrer le check dans le client		  
+		  this.sendCommandService.sendRegister(this.selectedHost,agent.id,agent.computedCmdLine);
+		  });
+	  }
   }
   
   // ---------------------------------------------------------
@@ -238,10 +289,12 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   getResultFromSelectedHost(cmdline: string): Observable<any> {
 	  var cmdId = generateUUID();
 	  // Extract the hostTarget from the known host list (so that we know its client-id)
+	  // TODO : Ici, localHosts peut ne pas être défini : vérifier
 	  var localHostTarget = this.localHosts.filter(host => host.name==this.selectedHost.name);
 	  if (localHostTarget.length==0) {
 		  throw("This host is unknown or not local : "+this.selectedHost.name);
 	  }
+	  this.selectedHost.client = localHostTarget[0].client;
 	  
 	  // On s'enregistre au groupe par défaut (le host appartient à ce groupe)
 	  // TODO : ca serait peut-être mieux de s'enregistrer directement sur les résultats du host seulement	  
@@ -252,7 +305,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 		.take(1);
 	  // On envoie la commande au host
 	  // TODO : il faut peut-être attendre que l'enregistrement au channel soit ok ?
-	  this.sendCommandService.sendCommandLineWithId(localHostTarget[0],cmdId,cmdline);  
+	  this.sendCommandService.sendCommandLineWithId(this.selectedHost,cmdId,cmdline);  
 	  return observable;
   }
 }

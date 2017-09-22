@@ -184,6 +184,8 @@ export class ObjectsDataService {
 					impl.agents.forEach(agent => {
 						agent.command = agent.Command[0];
 						delete agent.Command;
+						agent.arguments = agent.Argument;
+						delete agent.Argument;
 					});
 					return impl;
 				}	); 
@@ -203,9 +205,21 @@ export class ObjectsDataService {
   // Creates a new agent
   // Returns (an observable of) the agent
   createNewAgent(agent: Agent): Observable<Agent> {    
-    var newAgent: Agent = Object.assign({}, agent, {id: generateUUID()});
+    var newAgent: Agent = Object.assign({}, agent, 
+		{id: generateUUID(), command_id: agent.command.id, Argument: arguments});
+	delete newAgent.arguments;
+	delete newAgent.command;
     return this.httpInterceptorService
         .postJson('api.php/Agent', newAgent).map( result => newAgent );
+  }
+  
+  updateAgent(agent: Agent): Observable<Agent> {    
+    var updAgent: Agent = Object.assign({}, agent, 
+		{command_id: agent.command.id, Argument: arguments});
+	delete updAgent.arguments;
+	delete updAgent.command;
+    return this.httpInterceptorService
+        .putJson('api.php/Agent', updAgent).map( result => result );
   }
   
 }

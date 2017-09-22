@@ -10,10 +10,14 @@
 			<div class="name">{{ editCommandTemplate.name }}</div>
 			<div class="description">{{ editCommandTemplate.description }}</div>
 		</div>
-		<div class="name">Name : {{selectedAgent.name}}</div>
-		<div class="controle">
-			<button (click)="testAgent(selectedAgent)" class="test">Test</button>
-			> <div class="cmdline">{{ cmdLine }}</div>
+		<div class="agent-name"><input [(ngModel)]="selectedAgent.name" (keyup.enter)="testAgent(selectedAgent)"></div>
+		<div class="control">
+			<button class="save" (click)="registerAgent(selectedAgent)">Save</button>
+			<!-- <button (click)="testAgent(selectedAgent)" class="test">Test</button> -->
+			<div class="cmdline">
+				<div class="prompt">{{selectedHost.name}} > </div>
+				<div class="line"> {{ cmdLine }} </div>
+			</div>
 			<div class="result" *ngIf="result">
 				<div class="stdout">{{result.stdout}}</div>
 				<div class="stderr">{{result.stderr}}</div>
@@ -24,31 +28,44 @@
 			<table>
 				<tr *ngFor="let variable of editSimpleVariablesTemplate">
 					<th>{{variable.name}}</th>
-					<td><input></td>
+					<td><input [(ngModel)]="values[variable.name]" (keyup.enter)="testAgent(selectedAgent)"></td>
 					<td>{{variable.description}}</td>
 				</tr>
 			</table>
 		</div>
-		<hr>
-		Advanced :
-		<div class="advanced-vars">
-			<table>
-				<tr *ngFor="let variable of editAdvancedVariablesTemplate">
-					<th>{{variable.name}}</th>
-					<td><input></td>
-					<td>{{variable.description}}</td>
-				</tr>
-			</table>
+		
+		<!--           Advanced parameters      -->
+		<div *ngIf="editAdvancedVariablesTemplate.length>0">
+			<div class="toggle toggleAdvanced" (click)="displayAdvanced = !displayAdvanced">
+				<span *ngIf="displayAdvanced">v</span>
+				<span *ngIf="!displayAdvanced">></span>Advanced :
+			</div>
+			<div *ngIf="displayAdvanced" class="advanced-vars">
+				<table>
+					<tr *ngFor="let variable of editAdvancedVariablesTemplate">
+						<th>{{variable.name}}</th>
+						<td><input [(ngModel)]="values[variable.name]" (keyup.enter)="testAgent(selectedAgent)"></td>
+						<td>{{variable.description}}</td>
+					</tr>
+				</table>
+			</div>
 		</div>
-		Protocol :
-		<div class="simple-vars">		
-			<table>
-				<tr *ngFor="let variable of editProtocolVariablesTemplate">
-					<th>{{variable.name}}</th>
-					<td><input></td>
-					<td>{{variable.description}}</td>
-				</tr>
-			</table>
+		
+		<!--           Protocol parameters      -->
+		<div *ngIf="editProtocolVariablesTemplate.length>0">
+			<div class="toggle toggleAdvanced" (click)="displayProtocol = !displayProtocol">
+				<span *ngIf="displayProtocol">v</span>
+				<span *ngIf="!displayProtocol">></span>Protocol :
+			</div>		
+			<div *ngIf="displayProtocol" class="protocol-vars">		
+				<table>
+					<tr *ngFor="let variable of editProtocolVariablesTemplate">
+						<th>{{variable.name}}</th>
+						<td><input [(ngModel)]="values[variable.name]" (keyup.enter)="testAgent(selectedAgent)"></td>
+						<td>{{variable.description}}</td>
+					</tr>
+				</table>
+			</div>
 		</div>
 	</div>
 	

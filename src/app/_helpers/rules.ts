@@ -1,4 +1,5 @@
 import { Agent } from '../_models/objects';
+import { Command } from '../_models/templates';
 
 // Business rules
 
@@ -52,7 +53,9 @@ export function extractDefaultFromVariable(variable: any) {
 
 // ------------- Construction de la cmdLine
 
-export function buildCommandLine(agent: Agent): string {
+export function buildCommandLine(agent: Agent, command: Command): string {
 	console.log("buildCommandLine on ",agent);
-	return "!check --plugin "+agent.command.plugin+" --mode "+agent.command.name;
+	var line = [ "!check --plugin "+agent.command.plugin+" --mode "+agent.command.name ];
+	agent.arguments.forEach(arg => line.push('--'+arg['name']+' '+arg.value));
+	return line.join(' ');
 }

@@ -1,3 +1,77 @@
+/* Edit box */
+
+.editor {
+	position: relative;
+    border: solid 2px;
+	padding: 4px;
+	background: #cbd4e6;
+}
+
+.editor .save {
+	position: absolute;
+    right: 2px;
+	top: 2px;
+}
+
+.cartouche {	
+    display: flex;
+    flex-direction: row;
+}
+
+.cartouche .name {
+    border: solid 1px;
+    margin: -5px;
+    padding: 2px 12px;
+    font-size: large;
+	background: #ecf5f7;
+}
+
+.cartouche .description {
+    margin: -1px;
+    padding: 2px 12px;	
+}
+
+.editor > .agent-name {	
+	margin-top: 8px;
+    padding: 4px;
+    font-weight: bold;
+}
+
+.toggle {
+	padding: 2px;
+	border: solid 1px #aaa;
+}
+
+.cmdline, .stdout, .stderr {	
+	background:#1d1f21;
+	padding:2px;
+	font-family: monospace;
+}
+
+.cmdline {	
+	color:#93bf88;
+}
+
+.stdout {	
+	color:#fcffe1;
+}
+
+.stderr {	
+	color:#F00;
+}
+
+.cmdline div {
+    display: inline-block;
+}
+
+.control {
+	margin-bottom: 8px;
+}
+
+
+/* Edit box end */
+
+
 .family {
 	margin:2px;
 	padding:2px;
