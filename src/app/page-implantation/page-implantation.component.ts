@@ -19,6 +19,9 @@ import { buildCommandLine } from '../_helpers/rules';
 })
 export class PageImplantationComponent implements OnInit, OnDestroy {
 
+  // Trick to be able to iterate on Hash with *ngFor
+  objectKeys = Object.keys;
+  
   connectionState: string;
   private groupId: string;
   private user: User;
@@ -29,8 +32,12 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   composant: Composant;
   implantation: Implantation;
   
-  private families: Family[];
-  private selectedFamilies: Family[] = [];
+  // The list of all (not empty) families. This array won't change and is the "sum" of the 2 others
+  private families: Family[]; // familyID=>family
+  // The list of selected families (showing in "list of checks")
+  private selectedFamilies: Family[];
+  // The list of selected families (showing in "drag a familiy")
+  private unselectedFamilies: Family[];
   
   private checksByFamilies: Agent[][] = [];
   
@@ -47,11 +54,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   private editCommandTemplate: Command;
   private editSimpleVariablesTemplate: Variable[];
   private editAdvancedVariablesTemplate: Variable[];
-  private editProtocolVariablesTemplate: Variable[];
-  
-  // A source that publish the family list when it's loaded
-  private familyListSource = new Subject<Family[]>();
-  public familyListSource$ = this.familyListSource.asObservable();
+  private editProtocolVariablesTemplate: Variable[];  
   
   constructor(  private objectsDataService: ObjectsDataService,
 				private templatesDataService: TemplatesDataService,
@@ -60,14 +63,13 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 				private centrifugeService: CentrifugeService,
 				private sendCommandService: SendCommandService,
 				private groupService: GroupService) {
-	  activatedRoute.paramMap.subscribe(params=>this.load(params.get('hostid'),params.get('composantid')));
+	  activatedRoute.paramMap.subscribe(params=> // Will call "load" every time the route changes
+		this.load(params.get('hostid'),params.get('composantid')));
 	}
 
   ngOnInit() {
     this.initCentrifuge();
 	this.getDefaultGroup(); // Pour le moment, on utilise un groupe unique de hosts.
-	this.templatesDataService.getAllFamilies()// .do(d=>console.log(d)) // DEBUG liste des familles
-		.subscribe(fams => this.loadFamilies(fams.filter(family=>family.commands.length>0)));
   }
   
   ngOnDestroy(): void {
@@ -119,44 +121,83 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 		.subscribe(hosts => this.localHosts=hosts);
   }
   
-  load(hostid:string, compid:string) {
-	  this.unloadPreviousHost(); // This is called when changing host, so we should set the original family list back
-	  this.objectsDataService.getHostById(hostid).subscribe(host=>this.selectedHost=host);
-	  this.objectsDataService.getComposantById(compid).subscribe(comp=>this.composant=comp);
-	  this.objectsDataService.getImplantation(hostid,compid).subscribe(impl=>this.loadImplantation(impl));
-	  this.objectsDataService.getHostsForComposant(compid).subscribe(hosts=>this.otherHosts = hosts ); // for title display and easy navigation
+  // Is called once from constructor
+  loadFamilies(list: Family[]) {
+	  this.families=[];
+	  list.forEach(f => this.families[f.id]=f); // This will store the entiere list of families indexed by ID
+	  this.cleanSelectedFamilies();
   }
   
-  loadFamilies(list: Family[]) {
-	  this.families=list;
-	  this.familyListSource.next( list );
+  // Is called each time the route changes (or on first load)  
+  load(hostid:string, compid:string) {
+	// Load all families...
+	this.templatesDataService.getAllFamilies()
+		.subscribe(
+		fams => {
+			console.log(">>>>>>>>> loadFamilies:",fams);
+			this.loadFamilies(fams.filter(family=>family.commands.length>0));
+			// Then load the rest
+			console.log(">>>>>>>>> and the rest");
+			this.objectsDataService.getHostById(hostid).subscribe(host=>this.selectedHost=host);
+			this.objectsDataService.getComposantById(compid).subscribe(comp=>this.composant=comp);
+			this.objectsDataService.getImplantation(hostid,compid).subscribe(impl=>this.loadImplantation(impl));
+			this.objectsDataService.getHostsForComposant(compid).subscribe(hosts=>this.otherHosts = hosts ); // for title display and easy navigation
+		}
+	);
   }
   
   loadImplantation(impl: Implantation) {
 	  this.implantation = impl;
 	  // This object comes with the list of known agents
-	  impl.agents.forEach(agent => this.showNewAgent(agent.family_id, agent));
+	  impl.agents.forEach(agent => this.selectAgent(agent));
   }
   
-  dropFamily(family: Family) {
-	  this.moveFamily(this.families, this.selectedFamilies, family.id);
+  // Show the agent in the list of agents for the given family
+  selectAgent(agent: Agent) {
+	var family=this.families[agent.family_id];
+	var familyId=agent.family_id;
+	var actuals = this.checksByFamilies[familyId];
+	if (!actuals) actuals = [];
+	actuals.push(agent);
+	var newValue = [];
+	newValue[familyId] = actuals;
+	this.checksByFamilies=Object.assign(this.checksByFamilies, newValue);
+	// The family must be shown in the list of check, so update selectedFamilies
+	this.selectFamily(family);
   }
   
-  moveFamily(source, target, itemId: number) {
-		for (var i = 0; i < source.length; i++) {
-			var element = source[i];
-			if (element.id == itemId) {
-				source.splice(i, 1);
-				target.push(element);
-				i--; 
-			}
-		} 
+  // Resets the (un)selectedFamilies into initial state (all unselected)
+  cleanSelectedFamilies() {
+	this.selectedFamilies=[];
+	this.unselectedFamilies=Object.assign({},this.families);
+	// Refresh lists for display
+	this.selectedFamilies=Object.assign({},this.selectedFamilies);
+	this.unselectedFamilies=Object.assign({},this.unselectedFamilies);
+	this.checksByFamilies=[];
+  }
+  
+  selectFamily(family: Family) {
+	var familyId=family.id;
+	if (! this.isFamilySelected(familyId)) {
+		this.selectedFamilies[familyId]=family;
+		delete this.unselectedFamilies[familyId];
+		// Refresh lists for display
+		this.selectedFamilies=Object.assign({},this.selectedFamilies);
+		this.unselectedFamilies=Object.assign({},this.unselectedFamilies);
 	}
-	
-  unloadPreviousHost() {
-	  this.selectedFamilies.forEach(family => this.families.push(family));
-	  this.selectedFamilies=[];
   }
+  
+  dropFamily(familyId) {
+	var family=this.families[familyId];
+	this.selectFamily(family);
+  }
+  
+  // returns true if the given family is selected (means that it is know to belong to the list of
+  // checks for this implementation
+  isFamilySelected(family_id: number) : boolean{
+	  return this.selectedFamilies[family_id]!=null;
+  }
+  
 
   // Displays the list of available command for the given family, and hides all the others (hide all if family==null)
   toggleAddCommand(family: Family) {
@@ -205,23 +246,6 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 	  this.result=null;
 	  this.cmdLine=null;
 	  this.values = [];
-  }
-  
-  // Show the agent in the list of agents for the given family
-  showNewAgent(familyId: number, agent: Agent) {console.log("showNew",agent);
-	var actuals = this.checksByFamilies[familyId];
-	if (!actuals) actuals = [];
-	actuals.push(agent);
-	var newValue = [];
-	newValue[familyId] = actuals;
-	this.checksByFamilies=Object.assign(this.checksByFamilies, newValue);
-	// The family must be shown in the list of check, so update selectedFamilies
-	if (this.selectedFamilies.filter(f=>f.id===familyId).length==0) {
-		// I get the familyList from a source to avoid race conditions here.
-		this.familyListSource$.subscribe( familyList =>
-			this.moveFamily(familyList,this.selectedFamilies,familyId)
-		);
-	}
   }
   
   // Gets the values in the inputs and stores them in the agent object

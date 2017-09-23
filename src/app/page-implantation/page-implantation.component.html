@@ -88,13 +88,13 @@
 	<div class="container">
 		<div class="family-list">
 			<h3>Drag a family :</h3>
-			<div *ngFor="let family of families">
+			<div *ngFor="let familyId of objectKeys(unselectedFamilies)">
 				<div class="family"
 					dnd-draggable
-					[dragData]="family"
+					[dragData]="familyId"
 					[dropZones]="['family']">
-					<span class="protocol">[ {{family.protocol ? family.protocol.name : 'local'}} ]</span>
-					{{family.name}}
+					<span class="protocol">[ {{unselectedFamilies[familyId].protocol ? unselectedFamilies[familyId].protocol.name : 'local'}} ]</span>
+					{{unselectedFamilies[familyId].name}}
 				</div>
 			</div>
 		</div>
@@ -106,24 +106,24 @@
 				[dropZones]="['family']"
 				(onDropSuccess)="dropFamily($event.dragData)">
 				<div
-					*ngFor="let family of selectedFamilies">
+					*ngFor="let familyId of objectKeys(selectedFamilies)">
 				<div class="family">
-					<span class="protocol">[ {{family.protocol ? family.protocol.name : 'local'}} ]</span>
-					{{family.name}}
+					<span class="protocol">[ {{selectedFamilies[familyId].protocol ? selectedFamilies[familyId].protocol.name : 'local'}} ]</span>
+					{{selectedFamilies[familyId].name}}
 					<div class="command-family-checks">
 						<div class="command-list"
-							*ngIf="commandsShown[family.id]">
+							*ngIf="commandsShown[familyId]">
 							<div class="command"
-								*ngFor="let command of family.commands"
-								(click)="editNewAgent(family,command)">{{command.name}}</div>
+								*ngFor="let command of selectedFamilies[familyId].commands"
+								(click)="editNewAgent(selectedFamilies[familyId],command)">{{command.name}}</div>
 						</div>
 						<div class="family-checks">						
 							<div class="agent"
-								*ngFor="let agent of checksByFamilies[family.id]"
+								*ngFor="let agent of checksByFamilies[familyId]"
 								(click)="editAgent(agent)">{{agent.name}}</div>
 							<div class="add-command"
-								(click)="toggleAddCommand(family)"
-								*ngIf="!commandsShown[family.id]">+</div>
+								(click)="toggleAddCommand(selectedFamilies[familyId])"
+								*ngIf="!commandsShown[familyId]">+</div>
 						</div>
 					</div>
 				</div>
