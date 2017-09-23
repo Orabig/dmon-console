@@ -93,8 +93,8 @@
 					dnd-draggable
 					[dragData]="familyId"
 					[dropZones]="['family']">
-					<span class="protocol">[ {{unselectedFamilies[familyId].protocol ? unselectedFamilies[familyId].protocol.name : 'local'}} ]</span>
-					{{unselectedFamilies[familyId].name}}
+					<span class="protocol">[ {{families[familyId].protocol ? families[familyId].protocol.name : 'local'}} ]</span>
+					{{families[familyId].name}}
 				</div>
 			</div>
 		</div>
@@ -108,21 +108,21 @@
 				<div
 					*ngFor="let familyId of objectKeys(selectedFamilies)">
 				<div class="family">
-					<span class="protocol">[ {{selectedFamilies[familyId].protocol ? selectedFamilies[familyId].protocol.name : 'local'}} ]</span>
-					{{selectedFamilies[familyId].name}}
+					<span class="protocol">[ {{families[familyId].protocol ? families[familyId].protocol.name : 'local'}} ]</span>
+					{{families[familyId].name}}
 					<div class="command-family-checks">
 						<div class="command-list"
 							*ngIf="commandsShown[familyId]">
 							<div class="command"
-								*ngFor="let command of selectedFamilies[familyId].commands"
-								(click)="editNewAgent(selectedFamilies[familyId],command)">{{command.name}}</div>
+								*ngFor="let command of families[familyId].commands"
+								(click)="editNewAgent(families[familyId],command)">{{command.name}}</div>
 						</div>
 						<div class="family-checks">						
 							<div class="agent"
 								*ngFor="let agent of checksByFamilies[familyId]"
 								(click)="editAgent(agent)">{{agent.name}}</div>
 							<div class="add-command"
-								(click)="toggleAddCommand(selectedFamilies[familyId])"
+								(click)="toggleAddCommand(families[familyId])"
 								*ngIf="!commandsShown[familyId]">+</div>
 						</div>
 					</div>

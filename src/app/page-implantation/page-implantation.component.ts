@@ -34,10 +34,10 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   
   // The list of all (not empty) families. This array won't change and is the "sum" of the 2 others
   private families: Family[]; // familyID=>family
-  // The list of selected families (showing in "list of checks")
-  private selectedFamilies: Family[];
-  // The list of selected families (showing in "drag a familiy")
-  private unselectedFamilies: Family[];
+  // The list of selected family IDs (showing in "list of checks")
+  private selectedFamilies: number[];
+  // The list of selected family IDs (showing in "drag a familiy")
+  private unselectedFamilies: number[];
   
   private checksByFamilies: Agent[][] = [];
   
@@ -169,17 +169,15 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // Resets the (un)selectedFamilies into initial state (all unselected)
   cleanSelectedFamilies() {
 	this.selectedFamilies=[];
-	this.unselectedFamilies=Object.assign({},this.families);
-	// Refresh lists for display
-	this.selectedFamilies=Object.assign({},this.selectedFamilies);
-	this.unselectedFamilies=Object.assign({},this.unselectedFamilies);
+	this.unselectedFamilies=[];
+	this.objectKeys(this.families).forEach((id)=>this.unselectedFamilies[id]=1);
 	this.checksByFamilies=[];
   }
   
   selectFamily(family: Family) {
 	var familyId=family.id;
 	if (! this.isFamilySelected(familyId)) {
-		this.selectedFamilies[familyId]=family;
+		this.selectedFamilies[familyId]=1;
 		delete this.unselectedFamilies[familyId];
 		// Refresh lists for display
 		this.selectedFamilies=Object.assign({},this.selectedFamilies);
@@ -195,7 +193,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // returns true if the given family is selected (means that it is know to belong to the list of
   // checks for this implementation
   isFamilySelected(family_id: number) : boolean{
-	  return this.selectedFamilies[family_id]!=null;
+	  return this.selectedFamilies[family_id]==1;
   }
   
 
