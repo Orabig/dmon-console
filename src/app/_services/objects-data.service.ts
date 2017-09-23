@@ -248,7 +248,7 @@ export class ObjectsDataService {
   
   getArgumentByName(agentId: string, name: string): Observable<Argument> {
 	  return this.httpInterceptorService
-				.getJson('api.php/Argument', { transform: true, 'filter': 
+				.getJson('api.php/Argument', { transform: true, 'filter[]': 
 					["agent_id,eq," + agentId,
 					 "variable_name,eq," + name
 					 ] } )
