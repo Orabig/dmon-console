@@ -28,7 +28,7 @@
 		</div>
 		<div class="agent-name"><input [(ngModel)]="selectedAgent.name" (keyup.enter)="testAgent(selectedAgent)"></div>
 		<div class="control">
-			<button class="save" (click)="registerAgent(selectedAgent)">Save</button>
+			<div class="save"><span class="save-error" *ngIf="editorSaveError">Error</span><button (click)="registerAgent(selectedAgent)">Save</button></div>
 			<!-- <button (click)="testAgent(selectedAgent)" class="test">Test</button> -->
 			<div class="cmdline">
 				<div class="prompt">{{selectedHost.name}} > </div>

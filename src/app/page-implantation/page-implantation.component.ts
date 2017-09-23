@@ -50,6 +50,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   private cmdLine: string;
   private result;
   
+  private editorSaveError; // Will contain an error when save did not work as expected
+  
   // The command objects (with all properties, requirements AND variables) used for the edition box
   private editCommandTemplate: Command;
   private editSimpleVariablesTemplate: Variable[];
@@ -222,6 +224,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 	  this.cleanEditBox();
 	  this.loadCommandTemplate(agent.command.id).subscribe( fullCommand => {
 		  this.selectedAgent = agent;
+		  // show a result of the check
+		  this.testAgent(this.selectedAgent);
 		}
 	  );	  
   }
@@ -236,6 +240,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 				family_id: family.id, 
 				implantation_id: this.implantation.id, 
 				name: command.name });
+		  // show a result of the check
+		  this.testAgent(this.selectedAgent);
 		}
 	  );	  
   }
@@ -273,10 +279,12 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 	  );
   }
   
+  // Save or Update the agent in the editor box
   registerAgent(agent: Agent) {
 	  this.testAgent(agent)
 	  if (agent.id) {
-		  this.objectsDataService.updateAgent(agent).subscribe(res => console.log("up:",res));
+		  this.objectsDataService.updateAgent(agent).subscribe(res => console.log("up:",res),
+		  err=>this.editorSaveError=err);
 	  } else {
 		  this.objectsDataService.createNewAgent(agent).subscribe(res => { 
 		  console.log("cr:",res); 
@@ -289,7 +297,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 		  this.checksByFamilies[agent.family_id].push(agent); 
 		  // Enregistrer le check dans le client		  
 		  this.sendCommandService.sendRegister(this.selectedHost,agent.id,agent.computedCmdLine);
-		  });
+		  },
+		  err=>this.editorSaveError=err);
 	  }
   }
   
