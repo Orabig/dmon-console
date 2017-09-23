@@ -86,6 +86,7 @@
 
 .control {
 	margin-bottom: 8px;
+	min-height: 64px;
 }
 
 
@@ -149,6 +150,9 @@
 }
 .agent:hover {
 	background: #a3f5ad;
+}
+.agent.selected {
+	background: #cbd4e6;
 }
 
 .add-command {

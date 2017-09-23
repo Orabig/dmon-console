@@ -210,21 +210,89 @@ export class ObjectsDataService {
   // Creates a new agent
   // Returns (an observable of) the agent
   createNewAgent(agent: Agent): Observable<Agent> {    
+    var newAgentId = generateUUID();
     var newAgent: Agent = Object.assign({}, agent, 
-		{id: generateUUID(), command_id: agent.command.id, Argument: arguments});
+		{id: newAgentId, command_id: agent.command.id, Argument: agent.arguments});
 	delete newAgent.arguments;
 	delete newAgent.command;
     return this.httpInterceptorService
-        .postJson('api.php/Agent', newAgent).map( result => newAgent );
+        .postJson('api.php/Agent', newAgent)
+				.do( result => // Il faut aussi créer les arguments (en asynchrone seulement)
+					agent.arguments.forEach(
+						arg => this.insertArgument(newAgentId, arg).subscribe( ok => {} ) 
+					)
+				)
+				.map( result => newAgent )
+		;
   }
   
   updateAgent(agent: Agent): Observable<Agent> {    
     var updAgent: Agent = Object.assign({}, agent, 
-		{command_id: agent.command.id, Argument: arguments});
-	delete updAgent.arguments;
+		{command_id: agent.command.id, Argument: agent.arguments});
+	delete updAgent.arguments; // TODO : les arguments ne sont PAS mis à jour. Il faut le faire à la main)
 	delete updAgent.command;
     return this.httpInterceptorService
-        .putJson('api.php/Agent', updAgent).map( result => result );
+        .putJson('api.php/Agent/'+agent.id, updAgent)
+		.do ( result =>
+			// Suppression des variables qui n'existent plus
+			this.deleteArgumentsNotInAsync(agent)
+		).do ( result =>
+			// update des variables
+			this.insertOrUpdateArgumentsInAsync(agent)
+		)
+		.map( result => agent );
+  }
+ 
+
+  // ------------------------------- Argument ---------------------------------
+  
+  getArgumentByName(agentId: string, name: string): Observable<Argument> {
+	  return this.httpInterceptorService
+				.getJson('api.php/Argument', { transform: true, 'filter': 
+					["agent_id,eq," + agentId,
+					 "variable_name,eq," + name
+					 ] } )
+				.map ( response => response['Argument'][0] );
   }
   
+  deleteArgumentsNotInAsync(agent: Agent) {
+	  this.httpInterceptorService
+				.getJson('api.php/Argument', { transform: true, 'filter': "agent_id,eq," + agent.id } ) // Lecture de toutes les arguments
+				.map(response => response['Argument'])
+				.subscribe(args =>
+					args.filter( // ne garder que celle qui ne sont pas dans l'agent
+						argument=>agent.arguments.filter(cvar=>cvar.variable_name==argument.variable_name).length==0 )
+						.forEach( // Pour chacune, envoyer un ordre de suppression
+						argument=>this.httpInterceptorService
+							.deleteJson('api.php/Argument', argument.id ).subscribe(ok=>{})
+						)
+				);
+  }
+  
+  // Update the arguments (asynchronously)
+  insertOrUpdateArgumentsInAsync(agent: Agent) {
+	  console.log("insertOrUpdateArgumentsInAsync",agent.arguments);
+	  agent.arguments.forEach(argument=>
+	    this.getArgumentByName(agent.id, argument.variable_name)
+				.subscribe(original => { // Si un argument du même nom existe, on le mets à jour
+					if (original!=null) {
+						this.httpInterceptorService
+							.putJson('api.php/Argument/'+original.id, Object.assign({},argument,{id:original.id}))
+							.subscribe(ok=>{})
+					} else { // Sinon, on le crée
+						this.insertArgument(agent.id, argument)
+							.subscribe(ok=>{})
+					}
+					}
+				)
+	  );
+  }
+  
+  insertArgument(agentId: string, argument: Argument): Observable<Argument> {
+	  var newArgumentId = generateUUID();
+	  return this.httpInterceptorService
+				.postJson('api.php/Argument', Object.assign(argument, {id: newArgumentId, agent_id: agentId}) )
+				.map( result => Object.assign({}, argument, {id: newArgumentId}) );
+  }
+   
 }

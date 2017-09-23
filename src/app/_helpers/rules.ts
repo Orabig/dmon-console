@@ -56,6 +56,6 @@ export function extractDefaultFromVariable(variable: any) {
 export function buildCommandLine(agent: Agent, command: Command): string {
 	console.log("buildCommandLine on ",agent);
 	var line = [ "!check --plugin "+agent.command.plugin+" --mode "+agent.command.name ];
-	agent.arguments.forEach(arg => line.push('--'+arg['name']+' '+arg.value));
+	agent.arguments.forEach(arg => line.push('--'+arg['variable_name']+' '+arg.value));
 	return line.join(' ');
 }

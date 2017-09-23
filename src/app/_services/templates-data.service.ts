@@ -215,6 +215,7 @@ export class TemplatesDataService {
 				return command;
 				});
   }
+  
   getCommandByName( command: Command): Observable<Command> {
 	  return this.httpInterceptorService
 				.getJson('api.php/Command', {

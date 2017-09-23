@@ -119,6 +119,7 @@
 						</div>
 						<div class="family-checks">						
 							<div class="agent"
+								[class.selected]="selectedAgent===agent"
 								*ngFor="let agent of checksByFamilies[familyId]"
 								(click)="editAgent(agent)">{{agent.name}}</div>
 							<div class="add-command"

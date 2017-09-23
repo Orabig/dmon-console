@@ -118,6 +118,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // ngOnInit >> getDefaultGroup >> Le groupe a été récupéré, il faut maintenant interroger la liste des membres qui en font partie
   setGroup(id:string) {
 	  this.groupId = id;
+	  console.log("getHosts for ",id);
 	  // TODOTODOTODOTODOTODO : ici , erreur recurrente dans getMessagesOn (cent:58)
   	  this.hostService.getHosts(this.groupId) // Permet de connaitre les hosts avec l'agent ainsi que leur client-id
 		.subscribe(hosts => this.localHosts=hosts);
@@ -136,10 +137,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 	this.templatesDataService.getAllFamilies()
 		.subscribe(
 		fams => {
-			console.log(">>>>>>>>> loadFamilies:",fams);
 			this.loadFamilies(fams.filter(family=>family.commands.length>0));
 			// Then load the rest
-			console.log(">>>>>>>>> and the rest");
 			this.objectsDataService.getHostById(hostid).subscribe(host=>this.selectedHost=host);
 			this.objectsDataService.getComposantById(compid).subscribe(comp=>this.composant=comp);
 			this.objectsDataService.getImplantation(hostid,compid).subscribe(impl=>this.loadImplantation(impl));
@@ -222,6 +221,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   editAgent(agent: Agent) {
 	  this.toggleAddCommand(null);
 	  this.cleanEditBox();
+	  // Fill the values of the arguments
+	  agent.arguments.forEach(arg => this.values[arg.variable_name] = arg.value);
 	  this.loadCommandTemplate(agent.command.id).subscribe( fullCommand => {
 		  this.selectedAgent = agent;
 		  // show a result of the check
@@ -250,13 +251,14 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 	  this.result=null;
 	  this.cmdLine=null;
 	  this.values = [];
+	  this.editorSaveError=null;
   }
   
   // Gets the values in the inputs and stores them in the agent object
   fillAgentWith( agent: Agent, values: string[] ) {
 	  agent.arguments = Object.keys(values)
 						.filter(name => values[name] != "")
-						.map(name => new Argument({name:name, 'variable_id': this.getVariableId(agent,name), value: values[name]}));
+						.map(name => new Argument({variable_name:name, 'variable_id': this.getVariableId(agent,name), value: values[name]}));
   }
   
   getVariableId(agent: Agent, name: string) {
@@ -283,23 +285,27 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   registerAgent(agent: Agent) {
 	  this.testAgent(agent)
 	  if (agent.id) {
-		  this.objectsDataService.updateAgent(agent).subscribe(res => console.log("up:",res),
+		  this.objectsDataService.updateAgent(agent).subscribe(res => console.log("updated:",res), // TODO : remove tainted indicator (tainted indicator is a TODO too)
 		  err=>this.editorSaveError=err);
 	  } else {
-		  this.objectsDataService.createNewAgent(agent).subscribe(res => { 
-		  console.log("cr:",res); 
-		  agent.id=res.id; 
-		  // Afficher dans la liste des agents connus par famille
-		  if (!this.checksByFamilies[agent.family_id]) {
-			this.checksByFamilies = Object.assign( {}, this.checksByFamilies);
-			this.checksByFamilies[agent.family_id] = [];
-		  }
-		  this.checksByFamilies[agent.family_id].push(agent); 
-		  // Enregistrer le check dans le client		  
-		  this.sendCommandService.sendRegister(this.selectedHost,agent.id,agent.computedCmdLine);
-		  },
-		  err=>this.editorSaveError=err);
+		  this.objectsDataService.createNewAgent(agent).subscribe(
+				res => { 
+					agent.id=res.id;
+					this.addAgentToSelectedFamily(agent);
+				},
+				err=>this.editorSaveError=err);
 	  }
+  }
+  
+  addAgentToSelectedFamily(agent: Agent) {
+	  // Afficher dans la liste des agents connus par famille
+	  if (!this.checksByFamilies[agent.family_id]) {
+		this.checksByFamilies = Object.assign( {}, this.checksByFamilies);
+		this.checksByFamilies[agent.family_id] = [];
+	  }
+	  this.checksByFamilies[agent.family_id].push(agent); 
+	  // Enregistrer le check dans le client		  
+	  this.sendCommandService.sendRegister(this.selectedHost,agent.id,agent.computedCmdLine);
   }
   
   // ---------------------------------------------------------
