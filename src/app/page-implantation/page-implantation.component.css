@@ -1,3 +1,16 @@
+/* Title */
+
+.title .body .host {
+	cursor: pointer;
+}
+.title .body .host:hover {
+	background:#AAA;
+}
+
+.title .body .selected {
+	background:#ecf5f7;
+}
+
 /* Edit box */
 
 .editor {

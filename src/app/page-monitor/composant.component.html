@@ -1,4 +1,6 @@
-  <div *ngFor="let composant of composants" class="composant">
+  <div *ngFor="let composant of composants"
+	[routerLink]="['/checklist',host.id,composant.id]"
+	class="composant">
   	<div class="left">
 	  	<img src="{{ composant.tech_iconUri }}">
 	  	<span class="name">{{ composant.name }}</span>

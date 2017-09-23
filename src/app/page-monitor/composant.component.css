@@ -43,14 +43,19 @@
     font-weight: bold;
     font-family: monospace;
     text-align: left;
+	cursor: pointer;
 }
+
+.composant:hover {
+	background:#eee;
+}
+
 .left, .right {
     display: inline-flex;
 }
 .left {
 	line-height: 15px;
     vertical-align: middle;
-	background: #fff;
 }
 .right {  
 	background: #aaa;

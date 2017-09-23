@@ -3,7 +3,23 @@
 	<div [class]="connectionState">{{connectionState}}</div><!-- TODO : Factorize(page-plugin-discovery.composant) -->
 
 	<div *ngIf="composant!=null && selectedHost!=null && implantation!=null">
-	<h2><img src="{{ composant.technology.iconUri }}">Checklist for {{composant.name}} on {{selectedHost.name}}</h2>
+	
+	<table border="1" class="title">
+	<tr class="header"><tr><th>Component :</th><th><span>Host</span><span *ngIf="otherHosts.length>1">s</span> :</th></tr>
+	<tr class="body" *ngFor="let titleHost of otherHosts;let idx=index">
+			<!-- First line only -->
+			<th [attr.rowspan]="otherHosts.length" *ngIf="idx==0">
+				<h2>{{composant.name}}
+				<br>
+				<img src="{{ composant.technology.iconUri }}">
+				</h2>
+			</th>
+		<td class="host" 
+			[routerLink]="['/checklist',titleHost.id,composant.id]" 
+			[class.selected]="selectedHost.name==titleHost.name">{{titleHost.name}}</td>
+	</tr></table>
+	
+	<!--   END TITLE   -->
 	
 	<div class="editor" *ngIf="selectedAgent">
 		<div class="cartouche">

@@ -23,6 +23,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   private groupId: string;
   private user: User;
   private localHosts: Host[];
+  private otherHosts: Host[];
 
   selectedHost: Host;
   composant: Composant;
@@ -117,11 +118,13 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   	  this.hostService.getHosts(this.groupId) // Permet de connaitre les hosts avec l'agent ainsi que leur client-id
 		.subscribe(hosts => this.localHosts=hosts);
   }
-
+  
   load(hostid:string, compid:string) {
+	  this.unloadPreviousHost(); // This is called when changing host, so we should set the original family list back
 	  this.objectsDataService.getHostById(hostid).subscribe(host=>this.selectedHost=host);
 	  this.objectsDataService.getComposantById(compid).subscribe(comp=>this.composant=comp);
 	  this.objectsDataService.getImplantation(hostid,compid).subscribe(impl=>this.loadImplantation(impl));
+	  this.objectsDataService.getHostsForComposant(compid).subscribe(hosts=>this.otherHosts = hosts ); // for title display and easy navigation
   }
   
   loadFamilies(list: Family[]) {
@@ -149,6 +152,11 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 			}
 		} 
 	}
+	
+  unloadPreviousHost() {
+	  this.selectedFamilies.forEach(family => this.families.push(family));
+	  this.selectedFamilies=[];
+  }
 
   // Displays the list of available command for the given family, and hides all the others (hide all if family==null)
   toggleAddCommand(family: Family) {
@@ -200,7 +208,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   }
   
   // Show the agent in the list of agents for the given family
-  showNewAgent(familyId: number, agent: Agent) {
+  showNewAgent(familyId: number, agent: Agent) {console.log("showNew",agent);
 	var actuals = this.checksByFamilies[familyId];
 	if (!actuals) actuals = [];
 	actuals.push(agent);

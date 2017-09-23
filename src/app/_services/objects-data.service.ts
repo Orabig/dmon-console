@@ -191,6 +191,11 @@ export class ObjectsDataService {
 				}	); 
   }
   
+  getHostsForComposant(comp_id: string) : Observable<Host[]> {
+	return this.httpInterceptorService
+        .getJson('get-hosts-for-composant.php', { composant_id: comp_id });
+  }
+  
   // Deletes an Implantation. If this was the last implantation, then delete the composant
   deleteComponent(application:Application, host:Host, composant: Composant): Observable<number> {    
     return this.httpInterceptorService.postJson('delete-implantation.php', {
