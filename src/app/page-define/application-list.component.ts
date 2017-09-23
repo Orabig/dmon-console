@@ -24,7 +24,7 @@ export class ApplicationListComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.getFamilies();
+		this.getApplications();
 	}
 	
 	isProtocolLocal(protocol: string) {
@@ -58,15 +58,6 @@ export class ApplicationListComponent implements OnInit {
 		this.objectsDataService.assignComponentToApplication(composant, application.id)
 			.subscribe(result => this.removePrefixFromName(result), err => console.error(err));
 	} 
-
-	addApplication() {
-		this.objectsDataService.addApplication(this.newApplication).subscribe(
-			(application: Application) => {
-				this.applications.push( application );
-				this.newApplication = new Application({ });
-			}
-		);		
-	}
 	
 	// Appelé quand un composant est ajouté à une autre application.
 	// Il faut renommer ce composant pour supprimer le pefixe correspondant au nom de l'application
@@ -97,20 +88,35 @@ export class ApplicationListComponent implements OnInit {
 		);
 	}
 
+	addApplication() {
+		this.objectsDataService.addApplication(this.newApplication).subscribe(
+			(application: Application) => {
+				this.applications.push( application );
+				// Automatically selects the application
+				this.selectApplication( application );
+				this.newApplication = new Application({ });
+			}
+		);		
+	}
+
 	removeApplication(application) {
 		this.objectsDataService.deleteApplicationById(application.id).subscribe(
 			ok => {
         if (this.selectedApplication.id===application.id)
            this.selectApplication(null);
         this.applications = this.applications.filter(item => item.id !== application.id )
+		if (this.selectedApplication==null)
+			this.selectApplication(application[0]);
       }
 		);		
 	}
 	
-	getFamilies() {
+	getApplications() {
 		this.objectsDataService.getAllApplications()
 			.subscribe(applications => {
 				this.applications = applications;
+				if (this.selectedApplication==null)
+					this.selectApplication(applications[0]);
 			}
 		);
 	}
