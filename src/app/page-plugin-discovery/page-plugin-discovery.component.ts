@@ -151,20 +151,22 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
   // Execute    !check --plugin ... --list-mode
   // And display the result (list of modes)
   requestPluginModes(plugin) {
-	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-mode")	    
+	  var cmdline = "!check --plugin " + plugin.plugin + " --list-mode";
+	  this.getResultFromSelectedHost(cmdline)
 		.map( data => data['stdout'].join("\n"))
 		.subscribe(
-			data => this.processModes(data),
+			data => this.processModes(cmdline,data),
 			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
   // Execute    !check --plugin ... --list-sqlmode (or --list-custommode)
   // And add what is found in plugin definition
   requestProtocolModes(protocol:string, plugin) {
-	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-" + protocol + "mode")	    
+	  var cmdline="!check --plugin " + plugin.plugin + " --list-" + protocol + "mode";
+	  this.getResultFromSelectedHost(cmdline)
 		.map( data => data['stdout'].join("\n"))
 		.subscribe(
-			data => this.processProtocolModes(protocol, data),
+			data => this.processProtocolModes(cmdline,protocol, data),
 			err  => console.error(err)); // Unsubscribe when we get the message
   }
 
@@ -213,9 +215,9 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
   // Will display the list of modes for this plugin (1-2 family)
   // Also stdout may contain : 
   //   --list-(*)mode and --(*)mode (eg. sql) in which case requestProtocolModes>>processProtocolMode est appelé
-  processModes(stdout: string) {
+  processModes(cmdline:string, stdout: string) {
 	  // DISPLAY
-	  this.outputStep4 = "********* " + this.selectedPlugin.plugin + " *********\n" + stdout;
+	  this.outputStep4 = "********* " + this.selectedPlugin.plugin + " *********\n> " + cmdline + "\n\n" + stdout;
 	  
 	  // CUSTOM MODES (--list-custommode or --list-sqlmode)
 	  var customRE = /--list-(\w+)mode/g;
@@ -246,16 +248,16 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 		}
   }
   
-  processProtocolModes(protocol: string, stdout: string) {
+  processProtocolModes(cmdline:string, protocol: string, stdout: string) {
 	  // DISPLAY
-	  this.outputStep4 = this.outputStep4+"\n\n***** PROTOCOL : "+protocol+" ****\n" + stdout;
+	  this.outputStep4 = this.outputStep4+"\n\n***** PROTOCOL : "+protocol+" ****\n> " + cmdline + "\n\n" + stdout;
 
 	  // PROCESS list of additional protocols
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
 	  stdout=stdout.replace(/\n/g,"");
 	  var modes = modesRE.exec(stdout);
 	  if (modes) {
-			modes[1].split(/ +/).forEach( protocol => this.selectedPlugin.protocols.push( protocol ) );
+			modes[1].split(/ +/).forEach( mode => this.selectedPlugin.protocols.push( protocol+":"+mode ) ); // sql:dbi
 		} else {
 			// Modes available n'apparait pas : sans doute une erreur de library
 			var missingLibRE = /Can't locate (\S+) in @INC/;
@@ -276,25 +278,27 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
   
   // USER click >> selectMode() >>
   // Execute    !check --plugin ... --mode ... --help
+  // TODO : Je suppose ici que QUELQUE SOIT LE PROTOCOLE, la liste des modes et leurs options sont identiques.
   requestPluginCommand(family, mode) {
-	  this.getResultFromSelectedHost("!check --plugin " + family.plugin + " --mode " + mode + " --help")
+	  var cmdline="!check --plugin " + family.plugin + " --mode " + mode + " --help";
+	  this.getResultFromSelectedHost(cmdline)
 		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,'').replace(/;;/g,"\n"))
 		.subscribe(
-			help => this.processCommand(mode, family.plugin, help),
+			help => this.processCommand(cmdline, mode, family.plugin, help),
 			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
   // Reads the result of '--mode mode --help' to display the command description and variables
-  processCommand(mode: string, plugin: string, stdout: string) {	  
+  processCommand(cmdline: string,mode: string, plugin: string, stdout: string) {	  
 	  // DISPLAY
 	  this.outputStep4 = '';
-	  this.outputStep5 = stdout;
+	  this.outputStep5 = "***** "+this.selectedPlugin.plugin+"    MODE : "+mode+"  ****\n> " + cmdline + "\n\n" + stdout;
 	  // PROCESS
-	  var paragraphs = stdout.split(/\n\n/); // Arguments are in paragraphs separed with 2 newlines ...
+	  var paragraphs = stdout.split(/\n\n +--/); // Arguments are in paragraphs separed with 2 newlines and start with --
 	  var description = paragraphs.shift().replace(/^ +/,'');
 	  var position=0;
 	  var variables = paragraphs.map(help => {
-			var nameRE = /^ +--(\S+)/; // ... and start with "  --argument ...."
+			var nameRE = /^(\S+)/; // ... and start with "(  --)argument ...."
 			var match = nameRE.exec(help);
 			if (!match) {
 				console.error("Erreur de definition de variable pour le plugin "+this.selectedPlugin.plugin+" mode "+mode);
