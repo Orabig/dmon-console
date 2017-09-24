@@ -40,7 +40,9 @@
 		<div class="family">
 			<div class="description"><label>Name :</label>{{ selectedPlugin.name }}</div>
 			<div class="description"><label>Description :</label>{{ selectedPlugin.description }}</div>
-			<div class="description"><label>Local :</label>{{ selectedPlugin.local }}</div>
+			<div class="description"><label>Protocols :</label>				
+					<li *ngFor="let protocol of selectedPlugin.protocols">{{ protocol ? protocol : '(local)' }}</li>
+			</div>
 			<div class="description" *ngIf="selectedPlugin.protocol!=null"><label>Protocol :</label>{{ selectedPlugin.protocol }}</div>
 			<button class="save" *ngIf="selectedPlugin.families==null" (click)="saveSelectedPluginToFamily()">Save</button>
 			<button class="saved" 

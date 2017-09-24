@@ -124,23 +124,48 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
   // fills this.plugins with a plugin list : {name, plugin, description}
   // This list is shown to user
   processPluginList(stdout: string[]) {
-	  // Display start of step3
+	  // Display the result of the command line (optional, just for debug)
 	  this.outputStep2 = stdout.slice(2,13).join("\n") + "\n(......)";
 	  // PROCESS the output of --list-plugin
 	  this.plugins = extractPluginList(stdout);
   }
   
+  // ---------------------------------- The pluginlist is displayed : the user has to click on one of them (Ex; Linux)
+  
   // USER clicked on a Plugin
   selectPlugin(plugin: any) {
+	  // This will show the family details (name, description)
 	  this.selectedPlugin = plugin;
 	  this.loadKnownFamily(plugin); // Cherche dans la base de donnée si une ou plusieurs familles correspondent, et dans ce cas, alimente selectedPlugin.families
-	  this.requestPluginModes(plugin);
+	  this.requestPluginModes(plugin); // Execute "--list-mode" ce qui donne la liste des modes, mais aussi les options "Global"
   }
   
+  // Request to DB : load families with the same name than the one clicked
   loadKnownFamily(plugin: any) {
 	  this.templatesDataService.getFamiliesByName(plugin.name).subscribe(
 		families => this.selectedPlugin.families = families.length>0 ? families : null
 	  )
+  }
+  
+  // USER clicked on a Plugin >> selectPlugin() >>
+  // Execute    !check --plugin ... --list-mode
+  // And display the result (list of modes)
+  requestPluginModes(plugin) {
+	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-mode")	    
+		.map( data => data['stdout'].join("\n"))
+		.subscribe(
+			data => this.processModes(data),
+			err  => console.error(err)); // Unsubscribe when we get the message
+  }
+  
+  // Execute    !check --plugin ... --list-sqlmode (or --list-custommode)
+  // And add what is found in plugin definition
+  requestProtocolModes(protocol:string, plugin) {
+	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-" + protocol + "mode")	    
+		.map( data => data['stdout'].join("\n"))
+		.subscribe(
+			data => this.processProtocolModes(protocol, data),
+			err  => console.error(err)); // Unsubscribe when we get the message
   }
 
   // USER clicked on Family/SAVE  
@@ -148,7 +173,14 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 	  if (this.selectedPlugin.families == null) {
 		  this.selectedPlugin.families = []; // Will be filled in this.saveFamily()
 		  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
-		  if (this.selectedPlugin.local) this.saveFamily( new Family( {
+		  this.selectedPlugin.protocols.forEach(
+			protocol => this.saveFamily( new Family( { 
+				name: this.selectedPlugin.name,
+				description: this.selectedPlugin.description,
+				local: protocol == null,
+				protocol: protocol
+		  } ))
+		  /*if (this.selectedPlugin.local) this.saveFamily( new Family( {  // <<<<<<<<<<< protocols (null/SSH...)
 				name: this.selectedPlugin.name,
 				description: this.selectedPlugin.description,
 				local: true,
@@ -159,7 +191,8 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 				description: this.selectedPlugin.description,
 				local: false,
 				protocol: this.selectedPlugin.protocol // --- SSH
-		  } ));
+		  } ));*/
+		  );
 	  }
   }
   
@@ -177,33 +210,59 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 	  this.selectedCommand=null;
   }
   
-  // USER clicked on a Plugin >> selectPlugin() >>
-  // Execute    !check --plugin ... --list-mode
-  requestPluginModes(plugin) {
-	  this.getResultFromSelectedHost("!check --plugin " + plugin.plugin + " --list-mode")
-		.map( data => data['stdout'].join("\n"))
-		.subscribe(
-			data => this.processModes(data),
-			err  => console.error(err)); // Unsubscribe when we get the message
-  }
-  
   // Will display the list of modes for this plugin (1-2 family)
+  // Also stdout may contain : 
+  //   --list-(*)mode and --(*)mode (eg. sql) in which case requestProtocolModes>>processProtocolMode est appelé
   processModes(stdout: string) {
 	  // DISPLAY
-	  this.outputStep4 = stdout;
+	  this.outputStep4 = "********* " + this.selectedPlugin.plugin + " *********\n" + stdout;
+	  
+	  // CUSTOM MODES (--list-custommode or --list-sqlmode)
+	  var customRE = /--list-(\w+)mode/g;
+	  var custom;
+	  while( custom = customRE.exec(stdout) ) {
+		  var protocol = custom[1]; // 'sql' or 'custom'
+		  if (protocol != 'custom') { // Pour le moment, je n'ai trouvé aucun --custommode qui soit utile (Tomcat/AWS ne change pas le fonctionnement du plugin)
+			this.requestProtocolModes(protocol, this.selectedPlugin);
+		  }
+	  }
+	  
 	  // PROCESS
 	  var modesRE = /Modes Available:\s+(.*?) *$/;
 	  stdout=stdout.replace(/\n/g,"");
-	  var groups = modesRE.exec(stdout);
-	  if (groups) {
-			this.selectedPluginModes = groups[1].split(/ +/);
+	  var modes = modesRE.exec(stdout);
+	  if (modes) {
+			this.selectedPluginModes = modes[1].split(/ +/);
 		} else {
 			// Modes available n'apparait pas : sans doute une erreur de library
 			var missingLibRE = /Can't locate (\S+) in @INC/;
-			var groups = missingLibRE.exec(stdout);
-			if (groups) {
+			var modes = missingLibRE.exec(stdout);
+			if (modes) {
 				// TODO : Required library for this plugin
-				console.log("Pre-requis : ",groups[1]);
+				console.log("Pre-requis : ",modes[1]);
+			} else {
+				console.error("Unknown output : ",stdout);
+			}
+		}
+  }
+  
+  processProtocolModes(protocol: string, stdout: string) {
+	  // DISPLAY
+	  this.outputStep4 = this.outputStep4+"\n\n***** PROTOCOL : "+protocol+" ****\n" + stdout;
+
+	  // PROCESS list of additional protocols
+	  var modesRE = /Modes Available:\s+(.*?) *$/;
+	  stdout=stdout.replace(/\n/g,"");
+	  var modes = modesRE.exec(stdout);
+	  if (modes) {
+			modes[1].split(/ +/).forEach( protocol => this.selectedPlugin.protocols.push( protocol ) );
+		} else {
+			// Modes available n'apparait pas : sans doute une erreur de library
+			var missingLibRE = /Can't locate (\S+) in @INC/;
+			var modes = missingLibRE.exec(stdout);
+			if (modes) {
+				// TODO : Required library for this plugin
+				console.log("Pre-requis : ",modes[1]);
 			} else {
 				console.error("Unknown output : ",stdout);
 			}
