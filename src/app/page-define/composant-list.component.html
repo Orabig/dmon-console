@@ -8,7 +8,7 @@
 		[routerLink]="['/checklist',host.id,composant.id]"
 		dnd-draggable
 		[dragData]="composant">
-		<div><img src="{{ composant['tech_iconUri'] }}"></div>
+		<div><img src="{{ composant.technology.iconUri }}"></div>
 		<div>{{ composant.name }}</div>
 		<button (click)="deleteComponent(application, host, composant)" class="delete-btn">&times;</button>
 	</div>

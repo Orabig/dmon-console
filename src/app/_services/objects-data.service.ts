@@ -101,9 +101,11 @@ export class ObjectsDataService {
   // Renvoie la liste des composants pour l'application donnée, et le host donné
   // IMPORTANT : Les objets Composant sont renseignés avec leur implantation_id et le host_id
   // pour le hosts demandé, ainsi que l'iconUri de la technologie associée (tech_iconUri)
+  // et l'état en temps réel des Agents
+  // host OR application MAY BE NULL
   getAllComponentsFor(host:Host, application:Application):Observable<Composant[]> {
-    return this.httpInterceptorService
-      .getJson('get-composants.php', { host_id: host.id, application_id: application.id } );
+	return this.httpInterceptorService
+      .getJson('get-composants.php', { host_id: host.id, application_id: application?application.id:null } );
   }
   
   // Gets a Composant (with linked technology object)

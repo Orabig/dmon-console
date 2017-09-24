@@ -1,10 +1,13 @@
 ﻿import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Host } from '../_models/objects/host';
+
+import { Host, Composant, Agent } from '../_models/objects';
 import { User } from '../_models/users/user';
 
-import { HostService } from '../_services/host.service';
-import { CentrifugeService } from '../_services/centrifuge.service';
-import { GroupService } from '../_services/group.service';
+import { HostService ,
+		CentrifugeService,
+		GroupService,
+		ObjectsDataService,
+		OrderManageService		} from '../_services';
 
 import { environment } from '../../environments/environment';
 
@@ -19,11 +22,14 @@ export class GroupComponent implements OnInit, OnDestroy {
 	
   constructor(private hostService: HostService,
 				private groupService: GroupService,
-				private centrifugeService: CentrifugeService) { }
+				private orderManageService: OrderManageService,
+				private centrifugeService: CentrifugeService,
+				private objectsDataService: ObjectsDataService) { }
     
   selectedHost: Host;
   hosts: Host[];
   user:User;
+  private defaultGroup: string;
   
   connectionState: string;
   
@@ -67,17 +73,86 @@ export class GroupComponent implements OnInit, OnDestroy {
 		authEndpoint: environment.centrifugoAuthEndpoint
 	});
 	  this.centrifugeService.getStates().subscribe(
-		state => this.connectionState = state.type==='state' ? state.state : this.connectionState
+		state => this.setConnectionState(state)
 	  );
 	}
+
+  setConnectionState(state) {
+	  this.connectionState = state.type==='state' ? state.state : this.connectionState;
+	  // If we were waiting for this, then connect to centrifugo Groups channel
+	  this.listenToGroupWhenPossible();
+  }
 	
   getHosts(): void {
+	  /* Ces vieux services ne donnent pas l'ID des hosts
+	  
 	  this.groupService.getGroups(this.user.organization.id)
 		.subscribe(groups =>
 			this.hostService.getHosts( groups['default'] )
-				.subscribe(hosts => 
-					this.hosts = hosts
+				.subscribe(hosts => {
+					if (this.hosts==null)
+						this.downloadHostServices(hosts);
+					this.hosts = hosts;
+					}
 				) 
 		);
+		*/
+	  this.groupService.getGroups(this.user.organization.id)
+		.subscribe(groups => {
+				this.defaultGroup = groups['default'];
+				// If we were waiting for this, then connect to centrifugo Groups channel
+				this.listenToGroupWhenPossible();
+				this.objectsDataService.getAllHosts().subscribe(hosts => {
+					this.hosts = hosts.filter(host => this.hostBelongTo(host, this.defaultGroup));
+					this.downloadHostServices(hosts);
+					}
+				) 
+		});
 	}
+	
+	// This will check if both centrifugo is connected and the name of the group is known,
+	// then subscribe to the channel
+	listenToGroupWhenPossible() {
+		if (this.defaultGroup==null) return;
+		console.log(this.connectionState);
+		if (this.connectionState!="connected") return;
+		this.centrifugeService.getMessagesOn('$'+this.defaultGroup)
+			.subscribe(message => this.processServiceMessage(message));
+	}
+	
+	hostBelongTo(host: Host, group): boolean {
+		// TODO : groups are not used for now
+		return true;
+	}
+	
+	processServiceMessage(message) {
+		if (this.orderManageService.shouldMessageBeProcessed(message))
+			this.hosts = this.hostService.transformHosts(this.hosts,message);
+	}
+	
+	getHostByName(name): Host {
+		for(var i=0;i<this.hosts.length;i++) {
+			if (this.hosts[i].name==name) return this.hosts[i];
+		}
+		return null;
+	}
+	
+   // request the state for the hosts
+   // starts by downloading the Application list (because it's needed to retrieve the component states)
+   downloadHostServices(hosts: Host[]) {
+	   hosts.forEach(
+			host => this.objectsDataService.getAllComponentsFor(host,null)
+				.subscribe(composants => this.appendComposantsToHost(host,composants))
+		);
+   }
+   
+   appendComposantsToHost(host: Host, composants: Composant[]) {
+	   composants.forEach(composant => this.appendAgentsToHost(host, composant.agents));
+   }
+   
+   appendAgentsToHost(host: Host, agents: Agent[]) {
+	   if (host.services==null)host.services=[];
+	   agents.forEach(agent => host.services[agent.id] = agent);
+   }
+
 }

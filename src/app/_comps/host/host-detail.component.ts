@@ -24,17 +24,4 @@ export class HostDetailComponent {
 		this.host.cmdline = cmdline;
 		this.sendCommand();
 	}
-	
-	registerCmdline():void {
-		// ASIS : le nom du service est calculé à partir du plugins
-		// TOBE : ...
-		var serviceId=s4();
-		this.sendCommandService.sendRegister(this.host,serviceId,this.host.cmdline);
-	}
 }
-
- function s4() {
-	return Math.floor((1 + Math.random()) * 0x10000)
-	  .toString(16)
-	  .substring(1);
-  }

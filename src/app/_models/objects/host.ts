@@ -18,7 +18,7 @@ export class Host {
   cmdline: string;
   last_stdout: string;
   last_stderr: string;
-  last_time: Date;
+  timestamp: Date;
   
   static removeServiceFrom(host:Host, id:string):void {
 	  delete host.services[id];
@@ -30,30 +30,30 @@ export class Host {
 	  var service = new Service();
 	  service.id = id;
 	  service.cmdLine = cmdline;
-	  service.last_output = '(registered. Waiting for data)';
-	  service.last_time = new Date();
+	  service.stdout = '(registered. Waiting for data)';
+	  service.timestamp = new Date();
 	  host.services[id]=service;
 	  host.services = Object.assign( host.services );
   }
   
   static addServiceFromMessage(host:Host, message: any):void {
-	  if (!host.services) host.services = [];
 	  var serviceId = message.data['id'];
 	  var service = new Service();
 	  service.id=serviceId;
 	  service.cmdLine=message.data['cmdline'];
-	  service.last_value=message.data['exit_value'];
-	  service.last_output=message.data['stdout'][0];
-	  if (service.last_output) {
-	  	var split = service.last_output.split("|");
-	  	service.last_output = split[0];
+	  service.exit_value=message.data['exit_value'];
+	  service.stdout=message.data['stdout'][0];
+	  if (service.stdout) {
+	  	var split = service.stdout.split("|");
+	  	service.stdout = split[0];
 	  	service.last_perfdata = split[1];
-	  	service.last_time = new Date();
+	  	service.timestamp = new Date();
 	  }
 	  if (!host.services) {
 	  	host.services = [];
 	  }
 	  host.services[serviceId] = service;
 	  host.services = Object.assign( host.services );
+	  if (host.client==null)host.client=message.data['client-id'];
   }
 }

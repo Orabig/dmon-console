@@ -2,7 +2,6 @@
 	Last update = {{ host.last_message_time | date:'HH:mm:ss' }}
 	
 	<div class="cmdline">
-	  <button (click)="registerCmdline()">Register</button>
 	  <span class="fill"><input [(ngModel)]="host.cmdline" (keyup.enter)="sendCommand()" placeholder="Command line"></span>
 	</div>
 	

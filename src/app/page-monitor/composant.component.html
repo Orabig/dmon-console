@@ -6,7 +6,11 @@
 	  	<span class="name">{{ composant.name }}</span>
 	</div>
 	<div class="right">
-	  	0/{{ composant.agents.length }}
-		<span *ngFor="let agent of composant.agents">({{ agent.status }})</span>
+	  	{{ composant.agents.length }}
+		<span 
+			[class.state-ok]="agent.status==0"
+			[class.state-warning]="agent.status==1"
+			[class.state-critical]="agent.status==2"
+			*ngFor="let agent of composant.agents">&nbsp;</span>
 	</div>
   </div>

@@ -62,6 +62,13 @@ export class OrderManageService {
 		return this.orders.filter(o => o.cmdId===cmdId).length>0;
 	}
 	
+	// Returns true if we should process this message. False means that it's a RESULT message from a command
+	// that was emitter by another client
+	shouldMessageBeProcessed(msg: any) {
+		if (msg.data['t']!='RESULT') return true;
+		return this.isMessageKnown(msg);
+	}
+	
 	// Not used : may be used to kill an order
 	killOrder(order: Order) {
 		var host =new Host();

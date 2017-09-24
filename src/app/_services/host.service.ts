@@ -81,7 +81,7 @@ export class HostService {
 	}
 	
 	// Transforms the lists of hosts with the message received from Centrifugo.
-	private transformHosts(hosts, message): Host[] {
+	transformHosts(hosts, message): Host[] {
 		if (message=='NOOP') return hosts; // Le premier message émet la liste de hosts initiale
 		var onHost = message.data['host-id'];
 		var found = false;

@@ -1,9 +1,12 @@
 
+// A service is the instant state of an Agent.
+// it's used in the "monitor" template
+
 export class Service {
   id: string;
   cmdLine: string;
-  last_value: number;
-  last_output: string;
+  exit_value: number;
+  stdout: string;
   last_perfdata: string;
-  last_time: Date;
+  timestamp: Date;
 }

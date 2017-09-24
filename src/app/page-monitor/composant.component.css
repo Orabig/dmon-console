@@ -1,38 +1,14 @@
-/*
-   
-   Gros block (désactivé pour présentation plus condensée)
-   
-.composant {
-    text-align: center;
-    margin: 10px;
-    width: 140px;
-    font-weight: bold;
-    font-family: monospace;
+.state-ok {
+	background:#0F0;
 }
 
-.top {
-    border-top: solid 1px #000;
-    border-left: solid 1px #000;
-    border-right: solid 1px #000;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    margin-bottom: -4px;
+.state-warning {
+	background:#ffd400;
 }
 
-.bottom {
-    border-left: solid 1px #000;
-    border-right: solid 1px #000;
-	border-bottom: solid 1px #000;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;    
-	background: #aaa;
+.state-critical {
+	background:#F02;
 }
-
-.composant img {
-	width: 90px;
-	height: 45px;
-}
-*/
 
 .composant {
 	width: 233px;
