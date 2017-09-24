@@ -124,7 +124,7 @@ export function buildHelpCommandLine(plugin,protocol,mode): string {
 
 export function buildCommandLine(family: Family, agent: Agent): string {
 	var plugin = agent.command.plugin;
-	var protocol = family.protocol.name;
+	var protocol = family.protocol ? family.protocol.name : '(local)';
 	var mode = agent.command.name;
 	var line = buildBaseCommandLine(plugin,protocol,mode);
 	// Arguments

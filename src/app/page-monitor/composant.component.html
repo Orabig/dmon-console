@@ -2,21 +2,11 @@
 	[routerLink]="['/checklist',host.id,composant.id]"
 	class="composant">
   	<div class="left">
-	  	<img src="{{ composant.tech_iconUri }}">
+	  	<img src="{{ composant.technology.iconUri }}">
 	  	<span class="name">{{ composant.name }}</span>
 	</div>
 	<div class="right">
-	  	0/0
+	  	0/{{ composant.agents.length }}
+		<span *ngFor="let agent of composant.agents">({{ agent.status }})</span>
 	</div>
   </div>
-
-  <!--  Gros bloc
-    <div *ngFor="let composant of composants" class="composant">
-	  <div class="top">
-	  	<img src="{{ composant.tech_iconUri }}">
-	  	<div class="name">{{ composant.name }}</div>
-	  </div><div class="bottom">
-	  	0/0
-	  </div>
-  </div> -->
-  
