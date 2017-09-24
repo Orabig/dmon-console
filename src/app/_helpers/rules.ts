@@ -72,7 +72,8 @@ export function extractCardinalityFromVariable(variable: any) {
 }
 
 export function isMandatoryVariable(variable: any) {
-	if (variable.name=="name" && ! variable.description.contains("empty")) return 1;
+	if (variable.name=="name" && ! variable.description.match("empty")) return 1;
+	if (variable.description.match("required")) return 1;
 	return 0;
 }
 
@@ -97,21 +98,35 @@ export function extractDefaultFromVariable(variable: any) {
 
 // ------------- Construction de la cmdLine
 
-export function buildCommandLine(family: Family, agent: Agent): string {
+// Construit le début de la ligne de commande : !check --plugin XXX --mode YYY [ --ZZZmode PPP | --remote ]
+export function buildBaseCommandLine(plugin,protocol,mode): string[] {
 	// command line
-	var line = [ "!check --plugin "+agent.command.plugin ];
+	var line = [ "!check --plugin "+plugin ];
 	// Mode
-	line.push( "--mode "+agent.command.name );
+	line.push( "--mode "+mode );
 	// Protocol
-	var protocol = family.protocol.name;
 	if (protocol.match(/\w+:\w+/)) { // Exemple : sql:dbi
 		var custom = protocol.replace(/:.*/,''); // sql
 		var mode = protocol.replace(/.*:/,''); // dbi
-		line.push( "--"+custom+"mode "+mode ); // --sqlmode dbi
+		line.push( "--" + custom + "mode " + mode ); // --sqlmode dbi
 	}
 	if (protocol=='SSH') {
 		line.push('--remote');
 	}
+	return line;
+}
+
+export function buildHelpCommandLine(plugin,protocol,mode): string {
+	var line = buildBaseCommandLine(plugin,protocol,mode);
+	line.push("--help");
+	return line.join(' ');
+}
+
+export function buildCommandLine(family: Family, agent: Agent): string {
+	var plugin = agent.command.plugin;
+	var protocol = family.protocol.name;
+	var mode = agent.command.name;
+	var line = buildBaseCommandLine(plugin,protocol,mode);
 	// Arguments
 	agent.arguments.forEach(arg => line.push('--'+arg['variable_name']+' '+arg.value));
 	return line.join(' ');

@@ -52,11 +52,29 @@
 		</div>
 		<pre>{{ outputStep4 }}</pre>	
 
-		<div class="mode" 
-				(click)="selectMode(mode)"
-				*ngFor="let mode of selectedPluginModes">{{ mode }}</div>
+		<!--------------------- LIST des modes (par protocole) ------------------>
+		
+		<table>
+			<tr>
+				<th *ngFor="let protocol of selectedPlugin.protocols">{{ protocol ? protocol : '(local)' }}</th>
+			</tr>
+			<tr>
+				<td *ngFor="let protocol of selectedPlugin.protocols">
+						
+					<!--   Je suppose que la liste des modes sont les mêmes pour tous les protocoles   -->
+					
+					<div class="mode" 
+							(click)="selectMode(protocol, mode)"
+							*ngFor="let mode of selectedPluginModes">{{ mode }}</div>
+				
+				</td>
+			</tr>
+		</table>
 
+		<!--------------------- Resultat de la sélection d'un mode ------------------>
+				
 		<div *ngIf="selectedCommand != null" class="command">
+			  <div class="description"><label>Protoco :</label>{{ selectedProtocol }}</div>
 			  <div class="description"><label>Name :</label>{{ selectedCommand.name }}</div>
 			  <div class="description"><label>Description :</label>{{ selectedCommand.description }}</div>
 			  <div class="description"><label>Plugin :</label>{{ selectedCommand.plugin }}</div>

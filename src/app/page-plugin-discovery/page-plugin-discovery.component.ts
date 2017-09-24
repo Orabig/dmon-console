@@ -17,7 +17,8 @@ import { extractPluginList,
 		 extractValidationFromVariable,
 		 isAdvancedVariable,
 		 extractCardinalityFromVariable,
-		 isMandatoryVariable } from '../_helpers/rules';
+		 isMandatoryVariable,
+		 buildHelpCommandLine		 } from '../_helpers/rules';
 
 @Component({
   selector: 'app-page-plugin-discovery',
@@ -39,6 +40,7 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
   selectedPlugin: any;
   selectedPluginModes: string[];
   selectedCommand: any;
+  selectedProtocol: string;
 
   constructor(  private hostService: HostService,
 				private groupService: GroupService,
@@ -264,33 +266,67 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 		}
   }
   
-  // User clicked on a mode
-  selectMode(mode: string) {
-	  this.requestPluginCommand(this.selectedPlugin, mode);
+  // USER clicked on a mode (for a given procotol)
+  selectMode(protocol: string, mode: string) {
+	  this.requestPluginCommand(this.selectedPlugin, protocol, mode);
   }
   
   // USER click >> selectMode() >>
   // Execute    !check --plugin ... --mode ... --help
-  // TODO : Je suppose ici que QUELQUE SOIT LE PROTOCOLE, la liste des modes et leurs options sont identiques.
-  requestPluginCommand(family, mode) {
-	  var cmdline="!check --plugin " + family.plugin + " --mode " + mode + " --help";
+  requestPluginCommand(family, protocol, mode) {
+	  var cmdline=buildHelpCommandLine(family.plugin, protocol, mode );
 	  this.getResultFromSelectedHost(cmdline)
-		.map( data => data['stdout'].join(";;").replace(/.*;;;;Mode:;;/,'').replace(/;;/g,"\n"))
+		.map( data => data['stdout'].join("\n"))
 		.subscribe(
-			help => this.processCommand(cmdline, mode, family.plugin, help),
+			help => this.processPluginModeCommand(cmdline, protocol, mode, family.plugin, help),
 			err  => console.error(err)); // Unsubscribe when we get the message
   }
   
   // Reads the result of '--mode mode --help' to display the command description and variables
-  processCommand(cmdline: string,mode: string, plugin: string, stdout: string) {	  
+  processPluginModeCommand(cmdline: string, protocol: string, mode: string, plugin: string, stdout: string) {	  
 	  // DISPLAY
-	  this.outputStep4 = '';
-	  this.outputStep5 = "***** "+this.selectedPlugin.plugin+"    MODE : "+mode+"  ****\n> " + cmdline + "\n\n" + stdout;
-	  // PROCESS
+	  // this.outputStep4 = '';
+	  this.outputStep5 = "***** "+this.selectedPlugin.plugin+"    MODE : "+mode+"  PROTOCOL : " + protocol + "   ****\n> " + cmdline + "\n\n" + stdout;
+	  
+	  // Extract protocol variables (starting with "\n\n[PROTOCOL] Options:\n") and mode variables (starting with "\n\nMode:\n")
+	  
+	  
+	  var modeVariablesDefinition = stdout.replace(/[^]*\n\nMode:\n/m,'');
+	  var description=modeVariablesDefinition.replace(/^ +|\n\n +--[^]*/mg,'').replace(/[\n ]+/g,' ');
+	  
+	  var variables = this.processPluginModeVariables(mode,plugin,modeVariablesDefinition);
+	  
+	  var protocolMode = protocol.replace(/.*:/,'');
+	  var protocolOptionRE = new RegExp("[^]*\n\n"+protocolMode+" Options:\n", 'mi');
+  	  var protocolVariablesDefinition = stdout.replace(/\n\nMode:\n[^]*/m,'').replace(protocolOptionRE,"\n\n");
+	  
+	  var protocolVariables = this.processPluginModeVariables(mode,plugin,protocolVariablesDefinition);
+	  protocolVariables.forEach( variable => {
+		variable.protocol_variable = true;
+		console.log("protocol variable :",variable);
+		variables.push( variable );
+		}
+	  );
+
+	  this.selectedProtocol = protocol;
+  	  this.selectedCommand = {
+		  name: mode,
+		  description: description,
+		  plugin: plugin,
+		  discovery: mode.match(/^list-/),
+		  cmdLine: '',
+		  defaultAgentName: '',
+		  variables: variables
+		  };
+
+  }
+	  
+  // PROCESS mode variables
+  processPluginModeVariables(mode: string, plugin: string, stdout: string): any[] {	  
 	  var paragraphs = stdout.split(/\n\n +--/); // Arguments are in paragraphs separed with 2 newlines and start with --
-	  var description = paragraphs.shift().replace(/^ +/,'');
+	  paragraphs.shift();
 	  var position=0;
-	  var variables = paragraphs.map(help => {
+	  return paragraphs.map(help => {
 			var nameRE = /^(\S+)/; // ... and start with "(  --)argument ...."
 			var match = nameRE.exec(help);
 			if (!match) {
@@ -303,21 +339,12 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 				return { name: varName, description: varDesc, position: position };
 			}
 		  }).filter(variable => variable!=null);
-	  this.selectedCommand = {
-		  name: mode,
-		  description: description,
-		  plugin: plugin,
-		  discovery: mode.match(/^list-/),
-		  cmdLine: '',
-		  defaultAgentName: '',
-		  variables: variables
-		  };
  }
  
  // USER clicked on "Save" : should init the save of command and variables
  saveSelectedModeToCommand() {
 	 if (this.selectedCommand.id == null) {
-		this.saveCommand( new Command( { // ?????
+		this.saveCommand( new Command( {
 				name: this.selectedCommand.name,
 				description: this.selectedCommand.description,
 				plugin: this.selectedCommand.plugin,
@@ -334,27 +361,30 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 		{
 		var familyId = family.id;
 		var protocol = family.protocol;
-		// JSON trick to do deep copy
-		var fixedCommand = Object.assign({},JSON.parse(JSON.stringify(command)), {family_id: familyId});
-		if (protocol!="SSH") {
-			// Removes the SSH specific variables
-			var localVariables = command.variables.filter(variable=> ! isSSHVariable(variable));
-			fixedCommand = Object.assign(fixedCommand, {variables: localVariables});
-		} else {
-			// Mark the SSH variables as "protocol_variable"
-			fixedCommand.variables.filter(variable=> isSSHVariable(variable))
-				.forEach(variable=> variable.protocol_variable=true);
-		}
-		fixedCommand.variables
-			.forEach(variable=> {
-				variable['advanced_variable']=isAdvancedVariable(variable);
-				variable['validation']=extractValidationFromVariable(variable);
-				variable['mandatory']=isMandatoryVariable(variable);
-				variable['cardinality']=extractCardinalityFromVariable(variable);
-				variable['default']=extractDefaultFromVariable(variable); // This last step may change the description
-			});
-		this.templatesDataService.insertOrUpdateCommandByName(fixedCommand)
-			.subscribe(command => this.selectedCommand.id = command.id); 
+		if (protocol == this.selectedProtocol) { // Je ne fais la sauvegarde que d'un seul protocole à la fois
+			// JSON trick to do deep copy
+			var fixedCommand = Object.assign({},JSON.parse(JSON.stringify(command)), {family_id: familyId});
+			if (protocol!="SSH") {
+				// Removes the SSH specific variables
+				var localVariables = command.variables.filter(variable=> ! isSSHVariable(variable));
+				fixedCommand = Object.assign(fixedCommand, {variables: localVariables});
+			} else {
+				// Mark the SSH variables as "protocol_variable"
+				fixedCommand.variables.filter(variable=> isSSHVariable(variable))
+					.forEach(variable=> variable.protocol_variable=true);
+			}
+			fixedCommand.variables
+				.forEach(variable=> {
+					// Use _helpers/rules.ts to determine variable properties
+					variable['advanced_variable']=isAdvancedVariable(variable);
+					variable['validation']=extractValidationFromVariable(variable);
+					variable['mandatory']=isMandatoryVariable(variable);
+					variable['cardinality']=extractCardinalityFromVariable(variable);
+					variable['default']=extractDefaultFromVariable(variable); // This last step may change the description
+				});
+			this.templatesDataService.insertOrUpdateCommandByName(fixedCommand)
+				.subscribe(command => this.selectedCommand.id = command.id); 
+			}
 		}
 	);
  }
