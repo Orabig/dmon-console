@@ -6,11 +6,14 @@
 	  	<span class="name">{{ composant.name }}</span>
 	</div>
 	<div class="right">
-	  	{{ composant.agents.length }}
+		<div *ngIf="composant.agents.length>0">
 		<span 
 			[class.state-ok]="agent.status==0"
 			[class.state-warning]="agent.status==1"
 			[class.state-critical]="agent.status==2"
-			*ngFor="let agent of composant.agents">&nbsp;</span>
+			*ngFor="let agent of composant.agents">&nbsp;{{ agent.status>2 ? '?' : 'o' }}&nbsp;</span>
+		</div>
+		<div *ngIf="composant.agents.length==0">-
+		</div>
 	</div>
   </div>
