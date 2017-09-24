@@ -274,7 +274,8 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // Build the command line and executes it
   testAgent(agent: Agent) {
 	  this.fillAgentWith( agent, this.values );
-	  this.cmdLine = buildCommandLine(agent, this.editCommandTemplate);
+	  var family = this.families[agent.family_id];
+	  this.cmdLine = buildCommandLine(family, agent);
 	  agent.computedCmdLine = this.cmdLine;
 	  this.getResultFromSelectedHost(this.cmdLine).subscribe(
 		result => this.result=result

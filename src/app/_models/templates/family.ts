@@ -5,7 +5,7 @@ export class Family {
     name: string;
 	description: string;
 	local: boolean;
-	protocol_id: number;
+	protocol: any; // {id:2, name:'SSH'}
 	commands: Command[];
 	
 	constructor(values: Object = {}) {

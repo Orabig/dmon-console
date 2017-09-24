@@ -46,9 +46,8 @@
 			<div class="description" *ngIf="selectedPlugin.protocol!=null"><label>Protocol :</label>{{ selectedPlugin.protocol }}</div>
 			<button class="save" *ngIf="selectedPlugin.families==null" (click)="saveSelectedPluginToFamily()">Save</button>
 			<button class="saved" 
-				disabled 
 				*ngIf="selectedPlugin.families!=null" 
-				(click)="saveSelectedPluginToFamily()">Saved
+				(click)="saveSelectedPluginToFamily()">Update
 				({{ selectedPlugin.families.length }} id<span *ngIf="selectedPlugin.families.length>1">s</span>)</button>
 		</div>
 		<pre>{{ outputStep4 }}</pre>	

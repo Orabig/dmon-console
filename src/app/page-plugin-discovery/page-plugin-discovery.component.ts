@@ -172,30 +172,17 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 
   // USER clicked on Family/SAVE  
   saveSelectedPluginToFamily() {
-	  if (this.selectedPlugin.families == null) {
-		  this.selectedPlugin.families = []; // Will be filled in this.saveFamily()
-		  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
-		  this.selectedPlugin.protocols.forEach(
-			protocol => this.saveFamily( new Family( { 
-				name: this.selectedPlugin.name,
-				description: this.selectedPlugin.description,
-				local: protocol == null,
-				protocol: protocol
-		  } ))
-		  /*if (this.selectedPlugin.local) this.saveFamily( new Family( {  // <<<<<<<<<<< protocols (null/SSH...)
-				name: this.selectedPlugin.name,
-				description: this.selectedPlugin.description,
-				local: true,
-				protocol: null // --- local
-		  } ));
-		  if (this.selectedPlugin.protocol!=null) this.saveFamily( new Family( {
-				name: this.selectedPlugin.name,
-				description: this.selectedPlugin.description,
-				local: false,
-				protocol: this.selectedPlugin.protocol // --- SSH
-		  } ));*/
-		  );
-	  }
+	  this.selectedPlugin.families = []; // Will be filled in this.saveFamily()
+	  // Some plugins are both local AND have a protocol (SSH), so there are 2 families to save
+	  this.selectedPlugin.protocols.forEach(
+		protocol => this.saveFamily( new Family( { 
+			name: this.selectedPlugin.name,
+			description: this.selectedPlugin.description,
+			local: protocol == null,
+			protocol: protocol
+			} )
+			)
+	  );
   }
   
   saveFamily( family: Family ) {
@@ -257,6 +244,12 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 	  stdout=stdout.replace(/\n/g,"");
 	  var modes = modesRE.exec(stdout);
 	  if (modes) {
+		    // Cas particulier : supprimer le protocole "local" si c'est écrit "--sqlmode ... Default : "XXX"
+			if (this.selectedPlugin.protocols.length==1 && this.selectedPlugin.protocols[0]==null) {
+				if (stdout.match(/--\w+mode [^\-]+Default:/)) {
+					this.selectedPlugin.protocols=[];
+				}
+			}
 			modes[1].split(/ +/).forEach( mode => this.selectedPlugin.protocols.push( protocol+":"+mode ) ); // sql:dbi
 		} else {
 			// Modes available n'apparait pas : sans doute une erreur de library

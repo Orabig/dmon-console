@@ -1,5 +1,5 @@
 import { Agent } from '../_models/objects';
-import { Command } from '../_models/templates';
+import { Command, Family } from '../_models/templates';
 
 // ----------------- Discovery rules
 
@@ -39,6 +39,10 @@ export function extractPluginList(stdout: string[]): any[] {
 							protocols.push(null);
 						}
 					}
+					
+					// La description contient parfois des trucs débiles
+					description = description.replace(/\s+You can use following options.*/,"");
+					
 					return { name:name,	plugin:plugin, protocols:protocols, description:description, families:null};
 				}).filter( plugin => plugin != null );
 }
@@ -93,9 +97,22 @@ export function extractDefaultFromVariable(variable: any) {
 
 // ------------- Construction de la cmdLine
 
-export function buildCommandLine(agent: Agent, command: Command): string {
-	console.log("buildCommandLine on ",agent);
-	var line = [ "!check --plugin "+agent.command.plugin+" --mode "+agent.command.name ];
+export function buildCommandLine(family: Family, agent: Agent): string {
+	// command line
+	var line = [ "!check --plugin "+agent.command.plugin ];
+	// Mode
+	line.push( "--mode "+agent.command.name );
+	// Protocol
+	var protocol = family.protocol.name;
+	if (protocol.match(/\w+:\w+/)) { // Exemple : sql:dbi
+		var custom = protocol.replace(/:.*/,''); // sql
+		var mode = protocol.replace(/.*:/,''); // dbi
+		line.push( "--"+custom+"mode "+mode ); // --sqlmode dbi
+	}
+	if (protocol=='SSH') {
+		line.push('--remote');
+	}
+	// Arguments
 	agent.arguments.forEach(arg => line.push('--'+arg['variable_name']+' '+arg.value));
 	return line.join(' ');
 }
