@@ -5,10 +5,10 @@
 
 	<div *ngFor="let composant of composants"
 		class="component"
-		[routerLink]="['/checklist',host.id,composant.id]"
 		dnd-draggable
 		[dragData]="composant">
-		<div><img src="{{ composant.technology.iconUri }}"></div>
+		<div
+		[routerLink]="['/checklist',host.id,composant.id]"><img src="{{ composant.technology.iconUri }}"></div>
 		<div>{{ composant.name }}</div>
 		<button (click)="deleteComponent(application, host, composant)" class="delete-btn">&times;</button>
 	</div>

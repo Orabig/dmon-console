@@ -101,7 +101,7 @@ export class ComposantListComponent implements OnChanges {
   
   createComponent(application: Application, host: Host, technology: Technology, name: string) {
     this.objectsDataService.createNewComponent(host, application, technology, name).map(
-      comp => Object.assign(comp, {tech_iconUri: technology.iconUri}) 
+      comp => Object.assign(comp, {technology: technology}) 
     ).subscribe(
       comp => {
         this.composants.push(comp);
