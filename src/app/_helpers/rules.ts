@@ -105,7 +105,7 @@ export function buildBaseCommandLine(plugin,protocol,mode): string[] {
 	// Mode
 	line.push( "--mode "+mode );
 	// Protocol
-	if (protocol.match(/\w+:\w+/)) { // Exemple : sql:dbi
+	if (protocol!=null && protocol.match(/\w+:\w+/)) { // Exemple : sql:dbi
 		var custom = protocol.replace(/:.*/,''); // sql
 		var mode = protocol.replace(/.*:/,''); // dbi
 		line.push( "--" + custom + "mode " + mode ); // --sqlmode dbi

@@ -6,7 +6,6 @@ import { Host, Service } from '../objects';
 export class Message {
 	
 	public static applyMessage(host: Host, message): void {
-																		console.log("A",message.data['t']);
 		host.last_message_time = new Date();
 		if (message.data['client-id']){
 			host.client = message.data['client-id'];
@@ -15,14 +14,12 @@ export class Message {
 			host.client = undefined;
 			host.alive = false;
 		}
-																		console.log("B");
 		if (message.data['t']=='SERVICE'){
 			Host.addServiceFromMessage(host, message);
 		} else if (message.data['t']=='ACK'){
 			// ASIS : ACK ignored for now
 			// TODO : check ACK
 		} else if (message.data['t']=='RESULT'){
-																		console.log("C");
 			host.last_stdout = message.data['stdout'].join('\n');
 			host.last_stderr = message.data['stderr'].join('\n');
 			if (! message.data['terminated']) {

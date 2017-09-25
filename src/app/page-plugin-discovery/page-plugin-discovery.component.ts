@@ -296,17 +296,19 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
 	  
 	  var variables = this.processPluginModeVariables(mode,plugin,modeVariablesDefinition);
 	  
-	  var protocolMode = protocol.replace(/.*:/,'');
-	  var protocolOptionRE = new RegExp("[^]*\n\n"+protocolMode+" Options:\n", 'mi');
-  	  var protocolVariablesDefinition = stdout.replace(/\n\nMode:\n[^]*/m,'').replace(protocolOptionRE,"\n\n");
-	  
-	  var protocolVariables = this.processPluginModeVariables(mode,plugin,protocolVariablesDefinition);
-	  protocolVariables.forEach( variable => {
-		variable.protocol_variable = true;
-		console.log("protocol variable :",variable);
-		variables.push( variable );
-		}
-	  );
+	  if (protocol!=null) {
+		  var protocolMode = protocol.replace(/.*:/,'');
+		  var protocolOptionRE = new RegExp("[^]*\n\n"+protocolMode+" Options:\n", 'mi');
+		  var protocolVariablesDefinition = stdout.replace(/\n\nMode:\n[^]*/m,'').replace(protocolOptionRE,"\n\n");
+		  
+		  var protocolVariables = this.processPluginModeVariables(mode,plugin,protocolVariablesDefinition);
+		  protocolVariables.forEach( variable => {
+			variable.protocol_variable = true;
+			console.log("protocol variable :",variable);
+			variables.push( variable );
+			}
+		  );
+	  }
 
 	  this.selectedProtocol = protocol;
   	  this.selectedCommand = {
