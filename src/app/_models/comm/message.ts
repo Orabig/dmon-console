@@ -8,10 +8,10 @@ export class Message {
 	public static applyMessage(host: Host, message): void {
 		host.last_message_time = new Date();
 		if (message.data['client-id']){
-			host.client = message.data['client-id'];
+			host.client_id = message.data['client-id'];
 			host.alive = true;
 		} else {
-			host.client = undefined;
+			host.client_id = undefined;
 			host.alive = false;
 		}
 		if (message.data['t']=='SERVICE'){

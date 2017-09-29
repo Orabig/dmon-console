@@ -109,6 +109,7 @@ export class TemplatesDataService {
 
   // INSERT OR UPDATE /families/:name,:local,:protocol
   insertOrUpdateFamilyByNameLocalProtocol(family: Family): Observable<Family> {
+	  var protocol = family['protocol'];
 	  return this.getProtocolId(family['protocol'])
 		.flatMap(protocolId => {
 			  delete family['protocol'];
@@ -126,7 +127,11 @@ export class TemplatesDataService {
 						return this.insertFamily(family);
 					}
 				});
-	});
+	}).map(family => {
+		family['protocol']=protocol;
+		delete family['protocol_id'];
+		return family;
+	});;
   }
 
   // GET /families/:id

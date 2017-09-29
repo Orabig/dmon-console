@@ -41,7 +41,7 @@ export class HttpInterceptorService {
 	// containing the number of affected rows
 	deleteJson(url: string, id: any): Observable<number> {
 		return this.http.delete(environment.dmonApiRoot+url + '/' + id, this.jwt())
-			.map((response: Response) => response.json())
+			.map((response: Response) => {console.log(response);response.json()})
 			.map( data => this.filterError(data))
 			.filter( data => data > 0 );
 	}  
@@ -54,8 +54,8 @@ export class HttpInterceptorService {
       this.router.navigate(['login']);
     }
     var errorMsg = data ? data['detail'] || data['error'] : 'Integrity error'; // TODO : work on api.php to get DB error
-		if (errorMsg) {			
-			// We must throw an error, so that caller may treat these accordingly
+		if (errorMsg) {															// (pour cela, je dois monter un serveur de dev sur gandalf	
+			// We must throw an error, so that caller may treat these accordingly  // car CORS n'autorise pas la lecture du champ X-MySql-Error
 			throw( errorMsg );
 		}
 		return data;

@@ -1,0 +1,8 @@
+<div>
+  <div class="host" 
+	*ngFor="let host of hosts"
+	[class.selected]="selected==host"
+	[class.none-selected]="selected==null"
+	(click)="select(host)"
+	>{{host.name}}</div>
+</div>

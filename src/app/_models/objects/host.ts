@@ -3,7 +3,7 @@ import { Service } from './service';
 export class Host {
   id: string;
   name: string;
-  client: string; // TODO : cette information ne devrait PAS apparaitre ici. L'ID du client Centrifugo ne devrait être connue que du serveur !!!!!
+  client_id: string;
   alive: boolean;
   
   constructor(values: Object = {}) {
@@ -54,6 +54,6 @@ export class Host {
 	  }
 	  host.services[serviceId] = service;
 	  host.services = Object.assign( host.services );
-	  if (host.client==null)host.client=message.data['client-id'];
+	  if (host.client_id==null)host.client_id=message.data['client-id'];
   }
 }

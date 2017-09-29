@@ -22,16 +22,26 @@
 	<!--   END TITLE   -->
 	
 	<div class="editor" *ngIf="selectedAgent">
+											<!--   CARTOUCHE    -->
 		<div class="cartouche">
 			<div class="name">{{ editCommandTemplate.name }}</div>
 			<div class="description">{{ editCommandTemplate.description }}</div>
 		</div>
+		<div class="save"><span class="save-error" *ngIf="editorSaveError">Error</span><button (click)="registerAgent(selectedAgent)">Save</button></div>
+											<!--   NOM DE l'AGENT   (TODO : DESCRIPTION)    -->
 		<div class="agent-name"><input [(ngModel)]="selectedAgent.name" (keyup.enter)="testAgent(selectedAgent)"></div>
+											<!--   CHOIX D'UN REMOTE    -->
+		<div class="remote" *ngIf="selectedHost.client_id==null">
+			<label>This host has no client installed, so you must choose a relay server for this check :
+			<select-relay (hostSelected)="setRelay($event)"></select-relay>
+			</label>
+			
+		</div>
+											<!--   STDOUT / STDERR    -->
 		<div class="control">
-			<div class="save"><span class="save-error" *ngIf="editorSaveError">Error</span><button (click)="registerAgent(selectedAgent)">Save</button></div>
 			<!-- <button (click)="testAgent(selectedAgent)" class="test">Test</button> -->
 			<div class="cmdline">
-				<div class="prompt">{{selectedHost.name}} > </div>
+				<div class="prompt">{{ (relay!=null ? relay : selectedHost).name }} > </div>
 				<div class="line"> {{ cmdLine }} </div>
 			</div>
 			<div class="result" *ngIf="result">

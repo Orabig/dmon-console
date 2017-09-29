@@ -27,9 +27,11 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   private user: User;
   private localHosts: Host[];
   private otherHosts: Host[];
-
+  
+	relay: Host;
   selectedHost: Host;
-  composant: Composant;
+
+	composant: Composant;
   implantation: Implantation;
   
   // The list of all (not empty) families. This array won't change and is the "sum" of the 2 others
@@ -257,27 +259,33 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // Gets the values in the inputs and stores them in the agent object
   fillAgentWith( agent: Agent, values: string[] ) {
 	  agent.arguments = Object.keys(values)
-						.filter(name => values[name] != "")
+						.filter(name => values[name] !== "")
 						.map(name => new Argument({variable_name:name, 'variable_id': this.getVariableId(agent,name), value: values[name]}));
   }
   
   getVariableId(agent: Agent, name: string) {
 	  // La commande de l'agent correspond à this.editCommandTemplate
-	  if (this.editCommandTemplate.id != agent.command.id) {
-			throw("Strange state for editor");
+	  if (this.editCommandTemplate.id !== agent.command.id) {
+			throw(new Error("Strange state for editor"));
 	  }
 	  // Donc on peut connaitre les variables à partir de cette commande
 	  return this.editCommandTemplate.variables
-		.filter(variable => variable.name==name)[0].id;
-  }
+		.filter(variable => variable.name===name)[0].id;
+	}
+	
+	setRelay(relay:Host) {
+		this.relay = relay;
+		this.testAgent(this.selectedAgent);
+	}
   
   // Build the command line and executes it
   testAgent(agent: Agent) {
 	  this.fillAgentWith( agent, this.values );
-	  var family = this.families[agent.family_id];
+	  const family = this.families[agent.family_id];
 	  this.cmdLine = buildCommandLine(family, agent);
 	  agent.computedCmdLine = this.cmdLine;
-	  this.getResultFromSelectedHost(this.cmdLine).subscribe(
+		const targetHost = this.relay==null ? this.selectedHost : this.relay;
+	  this.getResultFrom(targetHost, this.cmdLine).subscribe(
 		result => this.result=result
 	  );
   }
@@ -305,8 +313,9 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 		this.checksByFamilies[agent.family_id] = [];
 	  }
 	  this.checksByFamilies[agent.family_id].push(agent); 
-	  // Enregistrer le check dans le client		  
-	  this.sendCommandService.sendRegister(this.selectedHost,agent.id,agent.computedCmdLine);
+		// Enregistrer le check dans le client	
+		const targetHost = this.relay==null ? this.selectedHost : this.relay;	  
+	  this.sendCommandService.sendRegister(targetHost,agent.id,agent.computedCmdLine);
   }
   
   // ---------------------------------------------------------
@@ -332,15 +341,15 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
   // ------------------------- Utility method (used several times here)
   // TODO : taken from page-plugin-discovery.component : Factorize (and put in centrifugoService or sendCommandService ????)
   
-  getResultFromSelectedHost(cmdline: string): Observable<any> {
+  getResultFrom(host: Host, cmdline: string): Observable<any> {
 	  var cmdId = generateUUID();
 	  // Extract the hostTarget from the known host list (so that we know its client-id)
 	  // TODO : Ici, localHosts peut ne pas être défini : vérifier
-	  var localHostTarget = this.localHosts.filter(host => host.name==this.selectedHost.name);
+	  var localHostTarget = this.localHosts.filter(h => h.name===host.name);
 	  if (localHostTarget.length==0) {
-		  throw("This host is unknown or not local : "+this.selectedHost.name);
+		  throw("This host is unknown or not local : "+host.name);
 	  }
-	  this.selectedHost.client = localHostTarget[0].client;
+	  host.client_id = localHostTarget[0].client_id;
 	  
 	  // On s'enregistre au groupe par défaut (le host appartient à ce groupe)
 	  // TODO : ca serait peut-être mieux de s'enregistrer directement sur les résultats du host seulement	  
@@ -351,7 +360,7 @@ export class PageImplantationComponent implements OnInit, OnDestroy {
 		.take(1);
 	  // On envoie la commande au host
 	  // TODO : il faut peut-être attendre que l'enregistrement au channel soit ok ?
-	  this.sendCommandService.sendCommandLineWithId(this.selectedHost,cmdId,cmdline);  
+	  this.sendCommandService.sendCommandLineWithId(host,cmdId,cmdline);  
 	  return observable;
   }
 }

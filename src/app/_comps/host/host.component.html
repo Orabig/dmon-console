@@ -1,5 +1,5 @@
 <li [class.alive]="host.alive">
-    <span class="badge">{{host.client ? 'Connected' : 'Offline'}}</span>
+    <span class="badge">{{host.client_id ? 'Connected' : 'Offline'}}</span>
 	<span class="host-name">{{host.name}}</span>
 	<span class="services">({{host.services ? objectKeys(host.services).length : '-'}})</span>
 </li>

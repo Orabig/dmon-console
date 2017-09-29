@@ -25,7 +25,7 @@ export class SendCommandService {
   
   // Send an order to a client
   sendOrder(host: Host, args: any): void {
-		if (!host.client) throw ("client-id for host must be known !");
+		if (!host.client_id) throw ("client-id for host must be known !");
 	    var orderLoad = Order.buildOrderLoad('CMD', host, args);
 		this.orderEmitter.emit( orderLoad );
 		this.httpInterceptorService.postJson("send-order.php", orderLoad ).subscribe();
@@ -34,15 +34,15 @@ export class SendCommandService {
   // Send an order to a client with a given ID. The caller wants to read the result of this order
   // using the given ID, so this order is not registered to the orderEmitter observable
   sendOrderWithId(host: Host, id: string, args: any): void {
-		if (!host.client) throw ("client-id for host must be known !");
+		if (!host.client_id) throw ("client-id for host must be known !");
 	    var orderLoad = Order.buildOrderLoadWithId('CMD', host, args, id);
 		this.httpInterceptorService.postJson("send-order.php", orderLoad ).subscribe();
   }
   
   // Uses this.sendOrder() to send a RUN command
-  // TODO : Attention, il faut fournir le client-id dans l'attribut host.client (cf Order).
+  // TODO : Attention, il faut fournir le client-id dans l'attribut host.client_id (cf Order).
   sendCommandLine(host: Host): void {
-	  if (!host.client) throw ("client-id for host must be known !");
+	  if (!host.client_id) throw ("client-id for host must be known !");
 	  this.sendOrder(host, {
 			cmd: 'RUN',
 			args:  {cmdline: host.cmdline}
@@ -50,9 +50,9 @@ export class SendCommandService {
   }
   
   // Uses this.sendOrderWithId() to send a RUN command
-  // TODO : Attention, il faut fournir le client-id dans l'attribut host.client (cf Order).
+  // TODO : Attention, il faut fournir le client-id dans l'attribut host.client_id (cf Order).
   sendCommandLineWithId(host: Host, id: string, cmdline: string): void {
-      if (!host.client) throw ("client-id for host must be known !");
+      if (!host.client_id) throw ("client-id for host must be known !");
 	  this.sendOrderWithId(host, id, {
 			cmd: 'RUN',
 			args:  {cmdline: cmdline}
@@ -60,7 +60,7 @@ export class SendCommandService {
   }
   
   // Uses this.sendOrder() to send a KILL command
-  // TODO : Attention, il faut fournir le client-id dans l'attribut host.client (cf Order).
+  // TODO : Attention, il faut fournir le client-id dans l'attribut host.client_id (cf Order).
   sendKillOrder(host: Host, cmdId: string): void {
 	    this.sendOrder(host, {
 			cmd: 'KILL',

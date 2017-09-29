@@ -25,7 +25,7 @@ export class Order {
 		return Object.assign( {
 			t: type,
 			cmdId: generateUUID(),
-			'client-id': destination.client, 
+			'client-id': destination.client_id, 
 			'host-id': destination.name
 		}, load);
 	}
@@ -34,7 +34,7 @@ export class Order {
 		return Object.assign( {
 			t: type,
 			cmdId: id,
-			'client-id': destination.client, 
+			'client-id': destination.client_id, 
 			'host-id': destination.name
 		}, load);
 	}

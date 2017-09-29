@@ -98,7 +98,7 @@ export class HostService {
 			host.name = onHost;
 			Message.applyMessage( host, message );
 			HostService.messageEmitter.emit(message);
-			host.client = undefined;
+			host.client_id = undefined;
 			hosts.push(host);
 			hosts = Object.assign( hosts );
       // Record the host in the database if it's not known

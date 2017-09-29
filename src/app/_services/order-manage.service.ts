@@ -73,7 +73,7 @@ export class OrderManageService {
 	killOrder(order: Order) {
 		var host =new Host();
 		host.name = order['host-id'];
-		host.client = order['client-id'];
+		host.client_id = order['client-id'];
 		this.sendCommandService.sendKillOrder(host, order.cmdId);
 	}	
 }

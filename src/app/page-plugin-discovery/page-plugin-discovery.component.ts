@@ -345,20 +345,20 @@ export class PagePluginDiscoveryComponent implements OnInit, OnDestroy {
  
  // USER clicked on "Save" : should init the save of command and variables
  saveSelectedModeToCommand() {
-	 if (this.selectedCommand.id == null) {
-		this.saveCommand( new Command( {
-				name: this.selectedCommand.name,
-				description: this.selectedCommand.description,
-				plugin: this.selectedCommand.plugin,
-				cmdLine: this.selectedCommand.cmdLine,
-				DefaultAgentName: this.selectedCommand.DefaultAgentName,
-				variables: this.selectedCommand.variables
-		  } ));
-	  }
+	this.saveCommand( new Command( {
+			name: this.selectedCommand.name,
+			description: this.selectedCommand.description,
+			plugin: this.selectedCommand.plugin,
+			cmdLine: this.selectedCommand.cmdLine,
+			DefaultAgentName: this.selectedCommand.DefaultAgentName,
+			variables: this.selectedCommand.variables
+	  } ));
  }
  
  // Sauve la commande avec ses arguments pour la famille sélectionnée (ou les familles si SSH+local)
  saveCommand(command: Command) {
+	 // console.log(this.selectedPlugin);
+	 // console.log(this.selectedProtocol);
 	this.selectedPlugin.families.forEach(family =>
 		{
 		var familyId = family.id;
